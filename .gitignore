@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual env
+env/
+venv/
+
+# Logs
+*.log
+*.jsonl
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# OCR temp files
+*.png
+*.jpg
