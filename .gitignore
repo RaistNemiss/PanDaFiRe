@@ -11,6 +11,7 @@ venv/
 *.log
 *.jsonl
 logs/
+pandafire_decision_log.json
 
 # OS
 .DS_Store
