@@ -11,7 +11,7 @@ from dateutil import parser
 
 
 
-DIR_PATH = Path(r"C:\Users\afarina\Downloads\PDF")
+DIR_PATH = Path(r"C:\Users\Raist Nemiss\Downloads\Documents")
 POPPLER_PATH = r"C:\TEMP\poppler-26.02.0\Library\bin"
 CONFIG_DOCUMENTS_PATH = Path("types_documents.json")
 REGEX_DATES_CANDIDATS = [
@@ -28,7 +28,7 @@ def extraire_texte_pdf_ocr(pdf_path: Path) -> str:
     texte = ""
 
     for page in pages:
-        texte += pytesseract.image_to_string(page, lang="fra+eng", config="--oem 3--psm 6") # configuration pour une meilleure reconnaissance de texte dans les documents structurés
+        texte += pytesseract.image_to_string(page, lang="fra+eng", config="--oem 1 --psm 6") # configuration pour une meilleure reconnaissance de texte dans les documents structurés
 
     return texte
 
