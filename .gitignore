@@ -19,3 +19,6 @@ Thumbs.db
 # OCR temp files
 *.png
 *.jpg
+
+# pdf file
+*.pdf
