@@ -20,9 +20,11 @@ Outil Python pour analyser et renommer automatiquement des fichiers PDF :
 
 ```bash
 pip install -r requirements.txt
+```
 
 ## Usage
 
 ```bash
 python -m src.main run fichier.pdf
+```
 
