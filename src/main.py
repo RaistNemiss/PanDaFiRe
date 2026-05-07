@@ -6,7 +6,8 @@ from pathlib import Path
 
 from .extraction import extraire_texte, extraire_date_document, extraire_candidats_emetteur
 from .classifier import identifier_par_score
-from .logger import log_decision
+from .logger import log_decision, lire_log
+from .enrich import candidats_fréquents
 
 app = typer.Typer()
 
@@ -43,5 +44,23 @@ def run(
 
     print(f"Le document {pdf_path.name} est identifié comme : {type_doc} - Emetteur du document : {emetteur} - Date extraite : {date_doc}")
 
+@app.command()
+def enrich():
+    candidats = candidats_fréquents(lire_log())
+    
+    typer.echo("Candidats émetteurs fréquents :")
+    for i, (nom, occurrence) in enumerate(candidats, start=1):
+        typer.echo(f"{i}  - {nom} : {occurrence} occurrences")
+
+    choix = typer.prompt("Choisir un candidat (0 pour quitter)", type=int)
+
+    if choix == 0:
+        typer.echo("Aucun candidat sélectionné.")
+        return
+      
+    selected = candidats[choix - 1]
+    print(f"Candidat sélectionné : {selected}")
+     # ajouter_emetteur_json(selected, CONFIG_PATH / "emetteurs.json")
+ 
 if __name__ == "__main__":
     app()

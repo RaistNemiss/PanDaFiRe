@@ -29,3 +29,7 @@ def log_decision(pdf_path: Path,
 
     with open(fichier_log, "a", encoding="utf-8") as f:
         f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
+
+def lire_log(fichier_log=LOG_PATH) -> list[dict]:
+    with open(fichier_log, "r", encoding="utf-8") as f:
+        return [json.loads(line) for line in f]
