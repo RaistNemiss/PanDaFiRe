@@ -1,0 +1,47 @@
+""" PanDaFire - A simple automatic PDF rename script by Raist Nemiss."""
+
+import typer
+import json
+from pathlib import Path
+
+from .extraction import extraire_texte, extraire_date_document, extraire_candidats_emetteur
+from .classifier import identifier_par_score
+from .logger import log_decision
+
+app = typer.Typer()
+
+
+CONFIG_PATH = Path("config")
+
+with open(CONFIG_PATH / "types_documents.json", encoding="utf-8") as f:
+    TYPES = json.load(f)
+
+with open(CONFIG_PATH / "emetteurs.json", encoding="utf-8") as f:
+    EMETTEURS = json.load(f)
+
+
+@app.command()
+def run(
+    pdf_path: Path = typer.Argument(..., help="Chemin vers le fichier PDF à traiter"),
+    debug: bool = typer.Option(False, "--debug", "-d", help="Afficher les scores de classification pour le type de document et l'émetteur"),
+    dry_run: bool = typer.Option(True, "--dry-run", "-n", help="Afficher le nouveau nom sans renommer le fichier")
+    ):
+
+    texte, ocr_utilise = extraire_texte(pdf_path)
+
+    type_doc, type_doc_scores = identifier_par_score(texte, TYPES, retour_score=True)
+    date_doc = extraire_date_document(texte)
+    emetteur, emetteur_scores = identifier_par_score(texte, EMETTEURS, retour_score=True)
+
+    if emetteur == "inconnu": # si l'émetteur n'est pas identifié avec suffisamment de confiance, on extrait des candidats potentiels pour analyse manuelle
+        candidats_emetteur = extraire_candidats_emetteur(texte)
+    else:
+        candidats_emetteur = []
+
+
+    log_decision(pdf_path, type_doc, type_doc_scores, emetteur, emetteur_scores, candidats_emetteur, date_doc, ocr_utilise)
+
+    print(f"Le document {pdf_path.name} est identifié comme : {type_doc} - Emetteur du document : {emetteur} - Date extraite : {date_doc}")
+
+if __name__ == "__main__":
+    app()
