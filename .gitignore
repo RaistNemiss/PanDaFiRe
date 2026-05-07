@@ -10,7 +10,6 @@ venv/
 # Logs
 *.log
 *.jsonl
-logs/
 pandafire_decision_log.json
 
 # OS

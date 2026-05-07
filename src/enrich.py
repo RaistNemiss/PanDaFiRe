@@ -16,3 +16,8 @@ def candidats_fréquents(logs: list[dict]) -> list[tuple[str, int]]:
         (emetteur, occurrence) 
         for emetteur, occurrence in counter.most_common() 
         if occurrence >= seuil_occurrence]
+
+def ajouter_emetteur_json(emetteur_select: str, categorie_emetteur: str, emetteur_json_path: Path):
+      nouveau_emetteur = emetteur_select.strip()
+      print(nouveau_emetteur)
+      

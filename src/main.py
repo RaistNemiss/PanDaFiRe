@@ -7,7 +7,7 @@ from pathlib import Path
 from .extraction import extraire_texte, extraire_date_document, extraire_candidats_emetteur
 from .classifier import identifier_par_score
 from .logger import log_decision, lire_log
-from .enrich import candidats_fréquents
+from .enrich import candidats_fréquents, ajouter_emetteur_json
 
 app = typer.Typer()
 
@@ -48,6 +48,11 @@ def run(
 def enrich():
     candidats = candidats_fréquents(lire_log())
     
+    # Récupère la liste des catégories uniques (sans doublons)
+    categories = [emetteur["category"] for emetteur in EMETTEURS.values()]
+    categorie_emetteurs = list(dict.fromkeys(categories))
+
+    
     typer.echo("Candidats émetteurs fréquents :")
     for i, (nom, occurrence) in enumerate(candidats, start=1):
         typer.echo(f"{i}  - {nom} : {occurrence} occurrences")
@@ -58,9 +63,20 @@ def enrich():
         typer.echo("Aucun candidat sélectionné.")
         return
       
-    selected = candidats[choix - 1]
-    print(f"Candidat sélectionné : {selected}")
-     # ajouter_emetteur_json(selected, CONFIG_PATH / "emetteurs.json")
+    candidat_select = candidats[choix - 1]
+    typer.echo(f"Candidat sélectionné : {candidat_select}")
+    typer.echo(25*"-")
+    for i, (categorie) in enumerate(categorie_emetteurs, start=1):
+        typer.echo(f"{i} - {categorie}")
+    
+    choix = typer.prompt(f"Choisir une catégorie pour le candidat : {candidat_select[0]} (0 pour quitter)", type=int)
+
+    if choix == 0:
+        typer.echo("Aucune catégorie sélectionnée.")
+        return
+    
+    emetteur_select = categorie_emetteurs[choix-1]
+    ajouter_emetteur_json(candidat_select[0], emetteur_select, EMETTEURS)
  
 if __name__ == "__main__":
     app()
