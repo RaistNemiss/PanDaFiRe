@@ -1,6 +1,6 @@
 # PanDaFiRe
 
-Script Python pour :
+Outil Python pour analyser et renommer automatiquement des fichiers PDF :
 - analyser des PDF
 - déterminer le type de document
 - identifier l'émetteur
@@ -9,12 +9,20 @@ Script Python pour :
 
 ## Fonctionnalités
 
-- pdfplumber (PDF texte)
+- Extraction PDF (pdfplumber)
 - OCR (Tesseract)
-- classification par scoring (regex)
-- logs JSON
+- Classification par scoring
+- Identification de l'émetteur
+- Extraction de date
+- CLI avec Typer
 
 ## Installation
 
 ```bash
 pip install -r requirements.txt
+
+## Usage
+
+```bash
+python -m src.main run fichier.pdf
+
