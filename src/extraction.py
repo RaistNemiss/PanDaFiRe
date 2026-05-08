@@ -13,6 +13,7 @@ REGEX_DATES_CANDIDATS = [
     r"\b[a-zA-Z]+\s+\d{1,2},?\s+\d{4}\b",     # April 12, 2024
 ]
 
+
 def extraire_texte(pdf_path: Path) -> tuple[str, bool]:
     
     texte = ""
@@ -73,4 +74,42 @@ def extraire_candidats_emetteur(texte: str) -> list:
         ):
             candidats.append(l)
     
+    return candidats
+
+def extraire_noms_societes(texte: str) -> list:
+    
+    suffixes_sociaux = ["sa", "sas", "sarl", "eurl", "gmbh", "ltd", "inc", "corp", "co", "scoop", "scop", "association", "fondation", "coopérative", "mutuelle"]
+    
+    lignes_texte = texte.split("\n")
+    candidats = []
+
+    
+    for ligne in lignes_texte[:15]:  # on se concentre sur les premières lignes du document
+        mots = ligne.split()
+
+        tampon = []
+
+        for mot in mots:
+            mot_clean = mot.strip(".,()[]-_")
+            
+            if not mot_clean:
+                continue
+
+            # majuscule initiale
+            est_majuscule_initiale = mot_clean[0].isupper()
+
+            # forme juridique
+            est_suffixe_social = mot_clean.lower() in suffixes_sociaux
+
+            if est_majuscule_initiale or est_suffixe_social:
+                tampon.append(mot_clean)
+            else:
+                #fin du groupe
+                if len(tampon) >=2:
+                    candidats.append(" ".join(tampon))
+                tampon = []
+        
+        if len(tampon) >=2:
+            candidats.append(" ".join(tampon))
+
     return candidats

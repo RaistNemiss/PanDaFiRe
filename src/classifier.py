@@ -9,7 +9,7 @@ def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score:
     scores = {cle: 0 for cle in config}
 
     for cle, data in config.items():
-        mots_cle = data["mot_clef"]
+        mots_cle = data["keywords"]
         for mot, valeur_mot in mots_cle.items():
             if len(mot) < 3:  # éviter que les mots trop génère des faux positifs (ex: UBS dans sUBScription)
                 nombre_occurrences = len(re.findall(rf"(!<?w){re.escape(mot)}(!?\w)", texte))

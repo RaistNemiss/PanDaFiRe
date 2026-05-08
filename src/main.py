@@ -8,6 +8,7 @@ from .extraction import (
     extraire_texte,
     extraire_date_document,
     extraire_candidats_emetteur,
+    extraire_noms_societes,
 )
 from .classifier import identifier_par_score
 from .logger import log_decision, lire_log
@@ -51,6 +52,7 @@ def run(
         emetteur == "inconnu"
     ):  # si l'émetteur n'est pas identifié avec suffisamment de confiance, on extrait des candidats potentiels pour analyse manuelle
         candidats_emetteur = extraire_candidats_emetteur(texte)
+        candidats_emetteur += extraire_noms_societes(texte)
     else:
         candidats_emetteur = []
 
@@ -101,7 +103,7 @@ def enrich():
 
     if choix == 0:
         typer.echo("Aucune catégorie sélectionnée.")
-        emmetteur_select = "générique"
+        return
 
     emetteur_select = categorie_emetteurs[choix - 1]
     ajouter_emetteur_json(candidat_select[0], emetteur_select, CONFIG_PATH / "emetteurs.json")

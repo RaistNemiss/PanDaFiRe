@@ -2,7 +2,7 @@
     "ubs": {
         "category": "banque",
         "description": "UBS Switzerland",
-        "mot_clef": {
+        "keywords": {
             "ubs": 5,
             "ubs ag": 5,
             "ubs switzerland ag": 5,
@@ -13,7 +13,7 @@
     "credit_suisse": {
         "category": "banque",
         "description": "Crédit Suisse",
-        "mot_clef": {
+        "keywords": {
             "credit suisse": 5,
             "credit-suisse": 5,
             "cs ag": 4,
@@ -23,7 +23,7 @@
     "postfinance": {
         "category": "banque",
         "description": "PostFinance",
-        "mot_clef": {
+        "keywords": {
             "postfinance": 5,
             "postfinance ag": 5,
             "www.postfinance.ch": 4,
@@ -33,7 +33,7 @@
     "bcv": {
         "category": "banque",
         "description": "Banque Cantonale Vaudoise",
-        "mot_clef": {
+        "keywords": {
             "bcv": 5,
             "banque cantonale vaudoise": 5,
             "bcv sa": 4,
@@ -43,7 +43,7 @@
     "raiffeisen": {
         "category": "banque",
         "description": "Raiffeisen Suisse",
-        "mot_clef": {
+        "keywords": {
             "raiffeisen": 5,
             "raiffeisen schweiz": 5,
             "www.raiffeisen.ch": 4
@@ -52,7 +52,7 @@
     "poste": {
         "category": "service_public",
         "description": "La Poste Suisse",
-        "mot_clef": {
+        "keywords": {
             "la poste": 5,
             "poste suisse": 5,
             "swiss post": 4,
@@ -62,7 +62,7 @@
     "sil": {
         "category": "energie",
         "description": "Services Industriels de Lausanne",
-        "mot_clef": {
+        "keywords": {
             "service industriel de lausanne": 5,
             "services industriels de lausanne": 5,
             "sil lausanne": 5,
@@ -72,7 +72,7 @@
     "swisscom": {
         "category": "telecom",
         "description": "Swisscom",
-        "mot_clef": {
+        "keywords": {
             "swisscom": 5,
             "swisscom ag": 4,
             "www.swisscom.ch": 4
@@ -81,7 +81,7 @@
     "sunrise": {
         "category": "telecom",
         "description": "Sunrise Communications",
-        "mot_clef": {
+        "keywords": {
             "sunrise": 5,
             "sunrise communications": 4,
             "www.sunrise.ch": 4
@@ -90,7 +90,7 @@
     "salt": {
         "category": "telecom",
         "description": "Salt Mobile",
-        "mot_clef": {
+        "keywords": {
             "salt": 5,
             "salt mobile": 4,
             "www.salt.ch": 4
@@ -99,7 +99,7 @@
     "romande_energie": {
         "category": "energie",
         "description": "Romande Energie",
-        "mot_clef": {
+        "keywords": {
             "romande energie": 5,
             "romande énergie": 5,
             "www.romande-energie.ch": 4
@@ -108,7 +108,7 @@
     "axa": {
         "category": "assurance",
         "description": "AXA Assurance",
-        "mot_clef": {
+        "keywords": {
             "axa": 5,
             "axa assurance": 5,
             "axa assurances": 5,
@@ -118,7 +118,7 @@
     "zurich": {
         "category": "assurance",
         "description": "Zurich Insurance",
-        "mot_clef": {
+        "keywords": {
             "zurich": 5,
             "zurich insurance": 5,
             "www.zurich.ch": 4
@@ -127,7 +127,7 @@
     "css": {
         "category": "assurance",
         "description": "CSS Assurance",
-        "mot_clef": {
+        "keywords": {
             "css": 5,
             "css assurance": 5,
             "www.css.ch": 4
@@ -136,7 +136,7 @@
     "helsana": {
         "category": "assurance",
         "description": "Helsana",
-        "mot_clef": {
+        "keywords": {
             "helsana": 5,
             "www.helsana.ch": 4
         }
@@ -144,7 +144,7 @@
     "visana": {
         "category": "assurance",
         "description": "Visana",
-        "mot_clef": {
+        "keywords": {
             "visana": 5,
             "www.visana.ch": 4
         }
@@ -152,7 +152,7 @@
     "groupe_mutuel": {
         "category": "assurance",
         "description": "Groupe Mutuel",
-        "mot_clef": {
+        "keywords": {
             "groupe mutuel": 5,
             "www.groupemutuel.ch": 4
         }
@@ -160,7 +160,7 @@
     "assura": {
         "category": "assurance",
         "description": "Assura",
-        "mot_clef": {
+        "keywords": {
             "assura": 5,
             "www.assura.ch": 4
         }
@@ -168,7 +168,7 @@
     "helvetia": {
         "category": "assurance",
         "description": "Helvetia Assurance",
-        "mot_clef": {
+        "keywords": {
             "helvetia": 5,
             "helvetia assurance": 5,
             "www.helvetia.com": 4
@@ -177,7 +177,7 @@
     "eca": {
         "category": "assurance",
         "description": "ECA",
-        "mot_clef": {
+        "keywords": {
             "ECA": 5,
             "Etablissement Cantonal d'Assurance": 5,
             "www.eca-vaud.com": 4
@@ -186,7 +186,7 @@
     "confederation": {
         "category": "administration",
         "description": "Confédération suisse",
-        "mot_clef": {
+        "keywords": {
             "confederation suisse": 5,
             "confédération suisse": 5,
             "administration federale": 4,
@@ -196,7 +196,7 @@
     "etat_vaud": {
         "category": "administration",
         "description": "Canton de Vaud",
-        "mot_clef": {
+        "keywords": {
             "etat de vaud": 5,
             "canton de vaud": 5,
             "vd.ch": 4
@@ -205,7 +205,7 @@
     "migros": {
         "category": "retail",
         "description": "Migros",
-        "mot_clef": {
+        "keywords": {
             "migros": 5,
             "migros cooperative": 4,
             "www.migros.ch": 4
@@ -214,7 +214,7 @@
     "coop": {
         "category": "retail",
         "description": "Coop",
-        "mot_clef": {
+        "keywords": {
             "coop": 5,
             "www.coop.ch": 4
         }
@@ -222,7 +222,7 @@
     "digitec": {
         "category": "retail",
         "description": "Digitec",
-        "mot_clef": {
+        "keywords": {
             "digitec": 5,
             "www.digitec.ch": 4
         }
@@ -230,7 +230,7 @@
     "galaxus": {
         "category": "retail",
         "description": "Galaxus",
-        "mot_clef": {
+        "keywords": {
             "galaxus": 5,
             "www.galaxus.ch": 4
         }
@@ -238,7 +238,7 @@
     "fust": {
         "category": "retail",
         "description": "Fust",
-        "mot_clef": {
+        "keywords": {
             "fust": 5,
             "www.fust.ch": 4
         }
@@ -246,7 +246,7 @@
     "lidl": {
         "category": "retail",
         "description": "Lidl",
-        "mot_clef": {
+        "keywords": {
             "lidl": 5,
             "lidl schweiz": 4
         }
@@ -254,7 +254,7 @@
     "amazon": {
         "category": "retail",
         "description": "Amazon",
-        "mot_clef": {
+        "keywords": {
             "amazon": 5,
             "amazon eu": 4,
             "amazon services": 4
@@ -263,7 +263,7 @@
     "chuv": {
         "category": "sante",
         "description": "CHUV",
-        "mot_clef": {
+        "keywords": {
             "chuv": 5,
             "centre hospitalier universitaire vaudois": 5,
             "www.chuv.ch": 4
@@ -272,7 +272,7 @@
     "motionlab": {
         "category": "sante",
         "description": "MotionLab",
-        "mot_clef": {
+        "keywords": {
             "motionlab": 5,
             "motion lab": 4
         }
@@ -280,7 +280,7 @@
     "medecin": {
         "category": "sante",
         "description": "Médecin",
-        "mot_clef": {
+        "keywords": {
             "cabinet medical": 4,
             "docteur": 3,
             "dr ": 3
@@ -289,7 +289,7 @@
     "dentiste": {
         "category": "sante",
         "description": "Dentiste",
-        "mot_clef": {
+        "keywords": {
             "cabinet dentaire": 4,
             "dentiste": 4,
             "clinique dentaire": 4
@@ -298,7 +298,7 @@
     "chantier": {
         "category": "batiment",
         "description": "Entreprise de construction / chantier",
-        "mot_clef": {
+        "keywords": {
             "chantier": 4,
             "entreprise de construction": 4,
             "travaux": 3,
@@ -308,8 +308,12 @@
     "cabinet_d_osteopathie_rothenbühler": {
         "description": "Cabinet d osteopathie Rothenbühler",
         "category": "sante",
-        "mot_clef": {
-            "cabinet d osteopathie rothenbühler": 5
+        "keywords": {
+            "cabinet d osteopathie rothenbühler": 5,
+            "cabinetdosteopathierothenbühler": 2,
+            "cabinet": 3,
+            "rothenbühler": 3,
+            "cabinet d osteopathie rothenbuhler": 2
         }
     }
 }

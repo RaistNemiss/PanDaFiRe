@@ -1,7 +1,7 @@
 {
   "facture": {
     "description": "Facture client ou fournisseur",
-    "mot_clef": {
+    "keywords": {
       "facture": 4,
       "facture client": 5,
       "facture fournisseur": 5,
@@ -19,7 +19,7 @@
 
   "extrait": {
     "description": "Relevé ou extrait de compte",
-    "mot_clef": {
+    "keywords": {
       "extrait de compte": 5,
       "relevé de compte": 5,
       "relevé bancaire": 5,
@@ -33,7 +33,7 @@
 
   "bulletin": {
     "description": "Bulletin de salaire",
-    "mot_clef": {
+    "keywords": {
       "bulletin de salaire": 5,
       "bulletin de paie": 5,
       "fiche de paie": 5,
@@ -46,7 +46,7 @@
 
   "devis": {
     "description": "Devis ou proposition commerciale",
-    "mot_clef": {
+    "keywords": {
       "devis": 5,
       "devis estimatif": 4,
       "proposition commerciale": 3,
@@ -61,7 +61,7 @@
 
   "protocole": {
     "description": "Protocole scientifique ou expérimental",
-    "mot_clef": {
+    "keywords": {
       "protocole scientifique": 5,
       "protocole expérimental": 5,
       "protocole de recherche": 5,
@@ -77,7 +77,7 @@
 
   "bon_commande": {
     "description": "Bon ou ordre de commande",
-    "mot_clef": {
+    "keywords": {
       "bon de commande": 5,
       "commande fournisseur": 4,
       "commande client": 4,
@@ -92,7 +92,7 @@
 
   "bon_livraison": {
     "description": "Bon ou preuve de livraison",
-    "mot_clef": {
+    "keywords": {
       "bon de livraison": 5,
       "avis de livraison": 4,
       "preuve de livraison": 4,
@@ -108,7 +108,7 @@
 
   "contrat": {
     "description": "Contrat ou document juridique",
-    "mot_clef": {
+    "keywords": {
       "contrat": 3,
       "contrat de travail": 5,
       "contrat de service": 4,
