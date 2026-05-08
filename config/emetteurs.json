@@ -115,13 +115,25 @@
             "www.axa.ch": 4
         }
     },
-    "zurich": {
+    "zurich_insurance": {
         "category": "assurance",
         "description": "Zurich Insurance",
         "keywords": {
-            "zurich": 5,
+            "zurich": 1,
             "zurich insurance": 5,
-            "www.zurich.ch": 4
+            "www.zurich.ch": 4,
+            "www.zurich.com": 4
+        }
+    },
+    "swiss_life": {
+        "category": "assurance",
+        "description": "SwissLife",
+        "keywords": {
+            "Swiss life sa": 5,
+            "Swiss life": 5,
+            "www.swisslife.ch": 4,
+            "www.swisslife.ch/p-fr": 4,
+            "swisslife": 3
         }
     },
     "css": {
@@ -178,8 +190,9 @@
         "category": "assurance",
         "description": "ECA",
         "keywords": {
-            "ECA": 5,
+            "eca": 5,
             "Etablissement Cantonal d'Assurance": 5,
+            "prévenir secourir assurer": 4,
             "www.eca-vaud.com": 4
         }
     },
@@ -266,7 +279,11 @@
         "keywords": {
             "chuv": 5,
             "centre hospitalier universitaire vaudois": 5,
-            "www.chuv.ch": 4
+            "immunologie et allergie" : 5,
+            "avenue de crousaz, 10" : 5,
+            "www.chuv.ch": 4,
+            "médecine" : 2,
+            "arh" : 2
         }
     },
     "motionlab": {

@@ -1,7 +1,7 @@
 import pdfplumber
 import re
 from datetime import datetime
-from dateutil import parser
+from dateparser import parse as date_parse
 from pathlib import Path
 from .ocr import extraire_texte_ocr
 
@@ -9,8 +9,8 @@ from .ocr import extraire_texte_ocr
 REGEX_DATES_CANDIDATS = [
     r"\b\d{1,2}[./-]\d{1,2}[./-]\d{2,4}\b",   # 12/04/2024, 12-04-24
     r"\b\d{4}[./-]\d{1,2}[./-]\d{1,2}\b",     # 2024-04-12
-    r"\b\d{1,2}\s+[a-zA-Zéû]+\s+\d{4}\b",     # 12 avril 2024
-    r"\b[a-zA-Z]+\s+\d{1,2},?\s+\d{4}\b",     # April 12, 2024
+    r"\b\d{1,2}(?:er|ème)?\s+[A-Za-zÀ-ÿ]+\s+\d{2,4}\b",     # 12 avril 2024, 1er mai 2025
+    r"\b[A-Za-zÀ-ÿ]+\s+\d{1,2}(?:er|ème)?,?\s+\d{2,4}\b",     # April 12, 2024, avril 12, 2024
 ]
 
 
@@ -38,18 +38,23 @@ def extraire_date_document(texte: str) -> str:
     for regex in REGEX_DATES_CANDIDATS:
         candidats.extend(re.findall(regex, texte))
     for candidat in candidats:
-        try:
-            date = parser.parse(
-                candidat,
-                dayfirst=True,   # IMPORTANT en contexte européen
-                fuzzy=True
-            )
-        # Vérification de la plausibilité de la date (ex: pas dans le futur lointain ou trop ancien)
-            if date.year < annee_min or date.year > annee_max:
-                continue
-            return date.strftime("%Y-%m-%d")
-        except (ValueError, TypeError):
+        candidat = re.sub(r"\b(\d{1,2})(?:er|ème|eme)\b", r"\1", candidat, flags=re.IGNORECASE)
+        settings = {
+            "STRICT_PARSING": True,
+        }
+        if re.match(r"^\d{4}[./-]\d{1,2}[./-]\d{1,2}$", candidat):
+            # Format année-mois-jour clair
+            settings["DATE_ORDER"] = "YMD"
+        else:
+            settings["DATE_ORDER"] = "DMY"
+
+        date = date_parse(candidat, settings=settings)
+        if not date:
             continue
+        # Vérification de la plausibilité de la date (ex: pas dans le futur lointain ou trop ancien)
+        if date.year < annee_min or date.year > annee_max:
+            continue
+        return date.strftime("%Y-%m-%d")
     # Aucun parsing réussi → date du jour
     return datetime.today().strftime("%Y-%m-%d")
 

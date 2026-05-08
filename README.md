@@ -28,3 +28,14 @@ pip install -r requirements.txt
 python -m src.main run fichier.pdf
 ```
 
+Traitement d'un dossier entier :
+
+```bash
+python -m src.main run dossier_pdf
+```
+
+Traitement d'un dossier et de ses sous-dossiers :
+
+```bash
+python -m src.main run dossier_pdf --recursive
+```

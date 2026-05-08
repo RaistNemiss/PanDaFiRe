@@ -31,7 +31,7 @@
     }
   },
 
-  "bulletin": {
+  "bulletin_de_salaire": {
     "description": "Bulletin de salaire",
     "keywords": {
       "bulletin de salaire": 5,
@@ -40,7 +40,9 @@
       "payslip": 4,
       "pay slip": 4,
       "salary statement": 4,
-      "salary slip": 4
+      "salary slip": 4,
+      "ressources humaines" : 3,
+      "cotisation salariale" : 3
     }
   },
 
