@@ -1,341 +1,315 @@
 {
-  "ubs": {
-    "category": "banque",
-    "description": "UBS Switzerland",
-    "mot_clef": {
-      "ubs": 5,
-      "ubs ag": 5,
-      "ubs switzerland ag": 5,
-      "www.ubs.com": 4,
-      "bic ubswchzh80a": 5
+    "ubs": {
+        "category": "banque",
+        "description": "UBS Switzerland",
+        "mot_clef": {
+            "ubs": 5,
+            "ubs ag": 5,
+            "ubs switzerland ag": 5,
+            "www.ubs.com": 4,
+            "bic ubswchzh80a": 5
+        }
+    },
+    "credit_suisse": {
+        "category": "banque",
+        "description": "Crédit Suisse",
+        "mot_clef": {
+            "credit suisse": 5,
+            "credit-suisse": 5,
+            "cs ag": 4,
+            "bic cresschzz80a": 5
+        }
+    },
+    "postfinance": {
+        "category": "banque",
+        "description": "PostFinance",
+        "mot_clef": {
+            "postfinance": 5,
+            "postfinance ag": 5,
+            "www.postfinance.ch": 4,
+            "bic pofichbexxx": 5
+        }
+    },
+    "bcv": {
+        "category": "banque",
+        "description": "Banque Cantonale Vaudoise",
+        "mot_clef": {
+            "bcv": 5,
+            "banque cantonale vaudoise": 5,
+            "bcv sa": 4,
+            "www.bcv.ch": 4
+        }
+    },
+    "raiffeisen": {
+        "category": "banque",
+        "description": "Raiffeisen Suisse",
+        "mot_clef": {
+            "raiffeisen": 5,
+            "raiffeisen schweiz": 5,
+            "www.raiffeisen.ch": 4
+        }
+    },
+    "poste": {
+        "category": "service_public",
+        "description": "La Poste Suisse",
+        "mot_clef": {
+            "la poste": 5,
+            "poste suisse": 5,
+            "swiss post": 4,
+            "www.post.ch": 4
+        }
+    },
+    "sil": {
+        "category": "energie",
+        "description": "Services Industriels de Lausanne",
+        "mot_clef": {
+            "service industriel de lausanne": 5,
+            "services industriels de lausanne": 5,
+            "sil lausanne": 5,
+            "www.sil.ch": 4
+        }
+    },
+    "swisscom": {
+        "category": "telecom",
+        "description": "Swisscom",
+        "mot_clef": {
+            "swisscom": 5,
+            "swisscom ag": 4,
+            "www.swisscom.ch": 4
+        }
+    },
+    "sunrise": {
+        "category": "telecom",
+        "description": "Sunrise Communications",
+        "mot_clef": {
+            "sunrise": 5,
+            "sunrise communications": 4,
+            "www.sunrise.ch": 4
+        }
+    },
+    "salt": {
+        "category": "telecom",
+        "description": "Salt Mobile",
+        "mot_clef": {
+            "salt": 5,
+            "salt mobile": 4,
+            "www.salt.ch": 4
+        }
+    },
+    "romande_energie": {
+        "category": "energie",
+        "description": "Romande Energie",
+        "mot_clef": {
+            "romande energie": 5,
+            "romande énergie": 5,
+            "www.romande-energie.ch": 4
+        }
+    },
+    "axa": {
+        "category": "assurance",
+        "description": "AXA Assurance",
+        "mot_clef": {
+            "axa": 5,
+            "axa assurance": 5,
+            "axa assurances": 5,
+            "www.axa.ch": 4
+        }
+    },
+    "zurich": {
+        "category": "assurance",
+        "description": "Zurich Insurance",
+        "mot_clef": {
+            "zurich": 5,
+            "zurich insurance": 5,
+            "www.zurich.ch": 4
+        }
+    },
+    "css": {
+        "category": "assurance",
+        "description": "CSS Assurance",
+        "mot_clef": {
+            "css": 5,
+            "css assurance": 5,
+            "www.css.ch": 4
+        }
+    },
+    "helsana": {
+        "category": "assurance",
+        "description": "Helsana",
+        "mot_clef": {
+            "helsana": 5,
+            "www.helsana.ch": 4
+        }
+    },
+    "visana": {
+        "category": "assurance",
+        "description": "Visana",
+        "mot_clef": {
+            "visana": 5,
+            "www.visana.ch": 4
+        }
+    },
+    "groupe_mutuel": {
+        "category": "assurance",
+        "description": "Groupe Mutuel",
+        "mot_clef": {
+            "groupe mutuel": 5,
+            "www.groupemutuel.ch": 4
+        }
+    },
+    "assura": {
+        "category": "assurance",
+        "description": "Assura",
+        "mot_clef": {
+            "assura": 5,
+            "www.assura.ch": 4
+        }
+    },
+    "helvetia": {
+        "category": "assurance",
+        "description": "Helvetia Assurance",
+        "mot_clef": {
+            "helvetia": 5,
+            "helvetia assurance": 5,
+            "www.helvetia.com": 4
+        }
+    },
+    "eca": {
+        "category": "assurance",
+        "description": "ECA",
+        "mot_clef": {
+            "ECA": 5,
+            "Etablissement Cantonal d'Assurance": 5,
+            "www.eca-vaud.com": 4
+        }
+    },
+    "confederation": {
+        "category": "administration",
+        "description": "Confédération suisse",
+        "mot_clef": {
+            "confederation suisse": 5,
+            "confédération suisse": 5,
+            "administration federale": 4,
+            "admin.ch": 4
+        }
+    },
+    "etat_vaud": {
+        "category": "administration",
+        "description": "Canton de Vaud",
+        "mot_clef": {
+            "etat de vaud": 5,
+            "canton de vaud": 5,
+            "vd.ch": 4
+        }
+    },
+    "migros": {
+        "category": "retail",
+        "description": "Migros",
+        "mot_clef": {
+            "migros": 5,
+            "migros cooperative": 4,
+            "www.migros.ch": 4
+        }
+    },
+    "coop": {
+        "category": "retail",
+        "description": "Coop",
+        "mot_clef": {
+            "coop": 5,
+            "www.coop.ch": 4
+        }
+    },
+    "digitec": {
+        "category": "retail",
+        "description": "Digitec",
+        "mot_clef": {
+            "digitec": 5,
+            "www.digitec.ch": 4
+        }
+    },
+    "galaxus": {
+        "category": "retail",
+        "description": "Galaxus",
+        "mot_clef": {
+            "galaxus": 5,
+            "www.galaxus.ch": 4
+        }
+    },
+    "fust": {
+        "category": "retail",
+        "description": "Fust",
+        "mot_clef": {
+            "fust": 5,
+            "www.fust.ch": 4
+        }
+    },
+    "lidl": {
+        "category": "retail",
+        "description": "Lidl",
+        "mot_clef": {
+            "lidl": 5,
+            "lidl schweiz": 4
+        }
+    },
+    "amazon": {
+        "category": "retail",
+        "description": "Amazon",
+        "mot_clef": {
+            "amazon": 5,
+            "amazon eu": 4,
+            "amazon services": 4
+        }
+    },
+    "chuv": {
+        "category": "sante",
+        "description": "CHUV",
+        "mot_clef": {
+            "chuv": 5,
+            "centre hospitalier universitaire vaudois": 5,
+            "www.chuv.ch": 4
+        }
+    },
+    "motionlab": {
+        "category": "sante",
+        "description": "MotionLab",
+        "mot_clef": {
+            "motionlab": 5,
+            "motion lab": 4
+        }
+    },
+    "medecin": {
+        "category": "sante",
+        "description": "Médecin",
+        "mot_clef": {
+            "cabinet medical": 4,
+            "docteur": 3,
+            "dr ": 3
+        }
+    },
+    "dentiste": {
+        "category": "sante",
+        "description": "Dentiste",
+        "mot_clef": {
+            "cabinet dentaire": 4,
+            "dentiste": 4,
+            "clinique dentaire": 4
+        }
+    },
+    "chantier": {
+        "category": "batiment",
+        "description": "Entreprise de construction / chantier",
+        "mot_clef": {
+            "chantier": 4,
+            "entreprise de construction": 4,
+            "travaux": 3,
+            "devis travaux": 3
+        }
+    },
+    "cabinet_d_osteopathie_rothenbühler": {
+        "description": "Cabinet d osteopathie Rothenbühler",
+        "category": "sante",
+        "mot_clef": {
+            "cabinet d osteopathie rothenbühler": 5
+        }
     }
-  },
-
-  "credit_suisse": {
-    "category": "banque",
-    "description": "Crédit Suisse",
-    "mot_clef": {
-      "credit suisse": 5,
-      "credit-suisse": 5,
-      "cs ag": 4,
-      "bic cresschzz80a": 5
-    }
-  },
-
-  "postfinance": {
-    "category": "banque",
-    "description": "PostFinance",
-    "mot_clef": {
-      "postfinance": 5,
-      "postfinance ag": 5,
-      "www.postfinance.ch": 4,
-      "bic pofichbexxx": 5
-    }
-  },
-
-  "bcv": {
-    "category": "banque",
-    "description": "Banque Cantonale Vaudoise",
-    "mot_clef": {
-      "bcv": 5,
-      "banque cantonale vaudoise": 5,
-      "bcv sa": 4,
-      "www.bcv.ch": 4
-    }
-  },
-
-  "raiffeisen": {
-    "category": "banque",
-    "description": "Raiffeisen Suisse",
-    "mot_clef": {
-      "raiffeisen": 5,
-      "raiffeisen schweiz": 5,
-      "www.raiffeisen.ch": 4
-    }
-  },
-
-  "poste": {
-    "category": "service_public",
-    "description": "La Poste Suisse",
-    "mot_clef": {
-      "la poste": 5,
-      "poste suisse": 5,
-      "swiss post": 4,
-      "www.post.ch": 4
-    }
-  },
-
-  "sil": {
-    "category": "energie",
-    "description": "Services Industriels de Lausanne",
-    "mot_clef": {
-      "service industriel de lausanne": 5,
-      "services industriels de lausanne": 5,
-      "sil lausanne": 5,
-      "www.sil.ch": 4
-    }
-  },
-
-  "swisscom": {
-    "category": "telecom",
-    "description": "Swisscom",
-    "mot_clef": {
-      "swisscom": 5,
-      "swisscom ag": 4,
-      "www.swisscom.ch": 4
-    }
-  },
-
-  "sunrise": {
-    "category": "telecom",
-    "description": "Sunrise Communications",
-    "mot_clef": {
-      "sunrise": 5,
-      "sunrise communications": 4,
-      "www.sunrise.ch": 4
-    }
-  },
-
-  "salt": {
-    "category": "telecom",
-    "description": "Salt Mobile",
-    "mot_clef": {
-      "salt": 5,
-      "salt mobile": 4,
-      "www.salt.ch": 4
-    }
-  },
-
-  "romande_energie": {
-    "category": "energie",
-    "description": "Romande Energie",
-    "mot_clef": {
-      "romande energie": 5,
-      "romande énergie": 5,
-      "www.romande-energie.ch": 4
-    }
-  },
-
-  "axa": {
-    "category": "assurance",
-    "description": "AXA Assurance",
-    "mot_clef": {
-      "axa": 5,
-      "axa assurance": 5,
-      "axa assurances": 5,
-      "www.axa.ch": 4
-    }
-  },
-
-  "zurich": {
-    "category": "assurance",
-    "description": "Zurich Insurance",
-    "mot_clef": {
-      "zurich": 5,
-      "zurich insurance": 5,
-      "www.zurich.ch": 4
-    }
-  },
-
-  "css": {
-    "category": "assurance",
-    "description": "CSS Assurance",
-    "mot_clef": {
-      "css": 5,
-      "css assurance": 5,
-      "www.css.ch": 4
-    }
-  },
-
-  "helsana": {
-    "category": "assurance",
-    "description": "Helsana",
-    "mot_clef": {
-      "helsana": 5,
-      "www.helsana.ch": 4
-    }
-  },
-
-  "visana": {
-    "category": "assurance",
-    "description": "Visana",
-    "mot_clef": {
-      "visana": 5,
-      "www.visana.ch": 4
-    }
-  },
-
-  "groupe_mutuel": {
-    "category": "assurance",
-    "description": "Groupe Mutuel",
-    "mot_clef": {
-      "groupe mutuel": 5,
-      "www.groupemutuel.ch": 4
-    }
-  },
-
-  "assura": {
-    "category": "assurance",
-    "description": "Assura",
-    "mot_clef": {
-      "assura": 5,
-      "www.assura.ch": 4
-    }
-  },
-
-  "helvetia": {
-    "category": "assurance",
-    "description": "Helvetia Assurance",
-    "mot_clef": {
-      "helvetia": 5,
-      "helvetia assurance": 5,
-      "www.helvetia.com": 4
-    }
-  },
-
-  "ECA": {
-    "category": "assurance",
-    "description": "ECA",
-    "mot_clef": {
-      "ECA": 5,
-      "Etablissement Cantonal d'Assurance": 5,
-      "www.eca-vaud.com": 4
-    }
-  },
-
-  "confederation": {
-    "category": "administration",
-    "description": "Confédération suisse",
-    "mot_clef": {
-      "confederation suisse": 5,
-      "confédération suisse": 5,
-      "administration federale": 4,
-      "admin.ch": 4
-    }
-  },
-
-  "etat_vaud": {
-    "category": "administration",
-    "description": "Canton de Vaud",
-    "mot_clef": {
-      "etat de vaud": 5,
-      "canton de vaud": 5,
-      "vd.ch": 4
-    }
-  },
-
-  "migros": {
-    "category": "retail",
-    "description": "Migros",
-    "mot_clef": {
-      "migros": 5,
-      "migros cooperative": 4,
-      "www.migros.ch": 4
-    }
-  },
-
-  "coop": {
-    "category": "retail",
-    "description": "Coop",
-    "mot_clef": {
-      "coop": 5,
-      "www.coop.ch": 4
-    }
-  },
-
-  "digitec": {
-    "category": "retail",
-    "description": "Digitec",
-    "mot_clef": {
-      "digitec": 5,
-      "www.digitec.ch": 4
-    }
-  },
-
-  "galaxus": {
-    "category": "retail",
-    "description": "Galaxus",
-    "mot_clef": {
-      "galaxus": 5,
-      "www.galaxus.ch": 4
-    }
-  },
-
-  "fust": {
-    "category": "retail",
-    "description": "Fust",
-    "mot_clef": {
-      "fust": 5,
-      "www.fust.ch": 4
-    }
-  },
-
-  "lidl": {
-    "category": "retail",
-    "description": "Lidl",
-    "mot_clef": {
-      "lidl": 5,
-      "lidl schweiz": 4
-    }
-  },
-
-  "amazon": {
-    "category": "retail",
-    "description": "Amazon",
-    "mot_clef": {
-      "amazon": 5,
-      "amazon eu": 4,
-      "amazon services": 4
-    }
-  },
-
-  "chuv": {
-    "category": "sante",
-    "description": "CHUV",
-    "mot_clef": {
-      "chuv": 5,
-      "centre hospitalier universitaire vaudois": 5,
-      "www.chuv.ch": 4
-    }
-  },
-
-  "motionlab": {
-    "category": "sante",
-    "description": "MotionLab",
-    "mot_clef": {
-      "motionlab": 5,
-      "motion lab": 4
-    }
-  },
-
-  "medecin": {
-    "category": "sante",
-    "description": "Médecin",
-    "mot_clef": {
-      "cabinet medical": 4,
-      "docteur": 3,
-      "dr ": 3
-    }
-  },
-
-  "dentiste": {
-    "category": "sante",
-    "description": "Dentiste",
-    "mot_clef": {
-      "cabinet dentaire": 4,
-      "dentiste": 4,
-      "clinique dentaire": 4
-    }
-  },
-
-  "chantier": {
-    "category": "batiment",
-    "description": "Entreprise de construction / chantier",
-    "mot_clef": {
-      "chantier": 4,
-      "entreprise de construction": 4,
-      "travaux": 3,
-      "devis travaux": 3
-    }
-  }
 }
