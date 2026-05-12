@@ -7,8 +7,8 @@ from .ocr import extraire_texte_ocr
 
 
 REGEX_DATES_CANDIDATS = [
-    r"\b\d{1,2}[./-]\d{1,2}[./-]\d{2,4}\b",   # 12/04/2024, 12-04-24
-    r"\b\d{4}[./-]\d{1,2}[./-]\d{1,2}\b",     # 2024-04-12
+    r"\b\d{1,2}[./-_]\d{1,2}[./-_]\d{2,4}\b",   # 12/04/2024, 12-04-24
+    r"\b\d{4}[./-_]\d{1,2}[./-_]\d{1,2}\b",     # 2024-04-12
     r"\b\d{1,2}(?:er|ème)?\s+[A-Za-zÀ-ÿ]+\s+\d{2,4}\b",     # 12 avril 2024, 1er mai 2025
     r"\b[A-Za-zÀ-ÿ]+\s+\d{1,2}(?:er|ème)?,?\s+\d{2,4}\b",     # April 12, 2024, avril 12, 2024
 ]
@@ -118,3 +118,14 @@ def extraire_noms_societes(texte: str) -> list:
             candidats.append(" ".join(tampon))
 
     return candidats
+
+def extraire_nom_sans_date(nom: str) -> str:
+
+    nom_minuscule = nom.lower()
+
+    for regex in REGEX_DATES_CANDIDATS:
+        nom_sans_dates = re.sub(regex, "", nom_minuscule, flags=re.IGNORECASE)
+
+    nom_sans_dates = re.sub(r"[._\-\s]+", "_", nom_sans_dates).strip("_ ")
+
+    return nom_sans_dates

@@ -1,48 +1,72 @@
 {
   "facture": {
-    "description": "Facture client ou fournisseur",
+    "description": "Facture client ou fournisseur (incluant spécificités CH/FR/EN)",
     "keywords": {
-      "facture": 4,
+      "facture": 3,
       "facture client": 5,
       "facture fournisseur": 5,
-      "facture d'achat": 4,
-      "facture de vente": 4,
-      "note de facture": 3,
       "invoice": 4,
       "sales invoice": 5,
-      "purchase invoice": 5,
-      "vendor invoice": 4,
       "tax invoice": 5,
-      "vat invoice": 5
+      "net à payer": 5,
+      "total ttc": 4,
+      "somme due": 4,
+      "date d'échéance": 4,
+      "due date": 4,
+      "qr-facture": 5,
+      "bvr": 5,
+      "bulletin de versement": 5,
+      "coordonnées bancaires": 3,
+      "iban": 3,
+      "tva": 3,
+      "vat": 3,
+      "mws": 3
     }
   },
 
   "extrait": {
-    "description": "Relevé ou extrait de compte",
+    "description": "Relevé ou extrait de compte bancaire",
     "keywords": {
       "extrait de compte": 5,
       "relevé de compte": 5,
       "relevé bancaire": 5,
-      "historique de compte": 3,
       "bank statement": 5,
-      "account statement": 4,
-      "account summary": 3,
-      "account activity": 3
+      "account statement": 5,
+      "solde précédent": 5,
+      "nouveau solde": 5,
+      "valeur": 2,
+      "débit": 4,
+      "crédit": 4,
+      "debit": 4,
+      "credit": 4,
+      "closing balance": 5,
+      "avis de débit": 4
     }
   },
 
   "bulletin_de_salaire": {
-    "description": "Bulletin de salaire",
+    "description": "Bulletin de salaire ou décompte de salaire (CH/FR/EN)",
     "keywords": {
       "bulletin de salaire": 5,
       "bulletin de paie": 5,
       "fiche de paie": 5,
-      "payslip": 4,
-      "pay slip": 4,
-      "salary statement": 4,
-      "salary slip": 4,
-      "ressources humaines" : 3,
-      "cotisation salariale" : 3
+      "décompte de salaire": 5,
+      "payslip": 5,
+      "pay slip": 5,
+      "salary statement": 5,
+      "salaire brut": 5,
+      "salaire net": 5,
+      "gross salary": 5,
+      "net salary": 5,
+      "cotisation": 3,
+      "avs": 5,
+      "ai": 5,
+      "apg": 5,
+      "lpp": 5,
+      "assurance chômage": 4,
+      "impôt à la source": 5,
+      "net fiscal": 4,
+      "cumul annuel": 4
     }
   },
 
@@ -50,30 +74,36 @@
     "description": "Devis ou proposition commerciale",
     "keywords": {
       "devis": 5,
-      "devis estimatif": 4,
-      "proposition commerciale": 3,
-      "offre commerciale": 3,
-      "quote": 4,
-      "quotation": 4,
-      "estimate": 3,
-      "cost estimate": 3,
-      "commercial proposal": 3
+      "devis estimatif": 5,
+      "offerte": 4,
+      "offre commerciale": 4,
+      "proposition commerciale": 4,
+      "quote": 5,
+      "quotation": 5,
+      "estimate": 4,
+      "valable jusqu'au": 4,
+      "valid until": 4,
+      "bon pour accord": 5,
+      "signature du client": 3
     }
   },
 
   "protocole": {
-    "description": "Protocole scientifique ou expérimental",
+    "description": "Protocole scientifique ou procédure",
     "keywords": {
       "protocole scientifique": 5,
       "protocole expérimental": 5,
-      "protocole de recherche": 5,
-      "procédure expérimentale": 4,
-      "protocol": 3,
       "scientific protocol": 5,
-      "research protocol": 5,
       "experimental protocol": 5,
-      "laboratory protocol": 4,
-      "procedure": 1
+      "matériel et méthodes": 5,
+      "material and methods": 5,
+      "résultats attendus": 4,
+      "échantillonnage": 4,
+      "sampling": 4,
+      "procedure": 1,
+      "mode opératoire": 4,
+      "standard operating procedure": 5,
+      "sop": 5
     }
   },
 
@@ -81,14 +111,14 @@
     "description": "Bon ou ordre de commande",
     "keywords": {
       "bon de commande": 5,
-      "commande fournisseur": 4,
       "commande client": 4,
       "ordre d'achat": 4,
       "purchase order": 5,
-      "purchase order number": 4,
-      "order confirmation": 3,
-      "order form": 3,
-      "po number": 4
+      "order form": 4,
+      "po number": 5,
+      "numéro de commande": 4,
+      "quantité commandée": 4,
+      "order confirmation": 4
     }
   },
 
@@ -98,34 +128,199 @@
       "bon de livraison": 5,
       "avis de livraison": 4,
       "preuve de livraison": 4,
-      "bordereau de livraison": 4,
-      "bon de transport": 4,
       "delivery note": 5,
-      "delivery slip": 4,
-      "shipping note": 3,
+      "delivery slip": 5,
       "proof of delivery": 5,
-      "air waybill": 4
+      "colis": 3,
+      "poids net": 3,
+      "expéditeur": 3,
+      "destinataire": 3,
+      "tracking number": 4
     }
   },
 
   "contrat": {
     "description": "Contrat ou document juridique",
     "keywords": {
-      "contrat": 3,
+      "contrat": 2,
       "contrat de travail": 5,
-      "contrat de service": 4,
-      "contrat de vente": 4,
-      "contrat de location": 4,
-      "bail": 4,
-      "convention": 2,
-      "accord contractuel": 3,
-      "engagement contractuel": 3,
-      "contract": 3,
+      "contrat de service": 5,
+      "bail": 5,
+      "convention": 3,
+      "contract": 2,
       "agreement": 3,
-      "service agreement": 4,
-      "employment contract": 5,
-      "lease agreement": 4,
-      "terms and conditions": 2
+      "terms and conditions": 4,
+      "conditions générales": 4,
+      "clausier": 4,
+      "entre les soussignés": 4,
+      "fait à": 2,
+      "ci-après dénommé": 4,
+      "hereby agree": 4
+    }
+  },
+
+  "garantie": {
+    "description": "Garantie avec termes FR, EN et DE",
+    "keywords": {
+      "garantie": 3,
+      "garantie légale": 5,
+      "garantie commerciale": 5,
+      "extension de garantie": 5,
+      "certificat de garantie": 5,
+      "attestation de garantie": 5,
+      "warranty": 5,
+      "guarantee": 5,
+      "warranty certificate": 5,
+      "garantiekarte": 5,
+      "gewährleistung": 5,
+      "garantiefrist": 5,
+      "garantieschein": 5,
+      "herstellergarantie": 5,
+      "cautionnement": 4,
+      "sûreté": 3,
+      "collateral": 3,
+      "security deposit": 4
+    }
+  },
+
+  "ordonnance": {
+    "description": "Ordonnance pour médicaments ou soins",
+    "keywords": {
+      "ordonnance": 5,
+      "prescription": 5,
+      "médicament": 4,
+      "posologie": 5,
+      "voie orale": 4,
+      "dosage": 4,
+      "comprimé": 3,
+      "gelule": 3,
+      "rezept": 5,
+      "ärztliches rezept": 5,
+      "medical prescription": 5,
+      "usage externe": 3,
+      "renouvelable": 4,
+      "signature du médecin": 3
+    }
+  },
+
+  "certificat_medical": {
+    "description": "Arrêt de travail ou certificat d'aptitude",
+    "keywords": {
+      "certificat médical": 5,
+      "arrêt de travail": 5,
+      "incapacité de travail": 5,
+      "dispense": 4,
+      "apte": 3,
+      "inapte": 4,
+      "sick leave": 5,
+      "medical certificate": 5,
+      "doctor's note": 4,
+      "arbeitsunfähigkeitsbescheinigung": 5,
+      "ärztliches zeugnis": 5,
+      "krankschreibung": 5,
+      "durée de l'arrêt": 4,
+      "prolongation": 4,
+      "accident de travail": 4
+    }
+  },
+
+  "manuel_technique": {
+    "description": "Manuel d'utilisation ou notice technique",
+    "keywords": {
+      "manuel d'utilisation": 5,
+      "guide d'installation": 5,
+      "notice de montage": 5,
+      "mode d'emploi": 5,
+      "manuel de maintenance": 5,
+      "user manual": 5,
+      "installation guide": 5,
+      "instruction manual": 5,
+      "bedienungsanleitung": 5,
+      "gebrauchsanweisung": 5,
+      "installationsanleitung": 5,
+      "consignes de sécurité": 4,
+      "safety instructions": 4,
+      "sicherheitshinweise": 5,
+      "troubleshooting": 4,
+      "fehlersuche": 4
+    }
+  },
+
+  "fiscal": {
+    "description": "Impôts et taxes (Suisse/France)",
+    "keywords": {
+      "avis de taxation": 5,
+      "déclaration d'impôt": 5,
+      "impôt cantonal et communal": 5,
+      "impôt fédéral direct": 5,
+      "ifd": 5,
+      "acomptes": 3,
+      "taxation définitive": 5,
+      "steuererklärung": 5,
+      "tax return": 5
+    }
+  },
+
+  "assurance": {
+    "description": "Polices et avis d'échéance d'assurance",
+    "keywords": {
+      "police d'assurance": 5,
+      "avis d'échéance": 5,
+      "prime d'assurance": 5,
+      "attestation d'assurance": 5,
+      "versicherung": 4,
+      "insurance policy": 5,
+      "couverture d'assurance": 4,
+      "sinistre": 4
+    }
+  },
+
+  "logement_charges": {
+    "description": "Décomptes de charges et logement",
+    "keywords": {
+      "décompte de chauffage": 5,
+      "frais accessoires": 5,
+      "décompte de charges": 5,
+      "loyer": 3,
+      "état des lieux": 5,
+      "nebenkosten": 5,
+      "heating bill": 4
+    }
+  },
+
+  "administratif_officiel": {
+    "description": "Documents de l'administration ou poursuites",
+    "keywords": {
+      "registre des poursuites": 5,
+      "attestation de résidence": 5,
+      "office de la population": 4,
+      "permis de séjour": 5,
+      "betreibungsauszug": 5,
+      "contrôle des habitants": 4
+    }
+  },
+
+  "attestation": {
+    "description": "Attestations diverses (travail, résidence, assurance)",
+    "keywords": {
+      "attestation": 5,
+      "attestation de travail": 5,
+      "attestation de résidence": 5,
+      "attestation d'assurance": 5,
+      "certificat de travail": 5,
+      "confirmation de domicile": 5,
+      "certificat de résidence": 5,
+      "attestation d'hébergement": 5,
+      "attestation de paiement": 4,
+      "attestation fiscale": 4,
+      "certificate": 3,
+      "confirmation": 3,
+      "bescheinigung": 5,
+      "bestätigung": 5,
+      "wohnbiitzbestätigung": 5,
+      "arbeitszeugnis": 5,
+      "to whom it may concern": 4,
+      "certifie que": 4
     }
   }
 }

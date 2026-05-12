@@ -63,9 +63,14 @@
         "category": "energie",
         "description": "Services Industriels de Lausanne",
         "keywords": {
+            "www.lausane.ch/silcontact" : 5,
+            "www.lausanne.ch/mysil" : 5,
             "service industriel de lausanne": 5,
             "services industriels de lausanne": 5,
             "sil lausanne": 5,
+            "nativa" :3,
+            "service industriels" : 3,
+            "sil": 2,
             "www.sil.ch": 4
         }
     },
@@ -279,11 +284,11 @@
         "keywords": {
             "chuv": 5,
             "centre hospitalier universitaire vaudois": 5,
-            "immunologie et allergie" : 5,
-            "avenue de crousaz, 10" : 5,
+            "immunologie et allergie": 5,
+            "avenue de crousaz, 10": 5,
             "www.chuv.ch": 4,
-            "médecine" : 2,
-            "arh" : 2
+            "médecine": 2,
+            "arh": 2
         }
     },
     "motionlab": {
@@ -331,6 +336,35 @@
             "cabinet": 3,
             "rothenbühler": 3,
             "cabinet d osteopathie rothenbuhler": 2
+        }
+    },
+    "batmaid_s.a": {
+        "description": "Batmaid S.A.",
+        "category": "service",
+        "keywords": {
+            "batmaid s.a.": 5,
+            "batmaids.a": 2,
+            "batmaid": 3
+        }
+    },
+    "lgh_vaud_sàrl": {
+        "description": "Little Green House Vaud Sàrl",
+        "category": "service",
+        "keywords": {
+            "little green house" : 5,
+            "lgh vaud sàrl": 5,
+            "lghvaudsàrl": 2,
+            "lgh": 3,
+            "lgh vaud sarl": 2
+        }
+    },
+    "domicim_sa": {
+        "description": "DOMICIM SA",
+        "category": "service",
+        "keywords": {
+            "domicim sa": 5,
+            "domicimsa": 2,
+            "domicim": 3
         }
     }
 }

@@ -9,6 +9,7 @@ from .extraction import (
     extraire_date_document,
     extraire_candidats_emetteur,
     extraire_noms_societes,
+    extraire_nom_sans_date
 )
 from .classifier import identifier_par_score
 from .logger import log_decision, lire_log
@@ -38,6 +39,7 @@ def process_pdf(pdf_path: Path, dry_run: bool, debug: bool) -> None:
     if emetteur == "inconnu":
         candidats_emetteur = extraire_candidats_emetteur(texte)
         candidats_emetteur += extraire_noms_societes(texte)
+        emetteur = extraire_nom_sans_date(pdf_path.stem)
     else:
         candidats_emetteur = []
 
