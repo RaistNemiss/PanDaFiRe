@@ -216,8 +216,20 @@
         "description": "Canton de Vaud",
         "keywords": {
             "etat de vaud": 5,
-            "canton de vaud": 5,
+            "canton de vaud": 1,
+            "service de la population" : 5,
             "vd.ch": 4
+        }
+    },
+    "assurance_invalidite": {
+        "category": "administration",
+        "description": "Assurance Invalidité Vaud",
+        "keywords": {
+            "prestation AI": 5,
+            "office de l'assurance-invalidité": 5,
+            "office de l'assurance invalidite" : 5,
+            "assurance invalidité" : 3,
+            "www.aivd.ch": 4
         }
     },
     "migros": {
