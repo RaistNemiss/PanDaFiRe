@@ -29,7 +29,7 @@ def ajouter_emetteur_json(
 ) -> None:
 
     nouveau_emetteur = emetteur_select.strip()
-    nouvelle_cle_emetteur = nouveau_emetteur.lower().replace(" ", "_")
+    nouvelle_cle_emetteur = normaliser_nom(nouveau_emetteur).replace(" ", "_")
 
     nouvelle_entree = {
         "description": nouveau_emetteur,
@@ -54,12 +54,18 @@ def ajouter_emetteur_json(
     return
 
 def genener_mot_clef(nom: str) -> dict:
+
     nom_clean = nom.lower().strip()
 
-    keywords = {
-        nom_clean: 5,
-        nom_clean.replace(" ", ""): 4,  # version sans espaces
-    }
+    keywords = {}
+
+    #nom exact
+    keywords[nom_clean] = 5
+
+    #nom sans espaces
+    nom_sans_espaces = nom_clean.replace(" ", "")
+    if nom_sans_espaces != nom_clean:
+        keywords[nom_sans_espaces] = 4
 
     # mots significatifs du nom (ex: "Société Générale" → "Société", "Générale", "SociétéGénérale") pour maximiser les chances de correspondance même si le nom complet n'est pas mentionné dans le document
     mots_significatifs = extraire_mot_significatif(nom)
@@ -76,8 +82,7 @@ def genener_mot_clef(nom: str) -> dict:
 
     # version sans accents (ex: "café" → "cafe") OCR utile
     nom_sans_accents = "".join(
-        c
-        for c in unicodedata.normalize("NFD", nom_clean)
+        c for c in unicodedata.normalize("NFD", nom_clean)
         if unicodedata.category(c) != "Mn"
     )
 
@@ -87,12 +92,7 @@ def genener_mot_clef(nom: str) -> dict:
     # version sans espaces (ex: "Société Générale" → "SociétéGénérale") OCR utile
     nom_sans_espaces = nom_clean.replace(" ", "")
     if nom_sans_espaces != nom_clean:
-        keywords[nom_sans_espaces] = 2
-
-    # première partie du nom (ex: "Société Générale" → "Société") pour les cas où seul le début du nom est mentionné
-    partie_nom = nom_clean.split()
-    if len(partie_nom) > 1:
-        keywords[partie_nom[0]] = 3
+        keywords[nom_sans_espaces] = 4
 
     return keywords
 
@@ -112,3 +112,19 @@ def extraire_mot_significatif(nom: str) -> list[str]:
             candidats.append(mot_clean.lower())
     
     return candidats
+
+def normaliser_nom(nom: str) -> str:
+    nom_normalise = nom.lower().strip()
+    
+    # enlever les accents
+    nom = "".join(
+        c for c in unicodedata.normalize("NFD", nom)
+        if unicodedata.category(c) != "Mn"
+    )
+
+    # enlever les articles et prépositions courants
+    nom_normalise = re.sub(r"\b(de|du|la|des|le|les|et|à|au|aux)\b", "", nom_normalise)
+
+    # nettoyer les espaces
+    nom_normalise = re.sub(r"\s+", " ", nom_normalise).strip()
+    return nom_normalise

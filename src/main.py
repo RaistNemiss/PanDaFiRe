@@ -131,10 +131,13 @@ def enrich():
         typer.echo(f"{i}  - {nom} : {occurrence} occurrences")
 
     choix = typer.prompt("Choisir un candidat (0 pour quitter)", type=int)
-
+    
     if choix == 0:
         typer.echo("Aucun candidat sélectionné.")
         return
+
+    #typer.confirm(f"Vous avez choisi : {candidats[choix - 1][0] if choix > 0 else 'Aucun candidat'}", abort=True)
+
 
     candidat_select = candidats[choix - 1]
     typer.echo(f"Candidat sélectionné : {candidat_select}")
