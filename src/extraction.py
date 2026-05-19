@@ -39,16 +39,15 @@ def extraire_date_document(texte: str) -> str:
         candidats.extend(re.findall(regex, texte))
     for candidat in candidats:
         candidat = re.sub(r"\b(\d{1,2})(?:er|ème|eme)\b", r"\1", candidat, flags=re.IGNORECASE)
-        settings = {
+        parse_settings = {
             "STRICT_PARSING": True,
+            "DATE_ORDER": "DMY",  # par défaut, on suppose jour-mois-année
         }
         if re.match(r"^\d{4}[./-]\d{1,2}[./-]\d{1,2}$", candidat):
             # Format année-mois-jour clair
-            settings["DATE_ORDER"] = "YMD"
-        else:
-            settings["DATE_ORDER"] = "DMY"
+            parse_settings["DATE_ORDER"] = "YMD"
 
-        date = date_parse(candidat, settings=settings)
+        date = date_parse(candidat, settings=parse_settings)
         if not date:
             continue
         # Vérification de la plausibilité de la date (ex: pas dans le futur lointain ou trop ancien)
@@ -121,10 +120,10 @@ def extraire_noms_societes(texte: str) -> list:
 
 def extraire_nom_sans_date(nom: str) -> str:
 
-    nom_minuscule = nom.lower()
+    nom_sans_dates = nom.lower()
 
     for regex in REGEX_DATES_CANDIDATS:
-        nom_sans_dates = re.sub(regex, "", nom_minuscule, flags=re.IGNORECASE)
+        nom_sans_dates = re.sub(regex, "", nom_sans_dates, flags=re.IGNORECASE)
 
     nom_sans_dates = re.sub(r"[._\-\s]+", "_", nom_sans_dates).strip("_ ")
 

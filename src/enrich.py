@@ -53,7 +53,6 @@ def ajouter_emetteur_json(
 
     return
 
-
 def genener_mot_clef(nom: str) -> dict:
     nom_clean = nom.lower().strip()
 
@@ -66,7 +65,7 @@ def genener_mot_clef(nom: str) -> dict:
     mots_significatifs = extraire_mot_significatif(nom)
     for mot in mots_significatifs:
         if mot not in keywords:
-            keywords[mot] = 3
+            keywords[mot] = 1
 
     # enlever "de", "du", "la" → version simplifiée
     nom_simple = re.sub(r"\b(de|du|la|des|le|les)\b", "", nom_clean)
@@ -113,4 +112,3 @@ def extraire_mot_significatif(nom: str) -> list[str]:
             candidats.append(mot_clean.lower())
     
     return candidats
-        
