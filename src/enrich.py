@@ -23,7 +23,6 @@ def candidats_frequents(logs: list[dict]) -> list[tuple[str, int]]:
         if occurrence >= seuil_occurrence
     ]
 
-
 def ajouter_emetteur_json(
     emetteur_select: str, categorie_emetteur: str, emetteur_json_path: Path
 ) -> None:
