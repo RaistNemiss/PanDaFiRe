@@ -1,10 +1,11 @@
 import json
 from pathlib import Path
 from collections import Counter
-import unicodedata
 import re
 
-ARTICLES_PREPOSITIONS = r"\b(de|du|la|des|le|les|et|à|au|aux)\b"
+from .utils import normaliser_text, ARTICLES_PREPOSITIONS, enlever_accents
+
+
 
 def candidats_frequents(logs: list[dict]) -> list[tuple[str, int]]:
 
@@ -29,7 +30,7 @@ def ajouter_emetteur_json(
 ) -> None:
 
     nouveau_emetteur = emetteur_select.strip()
-    nouvelle_clef_emetteur = normaliser_nom(nouveau_emetteur).replace(" ", "_")
+    nouvelle_clef_emetteur = normaliser_text(nouveau_emetteur).replace(" ", "_")
 
     nouvelle_entree = {
         "description": nouveau_emetteur,
@@ -108,23 +109,3 @@ def extraire_mot_significatif(nom: str) -> list[str]:
             candidats.append(mot_clean.lower())
     
     return candidats
-
-def normaliser_nom(nom: str) -> str:
-    nom_normalise = nom.lower().strip()
-    
-
-    # enlever les articles et prépositions courants
-    nom_normalise = re.sub(ARTICLES_PREPOSITIONS, "", nom_normalise)
-    
-    # enlever les accents
-    nom_normalise = enlever_accents(nom)
-
-    # nettoyer les espaces
-    nom_normalise = re.sub(r"\s+", " ", nom_normalise).strip()
-    return nom_normalise
-
-def enlever_accents(nom: str) -> str:
-    return "".join(
-        c for c in unicodedata.normalize("NFD", nom)
-        if unicodedata.category(c) != "Mn"
-    )

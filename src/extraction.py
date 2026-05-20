@@ -120,7 +120,7 @@ def extraire_noms_societes(texte: str) -> list:
 
     return candidats
 
-def extraire_nom_sans_date(nom: str) -> str:
+def extraire_nom_pdf_sans_date(nom: str) -> str:
 
     nom_sans_dates = nom.lower()
 
