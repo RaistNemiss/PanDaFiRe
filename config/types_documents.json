@@ -91,19 +91,22 @@
   "protocole": {
     "description": "Protocole scientifique ou procédure",
     "keywords": {
+      "aliquot": 5,
+      "stock solution": 5,
+      "solution stock": 5,
+      "pipette": 4,
+      "pipettage": 4,
       "protocole scientifique": 5,
       "protocole expérimental": 5,
       "scientific protocol": 5,
       "experimental protocol": 5,
       "matériel et méthodes": 5,
       "material and methods": 5,
-      "résultats attendus": 4,
       "échantillonnage": 4,
       "sampling": 4,
       "procedure": 1,
       "mode opératoire": 4,
-      "standard operating procedure": 5,
-      "sop": 5
+      "standard operating procedure": 5
     }
   },
 

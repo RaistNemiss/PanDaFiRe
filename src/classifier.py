@@ -21,10 +21,10 @@ def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score:
     # Vérifier l'écart avec le 2ème meilleur score
     scores_tries = sorted(scores.items(), key=lambda x:x[1], reverse=True) # transforme le dictionnaire en liste trié selon le nombre d'occurrence.
     gagnant, meilleur_score = scores_tries[0]
-    deuxième_score = scores_tries[1][1] if len(scores_tries) > 1 else 0
+    deuxieme_score = scores_tries[1][1] if len(scores_tries) > 1 else 0
 
     #calcul de l'écart significatif entre les scores
-    ecart = meilleur_score - deuxième_score
+    ecart = meilleur_score - deuxieme_score
     resultat = gagnant if meilleur_score >= seuil and ecart >= 2 else  "inconnu"
     
     if retour_score:

@@ -4,6 +4,7 @@ from collections import Counter
 import unicodedata
 import re
 
+ARTICLES_PREPOSITIONS = r"\b(de|du|la|des|le|les|et|à|au|aux)\b"
 
 def candidats_frequents(logs: list[dict]) -> list[tuple[str, int]]:
 
@@ -28,7 +29,7 @@ def ajouter_emetteur_json(
 ) -> None:
 
     nouveau_emetteur = emetteur_select.strip()
-    nouvelle_cle_emetteur = normaliser_nom(nouveau_emetteur).replace(" ", "_")
+    nouvelle_clef_emetteur = normaliser_nom(nouveau_emetteur).replace(" ", "_")
 
     nouvelle_entree = {
         "description": nouveau_emetteur,
@@ -39,16 +40,16 @@ def ajouter_emetteur_json(
     with open(emetteur_json_path, "r", encoding="utf-8") as f:
         data_emetteurs = json.load(f)
 
-    if nouvelle_cle_emetteur in data_emetteurs:
+    if nouvelle_clef_emetteur in data_emetteurs:
         print(f"⚠️ L'émetteur '{nouveau_emetteur}' existe déjà dans la configuration.")
         return
 
-    data_emetteurs[nouvelle_cle_emetteur] = nouvelle_entree
+    data_emetteurs[nouvelle_clef_emetteur] = nouvelle_entree
 
     with open(emetteur_json_path, "w", encoding="utf-8") as f:
         json.dump(data_emetteurs, f, indent=4, ensure_ascii=False)
 
-    print(f"✅ Émetteur ajouté : {nouvelle_cle_emetteur}")
+    print(f"✅ Émetteur ajouté : {nouvelle_clef_emetteur}")
 
     return
 
@@ -73,18 +74,14 @@ def genener_mot_clef(nom: str) -> dict:
             keywords[mot] = 1
 
     # enlever "de", "du", "la" → version simplifiée
-    nom_simple = re.sub(r"\b(de|du|la|des|le|les)\b", "", nom_clean)
+    nom_simple = re.sub(ARTICLES_PREPOSITIONS, "", nom_clean)
     nom_simple = re.sub(r"\s+", " ", nom_simple).strip()
 
     if nom_simple != nom_clean:
         keywords[nom_simple] = 4
 
     # version sans accents (ex: "café" → "cafe") OCR utile
-    nom_sans_accents = "".join(
-        c for c in unicodedata.normalize("NFD", nom_clean)
-        if unicodedata.category(c) != "Mn"
-    )
-
+    nom_sans_accents = enlever_accents(nom_clean)
     if nom_sans_accents != nom_clean:
         keywords[nom_sans_accents] = 2
 
@@ -115,15 +112,19 @@ def extraire_mot_significatif(nom: str) -> list[str]:
 def normaliser_nom(nom: str) -> str:
     nom_normalise = nom.lower().strip()
     
-    # enlever les accents
-    nom = "".join(
-        c for c in unicodedata.normalize("NFD", nom)
-        if unicodedata.category(c) != "Mn"
-    )
 
     # enlever les articles et prépositions courants
-    nom_normalise = re.sub(r"\b(de|du|la|des|le|les|et|à|au|aux)\b", "", nom_normalise)
+    nom_normalise = re.sub(ARTICLES_PREPOSITIONS, "", nom_normalise)
+    
+    # enlever les accents
+    nom_normalise = enlever_accents(nom)
 
     # nettoyer les espaces
     nom_normalise = re.sub(r"\s+", " ", nom_normalise).strip()
     return nom_normalise
+
+def enlever_accents(nom: str) -> str:
+    return "".join(
+        c for c in unicodedata.normalize("NFD", nom)
+        if unicodedata.category(c) != "Mn"
+    )
