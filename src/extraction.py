@@ -35,8 +35,10 @@ def extraire_date_document(texte: str) -> str:
     candidats = []
     annee_min = datetime.now().year - 5
     annee_max = datetime.now().year + 1
+
     for regex in REGEX_DATES_CANDIDATS:
         candidats.extend(re.findall(regex, texte))
+
     for candidat in candidats:
         candidat = re.sub(r"\b(\d{1,2})(?:er|ème|eme)\b", r"\1", candidat, flags=re.IGNORECASE)
         parse_settings = {
@@ -46,14 +48,14 @@ def extraire_date_document(texte: str) -> str:
         if re.match(r"^\d{4}[./-]\d{1,2}[./-]\d{1,2}$", candidat):
             # Format année-mois-jour clair
             parse_settings["DATE_ORDER"] = "YMD"
-
-        date = date_parse(candidat, settings=parse_settings)
+        date = date_parse(candidat, settings=parse_settings) # type: ignore
         if not date:
             continue
         # Vérification de la plausibilité de la date (ex: pas dans le futur lointain ou trop ancien)
         if date.year < annee_min or date.year > annee_max:
             continue
         return date.strftime("%Y-%m-%d")
+    
     # Aucun parsing réussi → date du jour
     return datetime.today().strftime("%Y-%m-%d")
 

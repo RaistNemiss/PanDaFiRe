@@ -17,8 +17,7 @@ from .enrich import candidats_frequents, ajouter_emetteur_json
 
 app = typer.Typer()
 
-
-CONFIG_PATH = Path("config")
+CONFIG_PATH = Path(__file__).parent.parent / "config"
 
 with open(CONFIG_PATH / "types_documents.json", encoding="utf-8") as f:
     TYPES = json.load(f)
@@ -136,8 +135,7 @@ def enrich():
         typer.echo("Aucun candidat sélectionné.")
         return
 
-    #typer.confirm(f"Vous avez choisi : {candidats[choix - 1][0] if choix > 0 else 'Aucun candidat'}", abort=True)
-
+    typer.confirm(f"Vous avez choisi : {candidats[choix - 1][0] if choix > 0 else 'Aucun candidat'}", abort=True)
 
     candidat_select = candidats[choix - 1]
     typer.echo(f"Candidat sélectionné : {candidat_select}")
@@ -149,6 +147,8 @@ def enrich():
         f"Choisir une catégorie pour le candidat : {candidat_select[0]} (0 pour quitter)",
         type=int,
     )
+
+    typer.confirm(f"Vous avez choisi : {categorie_emetteurs[choix - 1] if choix > 0 else 'Aucune catégorie'}", abort=True)
 
     if choix == 0:
         typer.echo("Aucune catégorie sélectionnée.")

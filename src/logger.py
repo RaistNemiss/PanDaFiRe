@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-LOG_PATH = Path(r"logs\extraction_log.jsonl")
+LOG_PATH = Path(__file__).parent.parent / "logs" / "extraction_log.jsonl"
 
 def log_decision(pdf_path: Path, 
                  type_doc: str, 
