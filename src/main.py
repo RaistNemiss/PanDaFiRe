@@ -39,7 +39,7 @@ def process_pdf(pdf_path: Path, dry_run: bool, debug: bool) -> None:
     # classifcation du text normalisé
     type_doc, type_doc_scores = identifier_par_score(texte_normalise, TYPES, retour_score=True)
     emetteur, emetteur_scores = identifier_par_score(texte_normalise, EMETTEURS, retour_score=True)
-    destinataire = identifier_par_score(texte_normalise, DESTINATAIRES)
+    destinataire = identifier_par_score(texte_normalise, DESTINATAIRES,)
 
     # extraction de la date du document à partir du texte normalisé (plus fiable que le texte brut pour éviter les faux positifs liés à l'OCR)
     date_doc = extraire_date_document(texte_normalise)
@@ -58,7 +58,7 @@ def process_pdf(pdf_path: Path, dry_run: bool, debug: bool) -> None:
         emetteur,
         emetteur_scores,
         candidats_emetteur,
-        destinataire, #type: ignore
+        destinataire, 
         date_doc,
         ocr_utilise,
         entete_brut_preview=texte_brut[:200],  # on limite à 200 caractères pour éviter les logs trop lourds
