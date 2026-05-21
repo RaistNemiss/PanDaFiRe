@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from utils import ajouter_nouvelle_entree_json
 
 
 def chargement_destinataires(path: Path, debug: bool = False) -> dict:
@@ -10,35 +11,32 @@ def chargement_destinataires(path: Path, debug: bool = False) -> dict:
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-def init_destinataire_config(path: Path, debug: bool = False) -> None:
+def init_destinataire_config(destinataire_json_path: Path, debug: bool = False) -> None:
     
     # créer le dossier si nécessaire
-    path.parent.mkdir(parents=True, exist_ok=True)
+    destinataire_json_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if path.exists():
+    if destinataire_json_path.exists():
         return
 
-    if debug:
-        print("⚠️ destinataire.json introuvable → création du fichier")
+    print("⚠️ destinataire.json introuvable → création du fichier")
 
-    data = {
-        "homer_simpson": {
-            "description": "Homer Simpson",
-            "keywords": {
+    coordonees = {
                 "homer simpson": 5,
-                "simpson": 4,
-                "homer": 3,
-                "homer.simpson@email.com": 6,
-                "+41 77 777 77 77": 6                
-            }
-        }
-    }
+                "+41 77 777 77 77": 6,
+                "simpson": 1,
+                "homer": 1,
+                "homer.simpson@email.com": 6
+                }
+    
+    ajouter_nouvelle_entree_json(
+        description="Homer Simpson",
+        keywords=coordonees,
+        json_path=destinataire_json_path,
+    )
 
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-
-    if debug:
-        print("✅ destinataire.json créé avec un utilisateur exemple")
+    print("✅ destinataire.json créé avec un utilisateur exemple")
+    return
 
 def determiner_initiales_destinataire(nom: str) -> str:
     

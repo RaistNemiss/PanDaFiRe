@@ -11,6 +11,7 @@ def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score:
     # normalisation du texte pour faciliter la recherche
     texte = texte.lower()
     texte = re.sub(r"\s+", " ", texte)
+    _seuil_ecart = 2
 
     # création d'une compréhension de dictionnaire pour compter les occurrences de mots-clés pour chaque type de document
     scores = {cle: 0 for cle in config}
@@ -32,7 +33,7 @@ def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score:
 
     #calcul de l'écart significatif entre les scores
     ecart = meilleur_score - deuxieme_score
-    resultat = gagnant if meilleur_score >= seuil and ecart >= 2 else  "inconnu"
+    resultat = gagnant if meilleur_score >= seuil and ecart >= _seuil_ecart else  "inconnu"
     
     if retour_score:
         return resultat, scores

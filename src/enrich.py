@@ -3,7 +3,7 @@ from pathlib import Path
 from collections import Counter
 import re
 
-from .utils import normaliser_text, ARTICLES_PREPOSITIONS, enlever_accents
+from .utils import normaliser_text,ajouter_nouvelle_entree_json ,ARTICLES_PREPOSITIONS, enlever_accents
 
 
 
@@ -25,34 +25,18 @@ def candidats_frequents(logs: list[dict]) -> list[tuple[str, int]]:
         if occurrence >= seuil_occurrence
     ]
 
-def ajouter_emetteur_json(
-    emetteur_select: str, categorie_emetteur: str, emetteur_json_path: Path
-) -> None:
+def ajouter_emetteur_json(emetteur_select: str, categorie_emetteur: str, emetteur_json_path: Path) -> None:
 
     nouveau_emetteur = emetteur_select.strip()
-    nouvelle_clef_emetteur = normaliser_text(nouveau_emetteur).replace(" ", "_")
+    
+    emetteur_est_ajoute = ajouter_nouvelle_entree_json(description=nouveau_emetteur, keywords=genener_mot_clef(nouveau_emetteur), json_path=emetteur_json_path, nom_categorie=categorie_emetteur)
 
-    nouvelle_entree = {
-        "description": nouveau_emetteur,
-        "category": categorie_emetteur,
-        "keywords": genener_mot_clef(nouveau_emetteur)
-    }
-
-    with open(emetteur_json_path, "r", encoding="utf-8") as f:
-        data_emetteurs = json.load(f)
-
-    if nouvelle_clef_emetteur in data_emetteurs:
+    if emetteur_est_ajoute:
+        print(f"✅ Émetteur ajouté : {nouveau_emetteur}")       
+        return
+    else:
         print(f"⚠️ L'émetteur '{nouveau_emetteur}' existe déjà dans la configuration.")
         return
-
-    data_emetteurs[nouvelle_clef_emetteur] = nouvelle_entree
-
-    with open(emetteur_json_path, "w", encoding="utf-8") as f:
-        json.dump(data_emetteurs, f, indent=4, ensure_ascii=False)
-
-    print(f"✅ Émetteur ajouté : {nouvelle_clef_emetteur}")
-
-    return
 
 def genener_mot_clef(nom: str) -> dict:
 
