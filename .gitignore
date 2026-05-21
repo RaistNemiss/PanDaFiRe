@@ -7,10 +7,14 @@ __pycache__/
 env/
 venv/
 
+# config
+destinataire.json
+
 # Logs
 *.log
 *.jsonl
 pandafire_decision_log.json
+extraction_log.jsonl
 
 # OS
 .DS_Store

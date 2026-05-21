@@ -17,7 +17,8 @@
             "credit suisse": 5,
             "credit-suisse": 5,
             "cs ag": 4,
-            "bic cresschzz80a": 5
+            "bic cresschzz80a": 5,
+            "direct.credit-suisse.com": 4
         }
     },
     "postfinance": {
@@ -287,7 +288,11 @@
         "keywords": {
             "amazon": 5,
             "amazon eu": 4,
-            "amazon services": 4
+            "amazon services": 4,
+            "amazon.com": 4,
+            "amazon.de": 4,
+            "amazone.fr": 4,
+            "amazon.co.uk": 4
         }
     },
     "chuv": {
@@ -308,7 +313,8 @@
         "description": "MotionLab",
         "keywords": {
             "motionlab": 5,
-            "motion lab": 4
+            "motion lab": 4,
+            "www.motion-lab.ch": 5
         }
     },
     "medecin": {
@@ -377,6 +383,15 @@
             "domicim sa": 5,
             "domicimsa": 2,
             "domicim": 3
+        }
+    },
+    "cogestim_sa": {
+        "description": "Cogestim SA",
+        "category": "service",
+        "keywords": {
+            "cogestim": 5,
+            "cogestimsa": 2,
+            "cogestim.ch": 5
         }
     }
 }
