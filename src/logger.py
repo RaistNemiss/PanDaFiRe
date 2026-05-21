@@ -13,14 +13,14 @@ def ini_log_file():
     if not LOG_PATH.exists():
         LOG_PATH.touch()
 
-
 def log_decision(
     pdf_path: Path,
     type_doc: str,
-    type_doc_scores: dict,
+    type_doc_scores: dict[str, int],
     emetteur: str,
-    emetteur_scores: dict,
+    emetteur_scores: dict[str, int],
     emetteur_candidats: list,
+    destinataire: str,
     date_doc: str,
     ocr_used: bool,
     fichier_log=LOG_PATH,
@@ -36,6 +36,7 @@ def log_decision(
         "emetteur": emetteur,
         "emetteur_scores": emetteur_scores,
         "emetteur_candidats": emetteur_candidats,
+        "destinataire": destinataire,
         "date_document": date_doc,
         "ocr_utilisé": ocr_used,
         "entete_brut_preview": entete_brut_preview,
@@ -47,7 +48,6 @@ def log_decision(
 
     with open(fichier_log, "a", encoding="utf-8") as f:
         f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
-
 
 def lire_log(fichier_log=LOG_PATH) -> list[dict]:
     with open(fichier_log, "r", encoding="utf-8") as f:

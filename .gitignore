@@ -7,6 +7,9 @@ __pycache__/
 env/
 venv/
 
+# config
+destinataire.json
+
 # Logs
 *.log
 *.jsonl

@@ -130,4 +130,3 @@ def extraire_nom_pdf_sans_date(nom: str) -> str:
     nom_sans_dates = re.sub(r"[._\-\s]+", "_", nom_sans_dates).strip("_ ")
 
     return nom_sans_dates
-

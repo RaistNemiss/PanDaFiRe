@@ -1,6 +1,6 @@
 import re
 
-def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score: bool = False):
+def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score: bool = False) -> str | tuple[str, dict[str, int]]:
     # normalisation du texte pour faciliter la recherche
     texte = texte.lower()
     texte = re.sub(r"\s+", " ", texte)
@@ -30,4 +30,4 @@ def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score:
     if retour_score:
         return resultat, scores
     
-    return gagnant
+    return resultat

@@ -15,16 +15,18 @@ from .classifier import identifier_par_score
 from .logger import log_decision, lire_log
 from .enrich import candidats_frequents, ajouter_emetteur_json
 from .utils import normaliser_text
+from .config_path import CONFIG_PATH, DESTINATAIRE_PATH, TYPES_PATH, EMETTEURS_PATH
+from .destinataire import chargement_destinataires
 app = typer.Typer()
 
-CONFIG_PATH = Path(__file__).parent.parent / "config"
 
-with open(CONFIG_PATH / "types_documents.json", encoding="utf-8") as f:
+with open(TYPES_PATH, encoding="utf-8") as f:
     TYPES = json.load(f)
 
-with open(CONFIG_PATH / "emetteurs.json", encoding="utf-8") as f:
+with open(EMETTEURS_PATH, encoding="utf-8") as f:
     EMETTEURS = json.load(f)
 
+DESTINATAIRES = chargement_destinataires(DESTINATAIRE_PATH)
 
 def process_pdf(pdf_path: Path, dry_run: bool, debug: bool) -> None:
     
@@ -37,6 +39,7 @@ def process_pdf(pdf_path: Path, dry_run: bool, debug: bool) -> None:
     # classifcation du text normalisé
     type_doc, type_doc_scores = identifier_par_score(texte_normalise, TYPES, retour_score=True)
     emetteur, emetteur_scores = identifier_par_score(texte_normalise, EMETTEURS, retour_score=True)
+    destinataire = identifier_par_score(texte_normalise, DESTINATAIRES)
 
     # extraction de la date du document à partir du texte normalisé (plus fiable que le texte brut pour éviter les faux positifs liés à l'OCR)
     date_doc = extraire_date_document(texte_normalise)
@@ -55,6 +58,7 @@ def process_pdf(pdf_path: Path, dry_run: bool, debug: bool) -> None:
         emetteur,
         emetteur_scores,
         candidats_emetteur,
+        destinataire, #type: ignore
         date_doc,
         ocr_utilise,
         entete_brut_preview=texte_brut[:200],  # on limite à 200 caractères pour éviter les logs trop lourds
@@ -80,7 +84,6 @@ def process_pdf(pdf_path: Path, dry_run: bool, debug: bool) -> None:
 
     pdf_path.rename(destination)
     typer.echo(f"Le PDF {pdf_path.name} a été renommé en : {destination.name}")
-
 
 @app.command()
 def run(
