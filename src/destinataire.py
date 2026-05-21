@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from utils import ajouter_nouvelle_entree_json
+from .utils import ajouter_nouvelle_entree_json
 
 
 def chargement_destinataires(path: Path, debug: bool = False) -> dict:

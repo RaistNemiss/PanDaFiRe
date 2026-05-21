@@ -7,22 +7,22 @@ ARTICLES_PREPOSITIONS = r"\b(de|du|la|des|le|les|et|à|au|aux)\b"
 
 
 def normaliser_text(text: str, stopwords: bool = True) -> str:
-    text_nomalise = text.lower().strip()
     
+    text_normalise = text.lower().strip()
 
     # enlever les articles et prépositions courants
     if stopwords:
-        text_nomalise = re.sub(ARTICLES_PREPOSITIONS, "", text_nomalise)
+        text_normalise = re.sub(ARTICLES_PREPOSITIONS, "", text_normalise)
     
     # enlever les caractères spéciaux
-    text_nomalise = re.sub(r"[^\w\s]", " ", text_nomalise)
+    text_normalise = re.sub(r"[^\w\s]", " ", text_normalise)
 
     # enlever les accents
-    text_nomalise = enlever_accents(text)
+    text_normalise = enlever_accents(text_normalise)
 
     # nettoyer les espaces
-    text_nomalise = re.sub(r"\s+", " ", text_nomalise).strip()
-    return text_nomalise
+    text_normalise = re.sub(r"\s+", " ", text_normalise).strip()
+    return text_normalise
 
 def enlever_accents(text: str) -> str:
     return "".join(
@@ -36,12 +36,13 @@ def ajouter_nouvelle_entree_json(description: str, keywords: dict[str, int], jso
     nouvelle_clef = normaliser_text(description).replace(" ", "_")
     nouvelle_entree = {
         "description": description_clean,
+        "category" : nom_categorie,
         "keywords": keywords
     }
 
-    # ajoute la clé category s'il y a une catégorie de spécifié
-    if nom_categorie:
-        nouvelle_entree["category"] = nom_categorie
+    # supprime la clé category s'il n'y a aucune catégorie de spécifiée
+    if not nom_categorie:
+        del nouvelle_entree["category"]
 
     # essaie de lire à l'intérieur du fichier json et gère l'erreur en cas de json vide.
     try:

@@ -64,13 +64,13 @@
         "category": "energie",
         "description": "Services Industriels de Lausanne",
         "keywords": {
-            "www.lausane.ch/silcontact" : 5,
-            "www.lausanne.ch/mysil" : 5,
+            "www.lausane.ch/silcontact": 5,
+            "www.lausanne.ch/mysil": 5,
             "service industriel de lausanne": 5,
             "services industriels de lausanne": 5,
             "sil lausanne": 5,
-            "nativa" :3,
-            "service industriels" : 3,
+            "nativa": 3,
+            "service industriels": 3,
             "sil": 2,
             "www.sil.ch": 4
         }
@@ -218,7 +218,7 @@
         "keywords": {
             "etat de vaud": 5,
             "canton de vaud": 1,
-            "service de la population" : 5,
+            "service de la population": 5,
             "vd.ch": 4
         }
     },
@@ -228,8 +228,8 @@
         "keywords": {
             "prestation AI": 5,
             "office de l'assurance-invalidité": 5,
-            "office de l'assurance invalidite" : 5,
-            "assurance invalidité" : 3,
+            "office de l'assurance invalidite": 5,
+            "assurance invalidité": 3,
             "www.aivd.ch": 4
         }
     },
@@ -369,7 +369,7 @@
         "description": "Little Green House Vaud Sàrl",
         "category": "service",
         "keywords": {
-            "little green house" : 5,
+            "little green house": 5,
             "lgh vaud sàrl": 5,
             "lghvaudsàrl": 2,
             "lgh": 3,
@@ -392,6 +392,19 @@
             "cogestim": 5,
             "cogestimsa": 2,
             "cogestim.ch": 5
+        }
+    },
+    "garderie_p_tits_loups": {
+        "description": "Garderie Les P’tits Loups",
+        "category": "service",
+        "keywords": {
+            "garderie les p’tits loups": 5,
+            "garderielesp’titsloups": 4,
+            "garderie": 1,
+            "les": 1,
+            "p’tits": 1,
+            "loups": 1,
+            "garderie p’tits loups": 4
         }
     }
 }
