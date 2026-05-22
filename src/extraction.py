@@ -3,6 +3,8 @@ import re
 from datetime import datetime
 from dateparser import parse as date_parse
 from pathlib import Path
+
+from .utils import ARTICLES_PREPOSITIONS
 from .ocr import extraire_texte_ocr
 
 
@@ -118,7 +120,7 @@ def extraire_noms_societes(texte: str) -> list:
         # 🇫🇷 France (bonus, fréquent dans les docs)
         "sas", "eurl", "scop", "scoop",
         # Autres
-        "fondation", "association", "coopérative", "mutuelle",
+        "fondation", "association", "coopérative", "mutuelle", "socété", "holding",
         ]
     
     lignes_texte = texte.split("\n")
@@ -156,8 +158,17 @@ def extraire_noms_societes(texte: str) -> list:
                 tampon = []  # réinitialise le tampon pour chercher une nouvelle société
 
             elif est_majuscule_initiale:
-                # mot majuscule isolé → potentiel candidat (ex: "UBS")
-                candidats.append(mot_clean)
+                # Accumule dans le tampon les mots avec majuscule initiale (pour capter "Café Lausanne SA")
+
+                tampon.append(mot_clean)
+                # Mot isolé : seulement les acronymes ALL CAPS (UBS, IKEA, BCV…)
+                if (mot_clean.isupper() 
+                    and len(mot_clean) >= 3 
+                    and mot_clean.lower() not in ARTICLES_PREPOSITIONS):
+                    candidats.append(mot_clean)
+                # sinon : on accumule dans le tampon pour une éventuelle société à suivre
+                else:
+                    tampon.append(mot_clean)
 
             else:
                 # mot en miniscule, réinitialise le tampon pour qu'il disparaisse du candidat potentiel

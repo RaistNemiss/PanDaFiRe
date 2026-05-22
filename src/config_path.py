@@ -19,4 +19,4 @@ TYPES_PATH = CONFIG_PATH / "types_documents.json"
 EMETTEURS_PATH = CONFIG_PATH / "emetteurs.json"
 LOG_PATH = BASE_PATH / "logs" / "extraction_log.jsonl"
 POPPLER_PATH = Path(os.getenv("POPPLER_PATH", r"C:\TEMP\poppler-26.02.0\Library\bin"))
-TESSERACT_PATH = Path(os.getenv("TESSERACT_PATH", r"C:\TEMP\tesseract-5.3.1\tesseract.exe"))
+TESSERACT_PATH = Path(os.getenv("TESSERACT_PATH", r"C:\TEMP\Tesseract-OCR\tesseract.exe"))

@@ -32,10 +32,9 @@ def ajouter_emetteur_json(emetteur_select: str, categorie_emetteur: str, emetteu
 
     if emetteur_est_ajoute:
         print(f"✅ Émetteur ajouté : {nouveau_emetteur}")       
-        return
     else:
         print(f"⚠️ L'émetteur '{nouveau_emetteur}' existe déjà dans la configuration.")
-        return
+
 
 def generer_mot_clef(nom: str) -> dict:
 

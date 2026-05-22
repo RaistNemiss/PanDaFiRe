@@ -5,7 +5,7 @@ from pathlib import Path
 from .config_path import POPPLER_PATH, TESSERACT_PATH
 
 if TESSERACT_PATH.exists():
-    pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
+    pytesseract.pytesseract.tesseract_cmd = str(TESSERACT_PATH)
 
 def extraire_texte_ocr(pdf_path: Path) -> str:
 
