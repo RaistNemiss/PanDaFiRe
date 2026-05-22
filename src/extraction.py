@@ -20,7 +20,8 @@ def extraire_texte(pdf_path: Path) -> tuple[str, bool]:
     
     with pdfplumber.open(pdf_path) as pdf:   
         for page in pdf.pages:
-            texte += page.extract_text() or ""
+            # extract_text() peut retourner None si la page est vide ou si le texte ne peut pas être extrait (ex: PDF scanné)
+            texte = "\n".join(page.extract_text() or "" for page in pdf.pages)
     
     if texte.strip():
         return texte, False  # texte extrait avec succès, pas besoin d'OCR
@@ -64,27 +65,61 @@ def extraire_candidats_emetteur(texte: str) -> list:
     lignes_texte = texte.split("\n")
     candidats = []
 
-    mot_exclus = ("facture", "reçu", "date", "montant", "rappel", "référence", "concerne", "client", "invoice", "Madame", "Monsieur",)
+    mot_exclus = ("facture", "reçu", "date", "montant", "rappel",
+                   "référence", "concerne", "client", "invoice",
+                     "Madame", "Monsieur", "objet",)
     
     for ligne in lignes_texte[:15]:  # on se concentre sur les premières lignes du document
         l = ligne.strip() #supprime les espaces et/ou tabulation en début et fin de ligne
         l_minusucule = l.lower()
     
+        # Filtre 1 : mots exclus
         if any(exclu in l_minusucule for exclu in mot_exclus):
             continue
+        
+        # Filtre 2 : longueur raisonnable
+        if not (6 <= len(l) <= 60):
+            continue
 
-        if (
-            6 <= len(l) <= 60 # longueur raisonnable pour un nom d'émetteur
-            and any(c.isupper() for c in l)  # au moins une majuscule   
-            and not re.search(r"\d", l)  # pas de chiffres
-        ):
-            candidats.append(l)
+        # Filtre 3 : pas de chiffres
+        if re.search(r"\d", l):
+            continue
+
+        # Filtre 4 : ratio de mots avec majuscules
+        mots = [m.strip(".,") for m in l.split() if len(m) > 1] # exclut les lettres isolées.
+
+        if not mots:
+            continue
+
+        #somme du nombre de mots avec une majuscule initiale
+        nombre_mots_majuscule = sum(1 for m in mots if m[0].isupper())
+        #calcul du ratio de mots avec majuscules par rapport au nombre total de mots
+        ratio_majuscule = nombre_mots_majuscule / len(mots)
+
+        if ratio_majuscule < 0.5:
+            continue
+
+        candidats.append(l)
     
     return candidats
 
 def extraire_noms_societes(texte: str) -> list:
     
-    suffixes_sociaux = ["sa", "sas", "sarl", "eurl", "gmbh", "ltd", "inc", "corp", "co", "scoop", "scop", "association", "fondation", "coopérative", "mutuelle"]
+    # Liste des formes juridiques reconnues (en minuscules pour comparaison)
+    suffixes_sociaux = [
+        # 🇨🇭 Allemand
+        "ag", "gmbh", "eg",
+        # 🇨🇭 Français
+        "sa", "sàrl", "sarl",
+        # 🇨🇭 Italien
+        "spa", "srl",
+        # 🇬🇧🇺🇸 Anglais
+        "ltd", "llc", "inc", "corp", "plc", "co",
+        # 🇫🇷 France (bonus, fréquent dans les docs)
+        "sas", "eurl", "scop", "scoop",
+        # Autres
+        "fondation", "association", "coopérative", "mutuelle",
+        ]
     
     lignes_texte = texte.split("\n")
     candidats = []
@@ -93,7 +128,7 @@ def extraire_noms_societes(texte: str) -> list:
     for ligne in lignes_texte[:15]:  # on se concentre sur les premières lignes du document
         mots = ligne.split()
 
-        tampon = []
+        tampon = [] # accumule les mots majuscules consécutifs
 
         for mot in mots:
             mot_clean = mot.strip(".,()[]-_")
@@ -101,22 +136,32 @@ def extraire_noms_societes(texte: str) -> list:
             if not mot_clean:
                 continue
 
-            # majuscule initiale
+            # Le mot commence-t-il par une majuscule ?
             est_majuscule_initiale = mot_clean[0].isupper()
 
-            # forme juridique
-            est_suffixe_social = mot_clean.lower() in suffixes_sociaux
-
-            if est_majuscule_initiale or est_suffixe_social:
-                tampon.append(mot_clean)
+            # Le mot est-il une forme juridique ?
+            if len(mot_clean) <= 2 and mot_clean.isupper():
+                # "SA", "AG" → seulement si en majuscules
+                est_suffixe_social = mot_clean.lower() in suffixes_sociaux
+            elif len(mot_clean) > 2:
+                # "SARL", "GmbH", "Ltd" → peu importe la casse
+                est_suffixe_social = mot_clean.lower() in suffixes_sociaux
             else:
-                #fin du groupe
-                if len(tampon) >=2:
-                    candidats.append(" ".join(tampon))
+                est_suffixe_social = False
+
+            if est_suffixe_social and tampon:
+                # ✅ On a trouvé une société : "Tampon + suffixe"
+                nom_societe = " ".join(tampon) + " " + mot_clean
+                candidats.append(nom_societe)
+                tampon = []  # réinitialise le tampon pour chercher une nouvelle société
+
+            elif est_majuscule_initiale:
+                # mot majuscule isolé → potentiel candidat (ex: "UBS")
+                candidats.append(mot_clean)
+
+            else:
+                # mot en miniscule, réinitialise le tampon pour qu'il disparaisse du candidat potentiel
                 tampon = []
-        
-        if len(tampon) >=2:
-            candidats.append(" ".join(tampon))
 
     return candidats
 

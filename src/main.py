@@ -1,173 +1,94 @@
 """PanDaFire - A simple automatic PDF rename script by Raist Nemiss."""
 
 import typer
-import json
 from pathlib import Path
 
-from .extraction import (
-    extraire_texte,
-    extraire_date_document,
-    extraire_candidats_emetteur,
-    extraire_noms_societes,
-    extraire_nom_pdf_sans_date
-)
-from .classifier import identifier_par_score
-from .logger import log_decision, lire_log
+from .config import charger_config
+from .processor import process_pdf
+from .logger import lire_log
 from .enrich import candidats_frequents, ajouter_emetteur_json
-from .utils import normaliser_text
-from .config_path import CONFIG_PATH, DESTINATAIRE_PATH, TYPES_PATH, EMETTEURS_PATH
-from .destinataire import chargement_destinataires, determiner_initiales_destinataire
+from .config_path import CONFIG_PATH
+
 app = typer.Typer()
 
+# Chargement unique au démarrage
+TYPES, EMETTEURS, DESTINATAIRES = charger_config()
 
-with open(TYPES_PATH, encoding="utf-8") as f:
-    TYPES = json.load(f)
-
-with open(EMETTEURS_PATH, encoding="utf-8") as f:
-    EMETTEURS = json.load(f)
-
-DESTINATAIRES = chargement_destinataires(DESTINATAIRE_PATH)
-
-def process_pdf(pdf_path: Path, dry_run: bool, debug: bool) -> None:
-    
-    # Extraction du texte du PDF (avec OCR si nécessaire)
-    texte_brut, ocr_utilise = extraire_texte(pdf_path)
-
-    # Normalisation du texte pour améliorer la classification (ex: suppression des accents, mise en minuscule, suppression des espaces superflus)
-    texte_normalise = normaliser_text(texte_brut)
-
-    # classifcation du text normalisé
-    type_doc, type_doc_scores = identifier_par_score(texte_normalise, TYPES, retour_score=True)
-    emetteur, emetteur_scores = identifier_par_score(texte_normalise, EMETTEURS, retour_score=True)
-    nom_destinataire = identifier_par_score(texte_normalise, DESTINATAIRES)
-
-    # extraction de la date du document à partir du texte brut.
-    date_doc = extraire_date_document(texte_brut)
-
-    if emetteur == "inconnu":
-        candidats_emetteur = extraire_candidats_emetteur(texte_brut)
-        candidats_emetteur += extraire_noms_societes(texte_brut)
-        emetteur = extraire_nom_pdf_sans_date(pdf_path.stem)
-    else:
-        candidats_emetteur = []
-
-    log_decision(
-        pdf_path,
-        type_doc,
-        type_doc_scores,
-        emetteur,
-        emetteur_scores,
-        candidats_emetteur,
-        nom_destinataire,
-        date_doc,
-        ocr_utilise,
-        entete_brut_preview=texte_brut[:200],  # on limite à 200 caractères pour éviter les logs trop lourds
-        entete_normalise_preview=texte_normalise[:200],  # on limite à 200 caractères pour éviter les logs trop lourds
-    )
-
-    if debug:
-        typer.echo(f"[DEBUG] {pdf_path.name} scores type: {type_doc_scores}")
-        typer.echo(f"[DEBUG] {pdf_path.name} scores émetteur: {emetteur_scores}")
-
-    if dry_run:
-        typer.echo(
-            f"[Dry-Run] Le document {pdf_path.name} est identifié comme : {type_doc} - Émetteur : {emetteur} - Destinataire : {determiner_initiales_destinataire(nom_destinataire)} - Date : {date_doc}"
-        )
-        return
-
-    nouveau_nom_pdf = Path(f"{date_doc}_{type_doc}_{emetteur}.pdf")
-    destination = pdf_path.parent / nouveau_nom_pdf
-
-    if destination.exists():
-        typer.echo(f"[Skip] Le fichier existe déjà : {destination.name}")
-        return
-
-    pdf_path.rename(destination)
-    typer.echo(f"Le PDF {pdf_path.name} a été renommé en : {destination.name}")
 
 @app.command()
 def run(
-    path: Path = typer.Argument(
-        ..., help="Chemin vers le fichier PDF ou le dossier à traiter"
-    ),
-    debug: bool = typer.Option(
-        False,
-        "--debug",
-        "-d",
-        help="Afficher les scores de classification pour le type de document et l'émetteur",
-    ),
-    dry_run: bool = typer.Option(
-        False,
-        "--dry-run",
-        "-n",
-        help="Afficher le nouveau nom sans renommer le fichier",
-    ),
-    recursive: bool = typer.Option(
-        False,
-        "--recursive",
-        "-r",
-        help="Traiter aussi les sous-dossiers si le chemin donné est un dossier",
-    ),
+    path: Path = typer.Argument(..., help="Fichier PDF ou dossier à traiter"),
+    debug: bool = typer.Option(False, "--debug", "-d", help="Afficher les scores"),
+    dry_run: bool = typer.Option(False, "--dry-run", "-n", help="Simuler sans renommer"),
+    recursive: bool = typer.Option(False, "--recursive", "-r", help="Inclure les sous-dossiers"),
 ):
     if path.is_dir():
-        pdf_files = sorted(path.rglob("*.pdf")) if recursive else sorted(path.glob("*.pdf"))
-        if not pdf_files:
-            typer.echo(f"Aucun fichier PDF trouvé dans le dossier : {path}")
-            raise typer.Exit(code=1)
+        _traiter_dossier(path, recursive, dry_run, debug)
+    elif path.is_file():
+        _traiter_fichier(path, dry_run, debug)
+    else:
+        typer.echo(f"❌ Chemin introuvable : {path}")
+        raise typer.Exit(code=1)
 
-        typer.echo(f"Traitement de {len(pdf_files)} fichier(s) dans le dossier : {path}")
-        for pdf_file in pdf_files:
-            process_pdf(pdf_file, dry_run=dry_run, debug=debug)
-        return
 
-    if path.is_file():
-        process_pdf(path, dry_run=dry_run, debug=debug)
-        return
+def _traiter_dossier(path: Path, recursive: bool, dry_run: bool, debug: bool) -> None:
+    pdf_files = sorted(path.rglob("*.pdf") if recursive else path.glob("*.pdf"))
 
-    typer.echo(f"Le chemin spécifié n'existe pas : {path}")
-    raise typer.Exit(code=1)
+    if not pdf_files:
+        typer.echo(f"Aucun PDF trouvé dans : {path}")
+        raise typer.Exit(code=1)
+
+    typer.echo(f"📂 {len(pdf_files)} fichier(s) trouvé(s) dans : {path}")
+    for pdf_file in pdf_files:
+        try:
+            _traiter_fichier(pdf_file, dry_run, debug)
+        except Exception as e:
+            typer.echo(f"❌ Erreur sur {pdf_file.name} : {e}")
+
+
+def _traiter_fichier(path: Path, dry_run: bool, debug: bool) -> None:
+    process_pdf(path, TYPES, EMETTEURS, DESTINATAIRES, dry_run, debug)
 
 
 @app.command()
 def enrich():
+    """Enrichir la liste des émetteurs depuis les candidats fréquents."""
     candidats = candidats_frequents(lire_log())
 
-    # Récupère la liste des catégories uniques (sans doublons)
-    categories = [emetteur["category"] for emetteur in EMETTEURS.values()]
-    categorie_emetteurs = list(dict.fromkeys(categories))
+    categories = list(dict.fromkeys(
+        emetteur["category"] for emetteur in EMETTEURS.values()
+    ))
 
-    typer.echo("Candidats émetteurs fréquents :")
+    typer.echo("📋 Candidats émetteurs fréquents :")
     for i, (nom, occurrence) in enumerate(candidats, start=1):
-        typer.echo(f"{i}  - {nom} : {occurrence} occurrences")
+        typer.echo(f"  {i} - {nom} : {occurrence} occurrence(s)")
 
     choix = typer.prompt("Choisir un candidat (0 pour quitter)", type=int)
-    
     if choix == 0:
-        typer.echo("Aucun candidat sélectionné.")
+        typer.echo("Annulé.")
         return
-
-    typer.confirm(f"Vous avez choisi : {candidats[choix - 1][0] if choix > 0 else 'Aucun candidat'}", abort=True)
 
     candidat_select = candidats[choix - 1]
-    typer.echo(f"Candidat sélectionné : {candidat_select}")
-    typer.echo(25 * "-")
-    for i, (categorie) in enumerate(categorie_emetteurs, start=1):
-        typer.echo(f"{i} - {categorie}")
+    typer.confirm(f"Confirmer : {candidat_select[0]} ?", abort=True)
 
-    choix = typer.prompt(
-        f"Choisir une catégorie pour le candidat : {candidat_select[0]} (0 pour quitter)",
-        type=int,
+    typer.echo("\n📋 Catégories disponibles :")
+    for i, cat in enumerate(categories, start=1):
+        typer.echo(f"  {i} - {cat}")
+
+    choix_cat = typer.prompt(
+        f"Catégorie pour '{candidat_select[0]}' (0 pour quitter)", type=int
     )
-
-    typer.confirm(f"Vous avez choisi : {categorie_emetteurs[choix - 1] if choix > 0 else 'Aucune catégorie'}", abort=True)
-
-    if choix == 0:
-        typer.echo("Aucune catégorie sélectionnée.")
+    if choix_cat == 0:
+        typer.echo("Annulé.")
         return
 
-    emetteur_select = categorie_emetteurs[choix - 1]
-    ajouter_emetteur_json(candidat_select[0], emetteur_select, CONFIG_PATH / "emetteurs.json")
+    categorie_select = categories[choix_cat - 1]
+    typer.confirm(f"Confirmer la catégorie : {categorie_select} ?", abort=True)
+
+    ajouter_emetteur_json(candidat_select[0], categorie_select, CONFIG_PATH / "emetteurs.json")
+    typer.echo(f"✅ '{candidat_select[0]}' ajouté dans '{categorie_select}'")
 
 
 if __name__ == "__main__":
     app()
+    

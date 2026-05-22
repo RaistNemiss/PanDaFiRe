@@ -28,7 +28,7 @@ def ajouter_emetteur_json(emetteur_select: str, categorie_emetteur: str, emetteu
 
     nouveau_emetteur = emetteur_select.strip()
     
-    emetteur_est_ajoute = ajouter_nouvelle_entree_json(description=nouveau_emetteur, keywords=genener_mot_clef(nouveau_emetteur), json_path=emetteur_json_path, nom_categorie=categorie_emetteur)
+    emetteur_est_ajoute = ajouter_nouvelle_entree_json(description=nouveau_emetteur, keywords=generer_mot_clef(nouveau_emetteur), json_path=emetteur_json_path, nom_categorie=categorie_emetteur)
 
     if emetteur_est_ajoute:
         print(f"✅ Émetteur ajouté : {nouveau_emetteur}")       
@@ -37,7 +37,7 @@ def ajouter_emetteur_json(emetteur_select: str, categorie_emetteur: str, emetteu
         print(f"⚠️ L'émetteur '{nouveau_emetteur}' existe déjà dans la configuration.")
         return
 
-def genener_mot_clef(nom: str) -> dict:
+def generer_mot_clef(nom: str) -> dict:
 
     nom_clean = nom.lower().strip()
 
@@ -68,11 +68,6 @@ def genener_mot_clef(nom: str) -> dict:
     nom_sans_accents = enlever_accents(nom_clean)
     if nom_sans_accents != nom_clean:
         keywords[nom_sans_accents] = 2
-
-    # version sans espaces (ex: "Société Générale" → "SociétéGénérale") OCR utile
-    nom_sans_espaces = nom_clean.replace(" ", "")
-    if nom_sans_espaces != nom_clean:
-        keywords[nom_sans_espaces] = 4
 
     return keywords
 

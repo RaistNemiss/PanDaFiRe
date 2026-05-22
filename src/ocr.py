@@ -2,12 +2,23 @@ import pytesseract
 from pdf2image import convert_from_path
 from pathlib import Path
 
-POPPLER_PATH = Path(r"C:\TEMP\poppler-26.02.0\Library\bin")
-TESSERACT_PATH = Path(r"C:\TEMP\Tesseract-OCR\tesseract.exe")
-pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
+from .config_path import POPPLER_PATH, TESSERACT_PATH
+
+if TESSERACT_PATH.exists():
+    pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
 
 def extraire_texte_ocr(pdf_path: Path) -> str:
-    pages = convert_from_path(pdf_path, dpi=300, poppler_path=POPPLER_PATH)  # conversion du PDF en images à haute résolution pour une meilleure reconnaissance OCR
+
+    poppler = POPPLER_PATH if POPPLER_PATH.exists() else None # None = utiliser le PATH système
+
+    # conversion du PDF en images à haute résolution pour une meilleure reconnaissance OCR
+    pages = convert_from_path(
+        pdf_path, 
+        dpi=300, 
+        first_page=1,
+        last_page=2,  # on se limite aux premières pages pour l'OCR (gain de temps)
+        poppler_path=poppler  # type: ignore
+        )  
     
     texte = ""
     for page in pages:

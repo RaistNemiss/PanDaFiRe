@@ -38,7 +38,7 @@ def log_decision(
         "emetteur_candidats": emetteur_candidats,
         "destinataire": destinataire,
         "date_document": date_doc,
-        "ocr_utilisé": ocr_used,
+        "ocr_utilise": ocr_used,
         "entete_brut_preview": entete_brut_preview,
         "entete_normalise_preview": entete_normalise_preview,
     }
@@ -50,5 +50,7 @@ def log_decision(
         f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
 
 def lire_log(fichier_log=LOG_PATH) -> list[dict]:
+    if not Path(fichier_log).exists():
+        return []
     with open(fichier_log, "r", encoding="utf-8") as f:
-        return [json.loads(line) for line in f]
+        return [json.loads(line) for line in f if line.strip()]

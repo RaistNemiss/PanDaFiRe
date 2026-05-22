@@ -10,15 +10,15 @@ def normaliser_text(text: str, stopwords: bool = True) -> str:
     
     text_normalise = text.lower().strip()
 
+    # enlever les accents
+    text_normalise = enlever_accents(text_normalise)
+    
     # enlever les articles et prépositions courants
     if stopwords:
         text_normalise = re.sub(ARTICLES_PREPOSITIONS, "", text_normalise)
     
     # enlever les caractères spéciaux
     text_normalise = re.sub(r"[^\w\s]", " ", text_normalise)
-
-    # enlever les accents
-    text_normalise = enlever_accents(text_normalise)
 
     # nettoyer les espaces
     text_normalise = re.sub(r"\s+", " ", text_normalise).strip()
@@ -33,7 +33,7 @@ def enlever_accents(text: str) -> str:
 def ajouter_nouvelle_entree_json(description: str, keywords: dict[str, int], json_path: Path, nom_categorie: str = "") -> bool:
 
     description_clean = description.strip()
-    nouvelle_clef = normaliser_text(description).replace(" ", "_")
+    nouvelle_clef = re.sub(r"\s+", "_", normaliser_text(description)).strip("_")
     nouvelle_entree = {
         "description": description_clean,
         "category" : nom_categorie,

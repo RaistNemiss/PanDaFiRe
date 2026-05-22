@@ -6,15 +6,15 @@ from .utils import normaliser_text
 @overload
 def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score: Literal[False] = False, seuil_confiance: int = 3) -> str: ...
 @overload
-def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score: Literal[True] = True, seuil_confiance: int = 3) -> tuple[str, dict[str, int]]: ...
+def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score: Literal[True], seuil_confiance: int = 3) -> tuple[str, dict[str, int]]: ...
 
 def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score: bool = False, seuil_confiance: int = 3) -> str | tuple[str, dict[str, int]] :
-    # normalisation du texte pour faciliter la recherche
-    texte = texte.lower()
-    texte = re.sub(r"\s+", " ", texte)
-
     # création d'une compréhension de dictionnaire pour compter les occurrences de mots-clés pour chaque type de document
     scores = {cle: 0 for cle in config}
+    
+    # vérification de la présence de la configuration pour éviter les erreurs d'exécution si elle est absente ou mal formée
+    if not config:
+        return ("inconnu", {}) if retour_score else "inconnu")
 
     for cle, data in config.items():
         mots_cle = data["keywords"]
@@ -37,6 +37,6 @@ def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score:
     resultat = gagnant if meilleur_score >= seuil and ecart >= seuil_confiance else  "inconnu"
     
     if retour_score:
-        return resultat, scores
+        return (resultat, scores)
     
     return resultat
