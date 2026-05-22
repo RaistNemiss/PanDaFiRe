@@ -41,7 +41,7 @@ def process_pdf(pdf_path: Path, dry_run: bool, debug: bool) -> None:
     emetteur, emetteur_scores = identifier_par_score(texte_normalise, EMETTEURS, retour_score=True)
     nom_destinataire = identifier_par_score(texte_normalise, DESTINATAIRES)
 
-    # extraction de la date du document à partir du texte normalisé (plus fiable que le texte brut pour éviter les faux positifs liés à l'OCR)
+    # extraction de la date du document à partir du texte brut.
     date_doc = extraire_date_document(texte_brut)
 
     if emetteur == "inconnu":

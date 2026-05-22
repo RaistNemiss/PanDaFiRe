@@ -4,7 +4,7 @@ from pathlib import Path
 
 from .config_path import LOG_PATH
 
-def ini_log_file():
+def init_log_file():
     # Si le dossier de logs n'existe pas, on le crée automatiquement pour éviter les erreurs d'écriture du log
     if not LOG_PATH.parent.exists():
         LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -44,7 +44,7 @@ def log_decision(
     }
 
     # On initialise le fichier de log s'il n'existe pas déjà (création du dossier et du fichier si nécessaire)
-    ini_log_file()
+    init_log_file()
 
     with open(fichier_log, "a", encoding="utf-8") as f:
         f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
