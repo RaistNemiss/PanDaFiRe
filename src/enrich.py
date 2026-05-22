@@ -1,9 +1,8 @@
-import json
 from pathlib import Path
 from collections import Counter
 import re
 
-from .utils import normaliser_text,ajouter_nouvelle_entree_json ,ARTICLES_PREPOSITIONS, enlever_accents
+from .utils import ajouter_nouvelle_entree_json ,ARTICLES_PREPOSITIONS, enlever_accents
 
 
 

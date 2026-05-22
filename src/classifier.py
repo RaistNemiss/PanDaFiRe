@@ -1,17 +1,17 @@
 import re
 from typing import overload, Literal
 
+from .utils import normaliser_text
 
 @overload
-def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score: Literal[False] = False) -> str: ...
+def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score: Literal[False] = False, seuil_confiance: int = 3) -> str: ...
 @overload
-def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score: Literal[True] = True) -> tuple[str, dict[str, int]]: ...
+def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score: Literal[True] = True, seuil_confiance: int = 3) -> tuple[str, dict[str, int]]: ...
 
-def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score: bool = False) -> str | tuple[str, dict[str, int]] :
+def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score: bool = False, seuil_confiance: int = 3) -> str | tuple[str, dict[str, int]] :
     # normalisation du texte pour faciliter la recherche
     texte = texte.lower()
     texte = re.sub(r"\s+", " ", texte)
-    _seuil_ecart = 2
 
     # création d'une compréhension de dictionnaire pour compter les occurrences de mots-clés pour chaque type de document
     scores = {cle: 0 for cle in config}
@@ -19,10 +19,11 @@ def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score:
     for cle, data in config.items():
         mots_cle = data["keywords"]
         for mot, valeur_mot in mots_cle.items():
-            if len(mot) < 3:  # éviter que les mots trop court génère des faux positifs (ex: UBS dans sUBScription)
-                nombre_occurrences = len(re.findall(rf"(?<!\w){re.escape(mot)}(?!\w)", texte))
+            mot_normalise = normaliser_text(mot, stopwords=False)
+            if len(mot_normalise) < 3:  # éviter que les mots trop court génère des faux positifs (ex: UBS dans sUBScription)
+                nombre_occurrences = len(re.findall(rf"(?<!\w){re.escape(mot_normalise)}(?!\w)", texte))
             else:
-                nombre_occurrences = len(re.findall(rf"\b{re.escape(mot)}\b", texte))
+                nombre_occurrences = len(re.findall(rf"\b{re.escape(mot_normalise)}\b", texte))
 
             scores[cle] += nombre_occurrences * int(valeur_mot)
    
@@ -33,7 +34,7 @@ def identifier_par_score(texte: str, config: dict, seuil: int = 4, retour_score:
 
     #calcul de l'écart significatif entre les scores
     ecart = meilleur_score - deuxieme_score
-    resultat = gagnant if meilleur_score >= seuil and ecart >= _seuil_ecart else  "inconnu"
+    resultat = gagnant if meilleur_score >= seuil and ecart >= seuil_confiance else  "inconnu"
     
     if retour_score:
         return resultat, scores
