@@ -1,5 +1,3 @@
-Voici une version enrichie de ton README avec les dépendances système (Tesseract & Poppler) et la commande `register` que tu viens d'ajouter :
-
 ```markdown
 # PanDaFiRe 🐼🔥
 
