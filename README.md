@@ -1,41 +1,133 @@
-# PanDaFiRe
+Voici une version enrichie de ton README avec les dépendances système (Tesseract & Poppler) et la commande `register` que tu viens d'ajouter :
+
+```markdown
+# PanDaFiRe 🐼🔥
 
 Outil Python pour analyser et renommer automatiquement des fichiers PDF :
-- analyser des PDF
-- déterminer le type de document
-- identifier l'émetteur
-- extraire la date
-- renommer automatiquement les fichiers
+- 📄 analyser des PDF (texte + OCR)
+- 🏷️ déterminer le type de document
+- 👤 identifier l'émetteur / destinataire
+- 📅 extraire la date du document
+- ✏️ renommer automatiquement les fichiers
 
 ## Fonctionnalités
 
-- Extraction PDF (pdfplumber)
-- OCR (Tesseract)
-- Classification par scoring
-- Identification de l'émetteur
-- Extraction de date
-- CLI avec Typer
+- 📑 Extraction PDF (pdfplumber)
+- 🔍 OCR pour les PDF scannés (Tesseract + Poppler)
+- 🎯 Classification par scoring de mots-clés
+- 👥 Identification de l'émetteur et du destinataire
+- 📆 Extraction et normalisation de la date
+- 🖥️ CLI avec Typer
+- 🧪 Mode `--dry-run` pour prévisualiser sans renommer
+- 📁 Traitement récursif des dossiers
+
+## Prérequis
+
+### Dépendances système
+
+PanDaFiRe nécessite **Tesseract** (OCR) et **Poppler** (conversion PDF → image) installés sur ta machine.
+
+#### 🪟 Windows
+
+1. **Tesseract-OCR**
+   - Télécharger : https://github.com/UB-Mannheim/tesseract/wiki
+   - Installer (par défaut : `C:\Program Files\Tesseract-OCR\`)
+   - ⚠️ Pense à installer le pack de langue **français** lors de l'installation
+
+2. **Poppler**
+   - Télécharger : https://github.com/oschwartz10612/poppler-windows/releases
+   - Décompresser (ex. `C:\TEMP\poppler-XX\Library\bin`)
+
+3. **Configurer les chemins** via variables d'environnement (recommandé) :
+   ```powershell
+   setx TESSERACT_PATH "C:\Program Files\Tesseract-OCR\tesseract.exe"
+   setx POPPLER_PATH "C:\TEMP\poppler-26.02.0\Library\bin"
+   ```
+   *(ou éditer directement `src/config_path.py`)*
+
+#### 🐧 Linux (Debian/Ubuntu)
+
+```bash
+sudo apt update
+sudo apt install tesseract-ocr tesseract-ocr-fra poppler-utils
+```
+
+#### 🍎 macOS (Homebrew)
+
+```bash
+brew install tesseract tesseract-lang poppler
+```
+
+### Python
+
+Python **3.10+** recommandé.
 
 ## Installation
 
 ```bash
+git clone https://github.com/RaistNemiss/PanDaFiRe.git
+cd PanDaFiRe
 pip install -r requirements.txt
 ```
 
 ## Usage
 
+### Renommer un PDF
+
 ```bash
 python -m src.main run fichier.pdf
 ```
 
-Traitement d'un dossier entier :
+### Traitement d'un dossier
 
 ```bash
 python -m src.main run dossier_pdf
 ```
 
-Traitement d'un dossier et de ses sous-dossiers :
+### Traitement récursif (sous-dossiers inclus)
 
 ```bash
 python -m src.main run dossier_pdf --recursive
 ```
+
+### Mode dry-run (simulation sans renommage)
+
+```bash
+python -m src.main run dossier_pdf --dry-run
+```
+
+### Enregistrer un nouveau destinataire
+
+```bash
+python -m src.main register
+```
+
+Une saisie interactive te demandera nom, prénom, email, téléphone, etc.
+
+## Structure du projet
+
+```
+PanDaFiRe/
+├── src/
+│   ├── main.py              # CLI (Typer)
+│   ├── ocr.py               # OCR Tesseract + Poppler
+│   ├── extraction.py        # Extraction texte/date
+│   ├── classification.py    # Scoring & type de document
+│   ├── destinataire.py      # Gestion des destinataires
+│   ├── config_path.py       # Chemins (Tesseract, Poppler, JSON)
+│   └── ...
+├── data/
+│   └── destinataires.json   # Base des destinataires
+├── requirements.txt
+└── README.md
+```
+
+## Licence
+
+À définir.
+
+## Auteur
+
+**Raist Nemiss**
+```
+
