@@ -30,7 +30,7 @@ def enlever_accents(text: str) -> str:
         if unicodedata.category(c) != "Mn"
     )
 
-def ajouter_nouvelle_entree_json(description: str, keywords: dict[str, int], json_path: Path, nom_categorie: str = "") -> bool:
+def ajouter_nouvelle_entree_json(description: str, keywords: dict[str, int], json_path: Path, nom_categorie: str = "", overwrite: bool = False) -> bool:
 
     description_clean = description.strip()
     nouvelle_clef = re.sub(r"\s+", "_", normaliser_text(description)).strip("_")
@@ -51,12 +51,11 @@ def ajouter_nouvelle_entree_json(description: str, keywords: dict[str, int], jso
     except (json.JSONDecodeError, FileNotFoundError):
         data = {}
 
-    if nouvelle_clef in data:
+    if nouvelle_clef in data and not overwrite:
         return False
     
-    else:
-        data[nouvelle_clef] = nouvelle_entree
-        with open(json_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=4, ensure_ascii=False)
-        return True
+    data[nouvelle_clef] = nouvelle_entree
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+    return True
 

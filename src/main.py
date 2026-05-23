@@ -3,6 +3,8 @@
 import typer
 from pathlib import Path
 
+from .destinataire import generer_keywords_destinataire, destinataire_existe
+from .utils import ajouter_nouvelle_entree_json
 from .config import charger_config
 from .processor import process_pdf
 from .logger import lire_log
@@ -88,6 +90,55 @@ def enrich():
     ajouter_emetteur_json(candidat_select[0], categorie_select, CONFIG_PATH / "emetteurs.json")
     typer.echo(f"✅ '{candidat_select[0]}' ajouté dans '{categorie_select}'")
 
+@app.command()
+def register(
+    json_path: Path = CONFIG_PATH / "destinataire.json"
+) -> None:
+    """Ajoute un nouveau destinataire de façon interactive."""
+    
+    typer.echo("\n📇 Ajout d'un nouveau destinataire\n" + "-" * 40)
+
+    # Séquence guidée
+    prenom = typer.prompt("Prénom").strip()
+    nom = typer.prompt("Nom").strip()
+    nom_complet = f"{prenom} {nom}".strip()
+
+    # obliger au moins un prénom ou un nom pour éviter les entrées génériques "inconnu".
+    if not prenom and not nom:
+        typer.echo("❌ Au moins un prénom ou un nom doit être fourni.")
+        raise typer.Abort()
+    
+    # Vérification de l'existence du destinataire dans le JSON Destinataires
+    if destinataire_existe(nom_complet, json_path):
+        typer.echo(f"⚠️ Le destinataire '{nom_complet}' existe déjà.")
+        if not typer.confirm("Voulez-vous l'écraser ?", default=False):
+            raise typer.Abort()
+        ecraser = True
+
+    email = typer.prompt("Email", default="", show_default=False).strip()
+    telephone = typer.prompt("Téléphone", default="", show_default=False).strip()
+
+    keywords_destinataire = generer_keywords_destinataire(nom, prenom, email, telephone)
+
+    # Récap + confirmation
+    typer.echo(f"\n📋 Récapitulatif pour « {nom_complet} » :")
+    for mot, poids in keywords_destinataire.items():
+        typer.echo(f"   • {mot} (poids {poids})")
+
+    if not typer.confirm("\nConfirmer ?", default=True):
+        typer.echo("❌ Annulé.")
+        raise typer.Abort()
+
+    success = ajouter_nouvelle_entree_json(
+        description=nom_complet,
+        keywords=keywords_destinataire,
+        json_path=json_path,
+        overwrite=ecraser,
+    )
+    if success:
+        typer.echo(f"✅ {nom_complet} {'mis à jour' if ecraser else 'ajouté'} !")
+    else:
+        typer.echo(f"❌ Échec de l'ajout.")
 
 if __name__ == "__main__":
     app()
