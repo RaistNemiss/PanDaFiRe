@@ -2,6 +2,8 @@ import re
 import unicodedata
 from pathlib import Path
 import json
+import typer
+from typing import Optional
 
 ARTICLES_PREPOSITIONS = r"\b(de|du|la|des|le|les|et|à|au|aux)\b"
 
@@ -59,3 +61,30 @@ def ajouter_nouvelle_entree_json(description: str, keywords: dict[str, int], jso
         json.dump(data, f, indent=4, ensure_ascii=False)
     return True
 
+def choisir_dans_liste(
+    items: list,
+    titre: str,
+    label_prompt: str,
+    formatter=str,
+) -> Optional[int]:
+    """
+    Affiche une liste numérotée et demande à l'utilisateur d'en choisir un élément.
+    
+    Retourne l'index choisi (0-based) ou None si annulé/invalide.
+    """
+    typer.echo(f"\n📋 {titre}")
+    for i, item in enumerate(items, start=1):
+        typer.echo(f"  {i} - {formatter(item)}")
+
+    choix = typer.prompt(f"{label_prompt} (0 pour quitter)", type=int)
+
+    if choix == 0:
+        typer.echo("Annulé.")
+        return None
+    if choix < 1 or choix > len(items):
+        typer.echo("❌ Choix invalide.")
+        return None
+
+    item_select = items[choix - 1]
+    typer.confirm(f"Confirmer : {formatter(item_select)} ?", abort=True)
+    return choix - 1

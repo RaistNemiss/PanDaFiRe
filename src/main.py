@@ -4,7 +4,7 @@ import typer
 from pathlib import Path
 
 from .destinataire import generer_keywords_destinataire, destinataire_existe
-from .utils import ajouter_nouvelle_entree_json
+from .utils import ajouter_nouvelle_entree_json, choisir_dans_liste
 from .config import charger_config
 from .processor import process_pdf
 from .logger import lire_log
@@ -55,40 +55,54 @@ def _traiter_fichier(path: Path, dry_run: bool, debug: bool) -> None:
 @app.command()
 def enrich():
     """Enrichir la liste des émetteurs depuis les candidats fréquents."""
-    candidats = candidats_frequents(lire_log())
 
-    categories = list(dict.fromkeys(
-        emetteur["category"] for emetteur in EMETTEURS.values()
-    ))
+    # Fonction locale pour formater un candidat (nom, occurrence)
+    def format_candidat(c):
+        return f"{c[0]} : {c[1]} occurrence(s)"
+    
+    while True:
+        # Recharge à chaque tour pour refléter les ajouts précédents
+        candidats = candidats_frequents(lire_log())
+        emetteurs_connus = {e["description"] for e in EMETTEURS.values()}
+        categories = list(dict.fromkeys(emetteur["category"] for emetteur in EMETTEURS.values()))
 
-    typer.echo("📋 Candidats émetteurs fréquents :")
-    for i, (nom, occurrence) in enumerate(candidats, start=1):
-        typer.echo(f"  {i} - {nom} : {occurrence} occurrence(s)")
+        # filtrer les candidats déjà connus dans les émetteurs
+        candidats = [c for c in candidats if c[0].lower() not in emetteurs_connus]
+                     
 
-    choix = typer.prompt("Choisir un candidat (0 pour quitter)", type=int)
-    if choix == 0:
-        typer.echo("Annulé.")
-        return
+        if not candidats:
+            typer.echo("Aucun nouveau candidat à traiter. 🎉")
+            return
+        
+        # Étape 1 : choisir le candidat
+        choix_candidat_emetteur = choisir_dans_liste(
+            candidats,
+            titre="Candidats émetteurs fréquents :",
+            label_prompt="Choisir un candidat",
+            formatter=format_candidat,
+        )
+        if choix_candidat_emetteur is None:
+            return
+        nom_candidat = candidats[choix_candidat_emetteur][0]
 
-    candidat_select = candidats[choix - 1]
-    typer.confirm(f"Confirmer : {candidat_select[0]} ?", abort=True)
+        # Étape 2 : choisir la catégorie
+        choix_categorie = choisir_dans_liste(
+            categories,
+            titre="Catégories disponibles :",
+            label_prompt=f"Catégorie pour '{nom_candidat}'",
+        )
+        if choix_categorie is None:
+            return
+        categorie_select = categories[choix_categorie]
 
-    typer.echo("\n📋 Catégories disponibles :")
-    for i, cat in enumerate(categories, start=1):
-        typer.echo(f"  {i} - {cat}")
-
-    choix_cat = typer.prompt(
-        f"Catégorie pour '{candidat_select[0]}' (0 pour quitter)", type=int
-    )
-    if choix_cat == 0:
-        typer.echo("Annulé.")
-        return
-
-    categorie_select = categories[choix_cat - 1]
-    typer.confirm(f"Confirmer la catégorie : {categorie_select} ?", abort=True)
-
-    ajouter_emetteur_json(candidat_select[0], categorie_select, CONFIG_PATH / "emetteurs.json")
-    typer.echo(f"✅ '{candidat_select[0]}' ajouté dans '{categorie_select}'")
+        # Étape 3 : ajout dans le fichier JSON des émetteurs
+        ajouter_emetteur_json(
+            nom_candidat, categorie_select, CONFIG_PATH / "emetteurs.json"
+        )
+        typer.echo(f"✅ '{nom_candidat}' ajouté dans '{categorie_select}'")
+    
+        if not typer.confirm("Ajouter un autre émétteur ?"):
+            break
 
 @app.command()
 def register(

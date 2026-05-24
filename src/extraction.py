@@ -120,7 +120,7 @@ def extraire_noms_societes(texte: str) -> list:
         # 🇫🇷 France (bonus, fréquent dans les docs)
         "sas", "eurl", "scop", "scoop",
         # Autres
-        "fondation", "association", "coopérative", "mutuelle", "socété", "holding",
+        "fondation", "association", "coopérative", "mutuelle", "société", "holding",
         ]
     
     lignes_texte = texte.split("\n")
@@ -136,6 +136,17 @@ def extraire_noms_societes(texte: str) -> list:
             mot_clean = mot.strip(".,()[]-_")
             
             if not mot_clean:
+                continue
+
+            # Le mot ressemble-t-il à un nom de domaine ? (ex: "www.abc.com", "https://abc.com") → on peut extraire le nom de la société à partir du domaine
+            if "www." in mot_clean or "http" in mot_clean:
+                match = re.search(
+                    r"(?:www\.|https?://)([\w-]+)\.\w+",
+                    mot_clean,
+                    re.IGNORECASE
+                )
+                if match:
+                    candidats.append(match.group(1))
                 continue
 
             # Le mot commence-t-il par une majuscule ?
@@ -166,9 +177,6 @@ def extraire_noms_societes(texte: str) -> list:
                     and len(mot_clean) >= 3 
                     and mot_clean.lower() not in ARTICLES_PREPOSITIONS):
                     candidats.append(mot_clean)
-                # sinon : on accumule dans le tampon pour une éventuelle société à suivre
-                else:
-                    tampon.append(mot_clean)
 
             else:
                 # mot en miniscule, réinitialise le tampon pour qu'il disparaisse du candidat potentiel
@@ -186,3 +194,41 @@ def extraire_nom_pdf_sans_date(nom: str) -> str:
     nom_sans_dates = re.sub(r"[._\-\s]+", "_", nom_sans_dates).strip("_ ")
 
     return nom_sans_dates
+
+if __name__ == "__main__":
+
+    lettre_test = """Café Lausanne SA
+Rue du Lac 42
+1003 Lausanne
+www.cafe-lausanne.ch
+
+UBS Switzerland AG
+Bahnhofstrasse 45
+8001 Zürich
+
+Monsieur Jean Dupont
+Avenue de la Gare 12
+1700 Fribourg
+
+Lausanne, le 15 novembre 2024
+
+Concerne : Votre facture n° 2024-1058
+
+Cher Monsieur Dupont,
+
+Nous vous remercions de votre commande passée auprès de notre établissement.
+Veuillez trouver ci-joint la facture correspondante d'un montant de CHF 245.50.
+
+Le paiement peut être effectué via notre partenaire bancaire UBS ou par
+virement à la Fondation Romande de Soutien.
+
+Pour toute question, contactez-nous via https://www.cafe-lausanne.ch ou
+écrivez à la SARL Helvetia Services qui gère notre comptabilité.
+
+Cordialement,
+
+L'équipe de Café Lausanne SA
+"""
+
+    candidats = extraire_noms_societes(lettre_test)
+    print(candidats)
