@@ -122,7 +122,8 @@ PanDaFiRe/
 
 ## Licence
 
-À définir.
+
+MIT — voir [LICENSE](LICENSE)
 
 ## Auteur
 
