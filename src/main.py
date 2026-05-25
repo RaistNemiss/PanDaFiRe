@@ -5,7 +5,7 @@ from pathlib import Path
 
 from .destinataire import generer_keywords_destinataire, destinataire_existe
 from .utils import ajouter_nouvelle_entree_json, choisir_dans_liste
-from .config import charger_config
+from .config import charger_config, charger_config_emetteurs
 from .processor import process_pdf
 from .logger import lire_log
 from .enrich import candidats_frequents, ajouter_emetteur_json
@@ -47,10 +47,8 @@ def _traiter_dossier(path: Path, recursive: bool, dry_run: bool, debug: bool) ->
         except Exception as e:
             typer.echo(f"❌ Erreur sur {pdf_file.name} : {e}")
 
-
 def _traiter_fichier(path: Path, dry_run: bool, debug: bool) -> None:
     process_pdf(path, TYPES, EMETTEURS, DESTINATAIRES, dry_run, debug)
-
 
 @app.command()
 def enrich():
@@ -61,10 +59,16 @@ def enrich():
         return f"{c[0]} : {c[1]} occurrence(s)"
     
     while True:
-        # Recharge à chaque tour pour refléter les ajouts précédents
+        # recharger la config à chaque tour pour refléter les ajouts précédents,
+        emetteurs = charger_config_emetteurs()
         candidats = candidats_frequents(lire_log())
-        emetteurs_connus = {e["description"] for e in EMETTEURS.values()}
-        categories = list(dict.fromkeys(emetteur["category"] for emetteur in EMETTEURS.values()))
+        emetteurs_connus = set()
+        for emetteur in emetteurs.values():
+            emetteurs_connus.add(emetteur["description"].lower())
+            emetteurs_connus.update(
+                keyword.lower() for keyword in emetteur.get("keywords", {})
+            )
+        categories = list(dict.fromkeys(emetteur["category"] for emetteur in emetteurs.values()))
 
         # filtrer les candidats déjà connus dans les émetteurs
         candidats = [c for c in candidats if c[0].lower() not in emetteurs_connus]
@@ -101,7 +105,7 @@ def enrich():
         )
         typer.echo(f"✅ '{nom_candidat}' ajouté dans '{categorie_select}'")
     
-        if not typer.confirm("Ajouter un autre émétteur ?"):
+        if not typer.confirm("Ajouter un autre émetteur ?"):
             break
 
 @app.command()
