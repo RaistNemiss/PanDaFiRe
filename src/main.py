@@ -128,7 +128,7 @@ def register(
         raise typer.Abort()
     
     # Vérification de l'existence du destinataire dans le JSON Destinataires
-    if destinataire_existe(nom_complet, json_path):
+    if destinataire_existe(nom_complet):
         typer.echo(f"⚠️ Le destinataire '{nom_complet}' existe déjà.")
         if not typer.confirm("Voulez-vous l'écraser ?", default=False):
             raise typer.Abort()

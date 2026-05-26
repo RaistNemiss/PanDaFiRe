@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 
 from .config_path import DESTINATAIRE_PATH, TYPES_PATH, EMETTEURS_PATH
-from .destinataire import charger_config_destinataires
 from .utils import ajouter_nouvelle_entree_json
 
 
@@ -23,18 +22,16 @@ def _charger_json(path: Path, nom: str) -> dict:
         with open(path, encoding="utf-8") as f:
             return json.load(f)
     except FileNotFoundError as e:
-        raise SystemExit(f"❌ Fichier {nom} dans config/ introuvable : {e}")
+        raise SystemExit(f"❌ Fichier {nom} dans config/ introuvable : {e}") from e
     except json.JSONDecodeError as e:
-        raise SystemExit(f"❌ Fichier {nom} dans config/ invalide : {e}")
+        raise SystemExit(f"❌ Fichier {nom} dans config/ invalide : {e}") from e
 
 
 def charger_config_emetteurs() -> dict:
     return _charger_json(EMETTEURS_PATH, "emetteurs.json")
 
-
 def charger_config_types() -> dict:
     return _charger_json(TYPES_PATH, "types.json")
-
 
 def charger_config_destinataires() -> dict:
     # s'assure que le fichier destinataire.json existe et contient au moins une entrée exemple

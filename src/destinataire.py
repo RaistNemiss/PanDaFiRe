@@ -1,6 +1,3 @@
-import json
-from pathlib import Path
-from .utils import ajouter_nouvelle_entree_json
 from .config import charger_config_destinataires
 
 
@@ -51,7 +48,7 @@ def generer_keywords_destinataire(
 
     return keywords
 
-def destinataire_existe(nom_complet: str, json_path: Path) -> bool:
+def destinataire_existe(nom_complet: str) -> bool:
 
     destinataires = charger_config_destinataires()
     
