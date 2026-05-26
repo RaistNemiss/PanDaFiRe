@@ -234,7 +234,7 @@
         }
     },
     "migros": {
-        "category": "retail",
+        "category": "commerce",
         "description": "Migros",
         "keywords": {
             "migros": 5,
@@ -243,7 +243,7 @@
         }
     },
     "coop": {
-        "category": "retail",
+        "category": "commerce",
         "description": "Coop",
         "keywords": {
             "coop": 5,
@@ -251,7 +251,7 @@
         }
     },
     "digitec": {
-        "category": "retail",
+        "category": "commerce",
         "description": "Digitec",
         "keywords": {
             "digitec": 5,
@@ -259,7 +259,7 @@
         }
     },
     "galaxus": {
-        "category": "retail",
+        "category": "commerce",
         "description": "Galaxus",
         "keywords": {
             "galaxus": 5,
@@ -267,7 +267,7 @@
         }
     },
     "fust": {
-        "category": "retail",
+        "category": "commerce",
         "description": "Fust",
         "keywords": {
             "fust": 5,
@@ -275,7 +275,7 @@
         }
     },
     "lidl": {
-        "category": "retail",
+        "category": "commerce",
         "description": "Lidl",
         "keywords": {
             "lidl": 5,
@@ -283,7 +283,7 @@
         }
     },
     "amazon": {
-        "category": "retail",
+        "category": "commerce",
         "description": "Amazon",
         "keywords": {
             "amazon": 5,
@@ -405,6 +405,18 @@
             "p’tits": 1,
             "loups": 1,
             "garderie p’tits loups": 4
+        }
+    },
+    "formation_continue_fso_svo": {
+        "description": "Formation Continue FSO-SVO",
+        "category": "service",
+        "keywords": {
+            "formation continue fso-svo": 5,
+            "formationcontinuefso-svo": 4,
+            "fso-svo": 3,
+            "fso": 1,
+            "svo": 1,
+            "scovaud@fso-svo.ch": 5
         }
     }
 }
