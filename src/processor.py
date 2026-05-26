@@ -28,7 +28,7 @@ def process_pdf(
 
     # Extraction + normalisation
     texte_brut, ocr_utilise = extraire_texte(pdf_path)
-    texte_normalise = normaliser_text(texte_brut)
+    texte_normalise = normaliser_text(texte_brut, stopwords=False)
 
     # Classification
     type_doc, type_doc_scores = identifier_par_score(

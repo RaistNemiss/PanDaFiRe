@@ -131,6 +131,7 @@
     "description": "Bon ou preuve de livraison",
     "keywords": {
       "bon de livraison": 5,
+      "bon de transport": 5,
       "avis de livraison": 4,
       "preuve de livraison": 4,
       "delivery note": 5,

@@ -16,10 +16,10 @@ def identifier_par_score(
     ) -> tuple[str, dict[str, int]]: ...
 
 def identifier_par_score(
-        texte: str, 
-        config: dict, 
-        seuil: int = 4, 
-        retour_score: bool = False, 
+        texte: str,
+        config: dict,
+        seuil: int = 4,
+        retour_score: bool = False,
         seuil_confiance: int = 3
         ) -> str | tuple[str, dict[str, int]] :
     

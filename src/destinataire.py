@@ -6,7 +6,8 @@ def determiner_initiales_destinataire(nom: str) -> str:
     if not nom or nom == "inconnu":
         return ""
 
-    mots = nom.split()
+    # les noms du json sont normalisés avec des underscores
+    mots = nom.split("_")
 
     if len(mots) == 2:
         # 1 lettre du prénom + 2 lettres du nom (ex: Homer Simpson → HSI)
