@@ -55,7 +55,7 @@ def enrich():
     """Enrichir la liste des émetteurs depuis les candidats fréquents."""
 
     # Fonction locale pour formater un candidat (nom, occurrence)
-    def format_candidat(c):
+    def format_candidat(c) -> str:
         return f"{c[0]} : {c[1]} occurrence(s)"
     
     while True:
@@ -120,6 +120,7 @@ def register(
     prenom = typer.prompt("Prénom").strip()
     nom = typer.prompt("Nom").strip()
     nom_complet = f"{prenom} {nom}".strip()
+    ecraser = False
 
     # obliger au moins un prénom ou un nom pour éviter les entrées génériques "inconnu".
     if not prenom and not nom:
@@ -156,7 +157,7 @@ def register(
     if success:
         typer.echo(f"✅ {nom_complet} {'mis à jour' if ecraser else 'ajouté'} !")
     else:
-        typer.echo(f"❌ Échec de l'ajout.")
+        typer.echo("❌ Échec de l'ajout.")
 
 if __name__ == "__main__":
     app()
