@@ -28,7 +28,7 @@ def process_pdf(
 
     # Extraction + normalisation
     texte_brut, ocr_utilise = extraire_texte(pdf_path)
-    texte_normalise = normaliser_text(texte_brut, stopwords=False)
+    texte_normalise = normaliser_text(texte_brut)
 
     # Classification
     type_doc, type_doc_scores = identifier_par_score(
@@ -81,7 +81,6 @@ def process_pdf(
 
     # Renommage
     _renommer_pdf(pdf_path, date_doc, type_doc, emetteur)
-
 
 def _renommer_pdf(
     pdf_path: Path,
