@@ -23,17 +23,18 @@ def run(
     debug: bool = typer.Option(False, "--debug", "-d", help="Afficher les scores"),
     dry_run: bool = typer.Option(False, "--dry-run", "-n", help="Simuler sans renommer"),
     recursive: bool = typer.Option(False, "--recursive", "-r", help="Inclure les sous-dossiers"),
+    output: bool = typer.Option(False, "--output", "-o", help="déplacer les fichiers dans le dossier de sortie"),
 ):
     if path.is_dir():
-        _traiter_dossier(path, recursive, dry_run, debug)
+        _traiter_dossier(path, recursive, dry_run, debug, output)
     elif path.is_file():
-        _traiter_fichier(path, dry_run, debug)
+        _traiter_fichier(path, dry_run, debug, output)
     else:
         typer.echo(f"❌ Chemin introuvable : {path}")
         raise typer.Exit(code=1)
 
 
-def _traiter_dossier(path: Path, recursive: bool, dry_run: bool, debug: bool) -> None:
+def _traiter_dossier(path: Path, recursive: bool, dry_run: bool, debug: bool, output: bool) -> None:
     pdf_files = sorted(path.rglob("*.pdf") if recursive else path.glob("*.pdf"))
 
     if not pdf_files:
@@ -43,12 +44,12 @@ def _traiter_dossier(path: Path, recursive: bool, dry_run: bool, debug: bool) ->
     typer.echo(f"📂 {len(pdf_files)} fichier(s) trouvé(s) dans : {path}")
     for pdf_file in pdf_files:
         try:
-            _traiter_fichier(pdf_file, dry_run, debug)
+            _traiter_fichier(pdf_file, dry_run, debug, output)
         except Exception as e:
             typer.echo(f"❌ Erreur sur {pdf_file.name} : {e}")
 
-def _traiter_fichier(path: Path, dry_run: bool, debug: bool) -> None:
-    process_pdf(path, TYPES, EMETTEURS, DESTINATAIRES, dry_run, debug)
+def _traiter_fichier(path: Path, dry_run: bool, debug: bool, output: bool) -> None:
+    process_pdf(path, TYPES, EMETTEURS, DESTINATAIRES, dry_run, debug, output)
 
 @app.command()
 def enrich():
