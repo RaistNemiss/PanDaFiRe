@@ -37,7 +37,7 @@ def process_pdf(
     type_doc, type_doc_scores = identifier_par_score(
         texte_normalise, types, retour_score=True
     )
-    emetteur, emetteur_scores = identifier_par_score(
+    nom_emetteur, emetteur_scores = identifier_par_score(
         texte_normalise, emetteurs, retour_score=True
     )
     nom_destinataire = identifier_par_score(texte_normalise, destinataires)
@@ -46,10 +46,10 @@ def process_pdf(
     date_doc = extraire_date_document(texte_brut)
 
     # Fallback émetteur inconnu
-    if emetteur == "inconnu":
+    if nom_emetteur == "inconnu":
         candidats_emetteur = extraire_candidats_emetteur(texte_brut)
         candidats_emetteur += extraire_noms_societes(texte_brut)
-        emetteur = extraire_nom_pdf_sans_date(pdf_path.stem)
+        nom_emetteur = extraire_nom_pdf_sans_date(pdf_path.stem)
     else:
         candidats_emetteur = []
 
@@ -58,7 +58,7 @@ def process_pdf(
         pdf_path,
         type_doc,
         type_doc_scores,
-        emetteur,
+        nom_emetteur,
         emetteur_scores,
         candidats_emetteur,
         nom_destinataire,
@@ -73,31 +73,34 @@ def process_pdf(
         typer.echo(f"[DEBUG] {pdf_path.name} scores type     : {type_doc_scores}")
         typer.echo(f"[DEBUG] {pdf_path.name} scores émetteur : {emetteur_scores}")
 
+    initiales = determiner_initiales_destinataire(nom_destinataire)
+    
     # Dry-run
     if dry_run:
-        initiales = determiner_initiales_destinataire(nom_destinataire)
         typer.echo(
             f"[Dry-Run] {pdf_path.name} → "
-            f"{type_doc} | {emetteur} | {initiales} | {date_doc}"
+            f"{type_doc} | {nom_emetteur} | {initiales} | {date_doc}"
         )
         return
 
     # output
     if output:
-        _déplacer_fichier(pdf_path, date_doc, type_doc, emetteur, nom_destinataire)
-        return
+        _deplacer_fichier(pdf_path, date_doc, type_doc, nom_emetteur, nom_destinataire, emetteurs)
+    else:
+        # Renommage
+        _renommer_pdf(pdf_path, date_doc, type_doc, nom_emetteur, initiales)
 
-    # Renommage
-    _renommer_pdf(pdf_path, date_doc, type_doc, emetteur)
 
-def _renommer_pdf(
-    pdf_path: Path,
-    date_doc: str,
-    type_doc: str,
-    emetteur: str,
-) -> Path:
-    """Renomme le fichier PDF selon la convention de nommage."""
-    nouveau_nom = Path(f"{date_doc}_{type_doc}_{emetteur}.pdf")
+def _construire_nom_pdf(date_doc: str, type_doc: str, nom_emetteur: str, initiales: str | None = None) -> str:
+    """Construit un nom de fichier PDF selon la convention de nommage."""
+    if initiales is not None:
+        return f"{date_doc}_{type_doc}_{nom_emetteur}_{initiales}.pdf"
+    return f"{date_doc}_{type_doc}_{nom_emetteur}.pdf"
+
+
+def _renommer_pdf(pdf_path: Path, date_doc: str, type_doc: str, nom_emetteur: str, initiales: str) -> Path:
+    """Renomme le PDF sur place avec les initiales du destinataire."""
+    nouveau_nom = _construire_nom_pdf(date_doc, type_doc, nom_emetteur, initiales)
     destination = pdf_path.parent / nouveau_nom
 
     if destination.exists():
@@ -108,34 +111,32 @@ def _renommer_pdf(
     typer.echo(f"✅ {pdf_path.name} → {destination.name}")
     return destination
 
-def _déplacer_fichier(pdf_path: Path, date_doc: str, type_doc: str, emetteur: str, nom_destinataire: str) -> bool:
+
+def _deplacer_fichier(pdf_path: Path, date_doc: str, type_doc: str, nom_emetteur: str, nom_destinataire: str, emetteurs: dict) -> bool:
     """Déplace le fichier PDF dans le dossier de sortie selon son destinataire et sa catégorie."""
-
-    if type_doc == "inconnu":
-        nom_categorie = "catégorie_non_triée"
-    else:
-        nom_categorie = trouver_categorie_config(emetteur)
-        
-    # vérifier si le dossier de sortie existe
-    output_dir = OUTPUT_PATH / nom_destinataire / nom_categorie
-    if not output_dir.exists():
-        output_dir.mkdir(parents=True, exist_ok=True)
-        typer.echo(f"📁 Dossier créé : {output_dir}")
     
-    nouveau_nom_pdf = _renommer_pdf(pdf_path, date_doc, type_doc, emetteur).name
-
-    if pdf_path.exists():
-        destination = output_dir / nouveau_nom_pdf
-        if destination.exists():
-            typer.echo(f"[Skip] Fichier déjà existant : {destination.name}")
-            return False
-        pdf_path.rename(destination)
-        typer.echo(f"✅ {pdf_path.name} déplacé vers {destination}")
-        return True
-    else:
+    if not pdf_path.exists():
         typer.echo(f"❌ Fichier introuvable : {pdf_path}")
         return False
 
+    if type_doc == "inconnu"or nom_emetteur == "inconnu":
+        nom_categorie = "_à_trier"
+    else:
+        nom_categorie = trouver_categorie_config(nom_emetteur, emetteurs)
+    
+    #créer le dossier cible
+    output_dir = OUTPUT_PATH / nom_destinataire / nom_categorie
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # construire la destination finale
+    destination = output_dir / _construire_nom_pdf(date_doc, type_doc, nom_emetteur)
+    if destination.exists():
+        typer.echo(f"❌ Fichier déjà existant : {destination}")
+        return False
+  
+    pdf_path.rename(destination)
+    typer.echo(f"✅ {pdf_path.name} déplacé vers {destination}")
+    return True
 
 if __name__ == "__main__":
-    _déplacer_fichier(Path(r"C:\Users\afarina\Downloads\w61477151.pdf"), "2024-01-01", "Facture", "Emetteur", "AB")
+    pass

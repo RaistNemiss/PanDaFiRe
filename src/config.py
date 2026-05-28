@@ -67,14 +67,9 @@ def init_destinataire_config() -> None:
 
     print("✅ destinataire.json créé avec un utilisateur exemple")
 
-
-def trouver_categorie_config(nom_emetteur: str) -> str:
+def trouver_categorie_config(nom_emetteur: str, emetteurs: dict) -> str:
     """Trouve la catégorie d'un émetteur à partir de la configuration emetteurs.json. Retourne "inconnu" si l'émetteur n'est pas trouvé ou si la configuration est absente/mal formée."""
-    _, emetteurs, _ = charger_config()
     return emetteurs.get(nom_emetteur, {}).get("category", "inconnu")
 
-
 if __name__ == "__main__":
-    emetteur = "ubs"
-    categorie = trouver_categorie_config(emetteur)
-    print(f"Catégorie trouvée pour {emetteur} : {categorie}")
+    pass
