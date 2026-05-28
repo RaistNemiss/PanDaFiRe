@@ -13,8 +13,8 @@ def charger_config() -> tuple[dict, dict, dict]:
     emetteurs = charger_config_emetteurs()
     destinataires = charger_config_destinataires()
 
-
     return types, emetteurs, destinataires
+
 
 def _charger_json(path: Path, nom: str) -> dict:
     """Charge un fichier JSON avec gestion d'erreur uniforme."""
@@ -30,16 +30,19 @@ def _charger_json(path: Path, nom: str) -> dict:
 def charger_config_emetteurs() -> dict:
     return _charger_json(EMETTEURS_PATH, "emetteurs.json")
 
+
 def charger_config_types() -> dict:
     return _charger_json(TYPES_PATH, "types.json")
+
 
 def charger_config_destinataires() -> dict:
     # s'assure que le fichier destinataire.json existe et contient au moins une entrée exemple
     init_destinataire_config()
     return _charger_json(DESTINATAIRE_PATH, "destinataire.json")
 
+
 def init_destinataire_config() -> None:
-    
+
     # créer le dossier si nécessaire
     DESTINATAIRE_PATH.parent.mkdir(parents=True, exist_ok=True)
 
@@ -49,13 +52,13 @@ def init_destinataire_config() -> None:
     print("⚠️ destinataire.json introuvable → création du fichier")
 
     keywords_homer = {
-                "homer simpson": 5,
-                "+41 77 777 77 77": 6,
-                "simpson": 1,
-                "homer": 1,
-                "homer.simpson@email.com": 6
-                }
-    
+        "homer simpson": 5,
+        "+41 77 777 77 77": 6,
+        "simpson": 1,
+        "homer": 1,
+        "homer.simpson@email.com": 6,
+    }
+
     ajouter_nouvelle_entree_json(
         description="Homer Simpson",
         keywords=keywords_homer,
@@ -63,3 +66,15 @@ def init_destinataire_config() -> None:
     )
 
     print("✅ destinataire.json créé avec un utilisateur exemple")
+
+
+def trouver_categorie_config(nom_emetteur: str) -> str:
+    """Trouve la catégorie d'un émetteur à partir de la configuration emetteurs.json. Retourne "inconnu" si l'émetteur n'est pas trouvé ou si la configuration est absente/mal formée."""
+    _, emetteurs, _ = charger_config()
+    return emetteurs.get(nom_emetteur, {}).get("category", "inconnu")
+
+
+if __name__ == "__main__":
+    emetteur = "ubs"
+    categorie = trouver_categorie_config(emetteur)
+    print(f"Catégorie trouvée pour {emetteur} : {categorie}")
