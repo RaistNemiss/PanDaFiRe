@@ -100,6 +100,18 @@ python -m src.main run dossier_pdf --dry-run
 python -m src.main register
 ```
 
+### Déplacer les fichiers dans des dossiers de sortie
+
+```bash
+python -m src.main run fichier.pdf -output
+```
+
+### Définir le dossier de sortie des fichiers.
+
+```bash
+python -m src.main set-output
+```
+
 Une saisie interactive te demandera nom, prénom, email, téléphone, etc.
 
 ## Structure du projet
