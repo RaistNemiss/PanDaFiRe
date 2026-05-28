@@ -1,6 +1,7 @@
 """Logique de traitement d'un PDF individuel."""
 
 import typer
+import shutil
 from pathlib import Path
 
 from .extraction import (
@@ -14,7 +15,7 @@ from .classifier import identifier_par_score
 from .logger import log_decision
 from .utils import normaliser_text
 from .destinataire import determiner_initiales_destinataire
-from .config_path import OUTPUT_PATH
+from .config_path import get_output_path
 from .config import trouver_categorie_config
 
 
@@ -31,7 +32,7 @@ def process_pdf(
 
     # Extraction + normalisation
     texte_brut, ocr_utilise = extraire_texte(pdf_path)
-    texte_normalise = normaliser_text(texte_brut)
+    texte_normalise = normaliser_text(texte_brut, stopwords=False)  # on garde les stopwords pour la classification émetteur/destinataire
 
     # Classification
     type_doc, type_doc_scores = identifier_par_score(
@@ -125,7 +126,7 @@ def _deplacer_fichier(pdf_path: Path, date_doc: str, type_doc: str, nom_emetteur
         nom_categorie = trouver_categorie_config(nom_emetteur, emetteurs)
     
     #créer le dossier cible
-    output_dir = OUTPUT_PATH / nom_destinataire / nom_categorie
+    output_dir = get_output_path() / nom_destinataire / nom_categorie
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # construire la destination finale
@@ -134,7 +135,7 @@ def _deplacer_fichier(pdf_path: Path, date_doc: str, type_doc: str, nom_emetteur
         typer.echo(f"❌ Fichier déjà existant : {destination}")
         return False
   
-    pdf_path.rename(destination)
+    shutil.move(str(pdf_path), str(destination)) # shutili.move gère mieux les déplacements entre disques différents que Path.rename
     typer.echo(f"✅ {pdf_path.name} déplacé vers {destination}")
     return True
 

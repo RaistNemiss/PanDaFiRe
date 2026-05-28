@@ -9,6 +9,7 @@ venv/
 
 # config
 destinataire.json
+settings.json
 
 # Logs
 *.log

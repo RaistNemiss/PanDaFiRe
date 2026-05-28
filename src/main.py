@@ -9,7 +9,7 @@ from .config import charger_config, charger_config_emetteurs
 from .processor import process_pdf
 from .logger import lire_log
 from .enrich import candidats_frequents, ajouter_emetteur_json
-from .config_path import CONFIG_PATH
+from .config_path import CONFIG_PATH, set_output_path
 
 app = typer.Typer()
 
@@ -159,6 +159,17 @@ def register(
         typer.echo(f"✅ {nom_complet} {'mis à jour' if ecraser else 'ajouté'} !")
     else:
         typer.echo("❌ Échec de l'ajout.")
+
+@app.command()
+def set_output(nouveau_output_path: Path = typer.Argument(..., help="Dossier de sortie pour les fichiers renommés")):
+    """Définir le dossier de sortie pour les fichiers renommés."""
+    if not nouveau_output_path.is_dir():
+        typer.echo(f"❌ Le chemin spécifié n'est pas un dossier : {nouveau_output_path}")
+        raise typer.Exit(code=1)
+        
+    set_output_path(nouveau_output_path)
+    typer.echo(f"✅ Dossier de sortie défini : {nouveau_output_path.resolve()}")
+
 
 if __name__ == "__main__":
     app()
