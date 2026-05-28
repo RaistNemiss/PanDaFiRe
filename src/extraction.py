@@ -7,13 +7,40 @@ from pathlib import Path
 from .utils import ARTICLES_PREPOSITIONS
 from .ocr import extraire_texte_ocr
 
-
+# Pour le texte (corps du document)
 REGEX_DATES_CANDIDATS = [
     r"\b\d{1,2}[./-_]\d{1,2}[./-_]\d{2,4}\b",   # 12/04/2024, 12-04-24
     r"\b\d{4}[./-_]\d{1,2}[./-_]\d{1,2}\b",     # 2024-04-12
     r"\b\d{1,2}(?:er|ème)?\s+[A-Za-zÀ-ÿ]+\s+\d{2,4}\b",     # 12 avril 2024, 1er mai 2025
     r"\b[A-Za-zÀ-ÿ]+\s+\d{1,2}(?:er|ème)?,?\s+\d{2,4}\b",     # April 12, 2024, avril 12, 2024
 ]
+
+MOIS = r"(?:janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)"
+
+REGEX_DATES_CANDIDATS_FICHIER = [
+    # Format JJ-MM-AAAA avec séparateurs . / - (ex: 12-04-2024, 12/04/24, 12.04.2024)
+    r"(?<!\d)\d{1,2}[./-]\d{1,2}[./-]\d{2,4}(?!\d)",
+
+    # Format AAAA-MM-JJ avec séparateurs . / - (ex: 2024-04-12, 2024/04/12, 2024.04.12)
+    r"(?<!\d)\d{4}[./-]\d{1,2}[./-]\d{1,2}(?!\d)",
+
+    # Format JJ_MM_AAAA avec underscores (ex: 12_04_2024, 12_04_24)
+    r"(?<!\d)\d{1,2}_\d{1,2}_\d{2,4}(?!\d)",
+
+    # Format AAAA_MM_JJ avec underscores (ex: 2024_04_12)
+    r"(?<!\d)\d{4}_\d{1,2}_\d{1,2}(?!\d)",
+
+    # Format JJ_mois_AAAA avec mois en texte, suffixe ordinal optionnel
+    # (ex: 1er_mai_2023, 18_decembre_2023, 01er_mars_2022, 15_février_24)
+    r"(?<!\d)\d{1,2}(?:er|ème)?_" + MOIS + r"_\d{2,4}(?!\d)",
+
+    # Format mois_JJ_AAAA avec mois en texte au début
+    # (ex: avril_12_2024, janvier_5_23)
+    # Note : (?<!\w) ici car on ne veut PAS matcher si précédé d'une lettre
+    # (sinon "rapport_avril_12_2024" serait matché à tort... mais ici on VEUT le matcher)
+    r"(?<!\w)" + MOIS + r"_\d{1,2}_\d{2,4}(?!\d)",
+]
+
 
 
 def extraire_texte(pdf_path: Path) -> tuple[str, bool]:
@@ -185,50 +212,41 @@ def extraire_noms_societes(texte: str) -> list:
     return candidats
 
 def extraire_nom_pdf_sans_date(nom: str) -> str:
-
     nom_sans_dates = nom.lower()
 
-    for regex in REGEX_DATES_CANDIDATS:
+    for regex in REGEX_DATES_CANDIDATS_FICHIER:
         nom_sans_dates = re.sub(regex, "", nom_sans_dates, flags=re.IGNORECASE)
 
-    nom_sans_dates = re.sub(r"[._\-\s]+", "_", nom_sans_dates).strip("_ ")
+    nom_split = re.split(r"[._\-\s]+", nom_sans_dates)
+    nom_split = [m for m in nom_split if m and m != "pdf"]
 
-    return nom_sans_dates
+    return "_".join(nom_split).strip("_ ")
+
 
 if __name__ == "__main__":
 
-    lettre_test = """Café Lausanne SA
-Rue du Lac 42
-1003 Lausanne
-www.cafe-lausanne.ch
+    fichiers_pdf = ["facture_12-04-2024_fournisseur.pdf",
+    "2024.04.12_ordonnance_medecin.pdf",
+    "releve_compte_2024_04_12.pdf",
+    "scan_1er_mai_2023_contrat.pdf",
+    "avril_12_2024_devis_client.pdf",
+    "rapport_annuel_2023_bilan.pdf",
+    "note_frais_12.04.24_remboursement.pdf",
+    "contrat_15-03-2022_signature.pdf",
+    "2022-03-15_facture_electricite.pdf",
+    "devis_fournisseur_2024-12-18.pdf",
+    "ordonnance_18_decembre_2023.pdf",
+    "bulletin_salaire_janvier_2024.pdf",
+    "12_04_2024_scan_document.pdf",
+    "facture-2024-04-12-client.pdf",
+    "releve_12/04/2024_banque.pdf",
+    "2023_rapport_15_fevrier.pdf",
+    "document_scan_03-2024.pdf",
+    "facture_avril_2024_total.pdf",
+    "contrat_01er_mars_2022.pdf",
+    "bilan_2023.pdf",
+    ]
 
-UBS Switzerland AG
-Bahnhofstrasse 45
-8001 Zürich
-
-Monsieur Jean Dupont
-Avenue de la Gare 12
-1700 Fribourg
-
-Lausanne, le 15 novembre 2024
-
-Concerne : Votre facture n° 2024-1058
-
-Cher Monsieur Dupont,
-
-Nous vous remercions de votre commande passée auprès de notre établissement.
-Veuillez trouver ci-joint la facture correspondante d'un montant de CHF 245.50.
-
-Le paiement peut être effectué via notre partenaire bancaire UBS ou par
-virement à la Fondation Romande de Soutien.
-
-Pour toute question, contactez-nous via https://www.cafe-lausanne.ch ou
-écrivez à la SARL Helvetia Services qui gère notre comptabilité.
-
-Cordialement,
-
-L'équipe de Café Lausanne SA
-"""
-
-    candidats = extraire_noms_societes(lettre_test)
-    print(candidats)
+    for nom in fichiers_pdf:
+        nom_sans_date = extraire_nom_pdf_sans_date(nom)
+        print(f"{nom} → {nom_sans_date}")

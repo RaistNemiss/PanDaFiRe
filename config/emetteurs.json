@@ -400,8 +400,6 @@
         "keywords": {
             "garderie les p’tits loups": 5,
             "garderielesp’titsloups": 4,
-            "garderie": 1,
-            "les": 1,
             "p’tits": 1,
             "loups": 1,
             "garderie p’tits loups": 4
@@ -416,7 +414,8 @@
             "fso-svo": 3,
             "fso": 1,
             "svo": 1,
-            "scovaud@fso-svo.ch": 5
+            "scovaud@fso-svo.ch": 5,
+            "formation@fso-svo.ch": 5
         }
     }
 }
