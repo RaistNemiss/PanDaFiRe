@@ -7,7 +7,7 @@ from .destinataire import generer_keywords_destinataire, destinataire_existe
 from .utils import ajouter_nouvelle_entree_json, choisir_dans_liste
 from .config import charger_config, charger_config_emetteurs
 from .processor import process_pdf
-from .logger import lire_log
+from .logger import lire_extraction_log, log_run
 from .enrich import candidats_frequents, ajouter_emetteur_json
 from .config_path import CONFIG_PATH, DEFAULT_OUTPUT_PATH,set_output_path, get_output_path
 
@@ -18,6 +18,7 @@ TYPES, EMETTEURS, DESTINATAIRES = charger_config()
 
 
 @app.command()
+@log_run
 def run(
     path: Path = typer.Argument(..., help="Fichier PDF ou dossier à traiter"),
     debug: bool = typer.Option(False, "--debug", "-d", help="Afficher les scores"),
@@ -53,6 +54,7 @@ def _traiter_fichier(path: Path, dry_run: bool, debug: bool, output: bool) -> No
     process_pdf(path, TYPES, EMETTEURS, DESTINATAIRES, dry_run, debug, output)
 
 @app.command()
+@log_run
 def enrich():
     """Enrichir la liste des émetteurs depuis les candidats fréquents."""
 
@@ -63,7 +65,7 @@ def enrich():
     while True:
         # recharger la config à chaque tour pour refléter les ajouts précédents,
         emetteurs = charger_config_emetteurs()
-        candidats = candidats_frequents(lire_log())
+        candidats = candidats_frequents(lire_extraction_log())
         emetteurs_connus = set()
         for emetteur in emetteurs.values():
             emetteurs_connus.add(emetteur["description"].lower())
@@ -111,6 +113,7 @@ def enrich():
             break
 
 @app.command()
+@log_run
 def register(
     json_path: Path = CONFIG_PATH / "destinataire.json"
 ) -> None:
@@ -162,6 +165,7 @@ def register(
         typer.echo("❌ Échec de l'ajout.")
 
 @app.command()
+@log_run
 def set_output(nouveau_output_path: Path = typer.Argument(..., help=f"Configurer le dossier de sortie pour les fichiers renommés (actuellement : {get_output_path()})")) -> None:
     """Définir le dossier de sortie pour les fichiers renommés."""
     if not nouveau_output_path.is_dir():
