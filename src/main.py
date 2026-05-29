@@ -9,7 +9,7 @@ from .config import charger_config, charger_config_emetteurs
 from .processor import process_pdf
 from .logger import lire_log
 from .enrich import candidats_frequents, ajouter_emetteur_json
-from .config_path import CONFIG_PATH, set_output_path
+from .config_path import CONFIG_PATH, DEFAULT_OUTPUT_PATH,set_output_path, get_output_path
 
 app = typer.Typer()
 
@@ -23,8 +23,9 @@ def run(
     debug: bool = typer.Option(False, "--debug", "-d", help="Afficher les scores"),
     dry_run: bool = typer.Option(False, "--dry-run", "-n", help="Simuler sans renommer"),
     recursive: bool = typer.Option(False, "--recursive", "-r", help="Inclure les sous-dossiers"),
-    output: bool = typer.Option(False, "--output", "-o", help="déplacer les fichiers dans le dossier de sortie"),
-):
+    output: bool = typer.Option(False, "--output", "-o", help=f"Autoriser le déplacement des fichiers renommés dans le dossier de sortie (par défaut : {DEFAULT_OUTPUT_PATH})"),
+    ):
+    """Traite un fichier PDF ou tous les PDF d'un dossier."""
     if path.is_dir():
         _traiter_dossier(path, recursive, dry_run, debug, output)
     elif path.is_file():
@@ -161,7 +162,7 @@ def register(
         typer.echo("❌ Échec de l'ajout.")
 
 @app.command()
-def set_output(nouveau_output_path: Path = typer.Argument(..., help="Dossier de sortie pour les fichiers renommés")):
+def set_output(nouveau_output_path: Path = typer.Argument(..., help=f"Configurer le dossier de sortie pour les fichiers renommés (actuellement : {get_output_path()})")) -> None:
     """Définir le dossier de sortie pour les fichiers renommés."""
     if not nouveau_output_path.is_dir():
         typer.echo(f"❌ Le chemin spécifié n'est pas un dossier : {nouveau_output_path}")
