@@ -26,13 +26,16 @@ def generer_keywords_destinataire(
         email: str = "", 
         telephone: str = ""
         ) -> dict[str,int]:
+    
+    nom_minuscule = nom.lower().strip()
+    prenom_minuscule = prenom.lower().strip()
 
     # Construction automatique des keywords avec poids
-    nom_complet = f"{prenom} {nom}"
     keywords = {
-        nom_complet.lower(): 5,   # nom complet → fort
-        prenom.lower(): 1,        # prénom seul → faible
-        nom.lower(): 1,           # nom seul → faible
+        f"{prenom_minuscule} {nom_minuscule}": 5,   # nom complet → fort
+        f"{nom_minuscule} {prenom_minuscule}": 5,   # nom complet inversé → fort
+        f"{prenom_minuscule}": 1,        # prénom seul → faible
+        f"{nom_minuscule}": 1,           # nom seul → faible
     }
     if email:
         keywords[email.lower()] = 5
