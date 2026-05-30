@@ -7,9 +7,9 @@ from .destinataire import generer_keywords_destinataire, destinataire_existe
 from .utils import ajouter_nouvelle_entree_json, choisir_dans_liste
 from .config import charger_config, charger_config_emetteurs
 from .processor import process_pdf
-from .logger import lire_log
+from .logger import lire_extraction_log, log_run
 from .enrich import candidats_frequents, ajouter_emetteur_json
-from .config_path import CONFIG_PATH, set_output_path
+from .config_path import CONFIG_PATH, DEFAULT_OUTPUT_PATH,set_output_path, get_output_path
 
 app = typer.Typer()
 
@@ -18,13 +18,15 @@ TYPES, EMETTEURS, DESTINATAIRES = charger_config()
 
 
 @app.command()
+@log_run
 def run(
     path: Path = typer.Argument(..., help="Fichier PDF ou dossier à traiter"),
     debug: bool = typer.Option(False, "--debug", "-d", help="Afficher les scores"),
     dry_run: bool = typer.Option(False, "--dry-run", "-n", help="Simuler sans renommer"),
     recursive: bool = typer.Option(False, "--recursive", "-r", help="Inclure les sous-dossiers"),
-    output: bool = typer.Option(False, "--output", "-o", help="déplacer les fichiers dans le dossier de sortie"),
-):
+    output: bool = typer.Option(False, "--output", "-o", help=f"Autoriser le déplacement des fichiers renommés dans le dossier de sortie (par défaut : {DEFAULT_OUTPUT_PATH})"),
+    ):
+    """Traite un fichier PDF ou tous les PDF d'un dossier."""
     if path.is_dir():
         _traiter_dossier(path, recursive, dry_run, debug, output)
     elif path.is_file():
@@ -52,6 +54,7 @@ def _traiter_fichier(path: Path, dry_run: bool, debug: bool, output: bool) -> No
     process_pdf(path, TYPES, EMETTEURS, DESTINATAIRES, dry_run, debug, output)
 
 @app.command()
+@log_run
 def enrich():
     """Enrichir la liste des émetteurs depuis les candidats fréquents."""
 
@@ -62,7 +65,7 @@ def enrich():
     while True:
         # recharger la config à chaque tour pour refléter les ajouts précédents,
         emetteurs = charger_config_emetteurs()
-        candidats = candidats_frequents(lire_log())
+        candidats = candidats_frequents(lire_extraction_log())
         emetteurs_connus = set()
         for emetteur in emetteurs.values():
             emetteurs_connus.add(emetteur["description"].lower())
@@ -110,6 +113,7 @@ def enrich():
             break
 
 @app.command()
+@log_run
 def register(
     json_path: Path = CONFIG_PATH / "destinataire.json"
 ) -> None:
@@ -161,7 +165,8 @@ def register(
         typer.echo("❌ Échec de l'ajout.")
 
 @app.command()
-def set_output(nouveau_output_path: Path = typer.Argument(..., help="Dossier de sortie pour les fichiers renommés")):
+@log_run
+def set_output(nouveau_output_path: Path = typer.Argument(..., help=f"Configurer le dossier de sortie pour les fichiers renommés (actuellement : {get_output_path()})")) -> None:
     """Définir le dossier de sortie pour les fichiers renommés."""
     if not nouveau_output_path.is_dir():
         typer.echo(f"❌ Le chemin spécifié n'est pas un dossier : {nouveau_output_path}")

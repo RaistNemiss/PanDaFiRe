@@ -12,7 +12,7 @@ from .extraction import (
     extraire_nom_pdf_sans_date,
 )
 from .classifier import identifier_par_score
-from .logger import log_decision
+from .logger import extraction_logger
 from .utils import normaliser_text
 from .destinataire import determiner_initiales_destinataire
 from .config_path import get_output_path
@@ -55,7 +55,7 @@ def process_pdf(
         candidats_emetteur = []
 
     # Log
-    log_decision(
+    extraction_logger(
         pdf_path,
         type_doc,
         type_doc_scores,
