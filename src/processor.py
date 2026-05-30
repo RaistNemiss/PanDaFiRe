@@ -135,7 +135,7 @@ def _deplacer_fichier(pdf_path: Path, date_doc: str, type_doc: str, nom_emetteur
         typer.echo(f"❌ Fichier déjà existant : {destination}")
         return False
   
-    shutil.move(str(pdf_path), str(destination)) # shutili.move gère mieux les déplacements entre disques différents que Path.rename
+    shutil.move(str(pdf_path), str(destination)) # shutil.move gère mieux les déplacements entre disques différents que Path.rename
     typer.echo(f"✅ {pdf_path.name} déplacé vers {destination}")
     return True
 
