@@ -1,6 +1,7 @@
 import pytesseract
 from pdf2image import convert_from_path
 from pathlib import Path
+import pymupdf
 
 from .config_path import POPPLER_PATH, TESSERACT_PATH
 
