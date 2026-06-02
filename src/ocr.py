@@ -29,5 +29,11 @@ def extraire_texte_ocr_pdf2image(pdf_path: Path) -> str:
 
     return texte
 
-def extrire_texte_ocr_pymupdf(pdf_path: Path) -> str:
-    pass
+def extraire_texte_ocr_pymupdf(pdf_path: Path) -> str:
+    nb_pages_max = 2  
+    with pymupdf.open(pdf_path) as pdf_to_ocr:
+        texte = ""
+        derniere_page = min(nb_pages_max, pdf_to_ocr.page_count)          )
+        for numero_page in range(derniere_page):
+            page = pdf_to_ocr[numero_page]
+            image = page.get_pixmap() # rendu de la page en image
