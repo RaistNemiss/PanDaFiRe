@@ -29,11 +29,32 @@ def extraire_texte_ocr_pdf2image(pdf_path: Path) -> str:
 
     return texte
 
-def extraire_texte_ocr_pymupdf(pdf_path: Path) -> str:
-    nb_pages_max = 2  
+def extraire_texte_ocr_pymupdf(pdf_path: Path, nb_pages_max: int = 3) -> str:
+    """Stratégie OCR via rendu image PyMuPDF + Tesseract, avec limitation du nombre de pages à traiter pour l'OCR."""
+    dpi = 200  # Résolution pour le rendu de la page
+    texte = ""
+
     with pymupdf.open(pdf_path) as pdf_to_ocr:
-        texte = ""
-        derniere_page = min(nb_pages_max, pdf_to_ocr.page_count)          )
-        for numero_page in range(derniere_page):
-            page = pdf_to_ocr[numero_page]
-            image = page.get_pixmap() # rendu de la page en image
+
+        derniere_page = min(nb_pages_max, pdf_to_ocr.page_count)
+
+        for page in pdf_to_ocr.pages(stop=derniere_page):
+
+            # étape 1: PDF -> Pixmap (rendu de la page en pixels)
+            pixmap_page_image = page.get_pixmap(dpi=dpi)
+
+            # étape 2: Pixmap -> PIL.Image (format compatible avec Tesseract)
+            pil_page_image = Image.open(io.BytesIO(pixmap_page_image.tobytes("png")))
+
+            # étape 3: OCR avec Tesseract
+            texte += pytesseract.image_to_string(pil_page_image, lang="fra+eng", config="--oem 1 --psm 6")
+    
+    return texte
+
+if __name__ == "__main__":
+    # Exemple d'utilisation
+    pdf_test = Path(r"C:\Users\afarina\Downloads\attestation efaje.pdf")
+    print("Texte extrait avec pdf2image + Tesseract :")
+    print(extraire_texte_ocr_pdf2image(pdf_test))
+    print("\nTexte extrait avec PyMuPDF + Tesseract :")
+    print(extraire_texte_ocr_pymupdf(pdf_test))
