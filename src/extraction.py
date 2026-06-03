@@ -1,4 +1,3 @@
-import pdfplumber
 import pymupdf
 import re
 from datetime import datetime
