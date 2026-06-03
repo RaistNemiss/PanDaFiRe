@@ -245,9 +245,9 @@
       "gebrauchsanweisung": 5,
       "installationsanleitung": 5,
       "consignes de sécurité": 4,
-      "safety instructions": 4,
+      "safety instructions": 1,
       "sicherheitshinweise": 5,
-      "troubleshooting": 4,
+      "troubleshooting": 1,
       "fehlersuche": 4
     }
   },
@@ -277,6 +277,7 @@
       "versicherung": 4,
       "insurance policy": 5,
       "couverture d'assurance": 4,
+      "décompte des prestations": 3,
       "sinistre": 4
     }
   },
