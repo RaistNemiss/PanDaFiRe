@@ -16,6 +16,7 @@ settings.json
 *.jsonl
 pandafire_decision_log.json
 extraction_log.jsonl
+jsonl_to_csv.py
 
 # OS
 .DS_Store
@@ -27,3 +28,7 @@ Thumbs.db
 
 # pdf file
 *.pdf
+
+#benchmark
+benchmark_1.py
+benchmark_2.py
