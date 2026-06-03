@@ -5,7 +5,7 @@ from dateparser import parse as date_parse
 from pathlib import Path
 
 from .utils import ARTICLES_PREPOSITIONS
-from .ocr import extraire_texte_ocr_pdf2image
+from .ocr import extraire_texte_ocr
 
 # Pour le texte (corps du document)
 REGEX_DATES_CANDIDATS = [
@@ -56,7 +56,7 @@ def extraire_texte(pdf_path: Path) -> tuple[str, bool]:
         return texte, False  # texte extrait avec succès, pas besoin d'OCR
         
     print(f"🔍 {pdf_path.name} PDF scanné détecté → OCR")
-    texte = extraire_texte_ocr_pdf2image(pdf_path)
+    texte = extraire_texte_ocr(pdf_path)
 
     return texte, True  # texte extrait via OCR
 
