@@ -27,3 +27,7 @@ Thumbs.db
 
 # pdf file
 *.pdf
+
+# benchmark
+benchmark_1.py
+benchmark_2.py

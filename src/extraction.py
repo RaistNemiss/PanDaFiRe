@@ -1,4 +1,5 @@
 import pdfplumber
+import pymupdf
 import re
 from datetime import datetime
 from dateparser import parse as date_parse
@@ -44,20 +45,15 @@ REGEX_DATES_CANDIDATS_FICHIER = [
 
 
 def extraire_texte(pdf_path: Path) -> tuple[str, bool]:
-    
-    texte = ""
-    
-    with pdfplumber.open(pdf_path) as pdf:   
-        for page in pdf.pages:
-            # extract_text() peut retourner None si la page est vide ou si le texte ne peut pas être extrait (ex: PDF scanné)
-            texte = "\n".join(page.extract_text() or "" for page in pdf.pages)
+    """Extrait le texte d'un PDF. Bascule sur OCR si le PDF est scanné."""
+    with pymupdf.open(pdf_path) as pdf:   
+        texte = "\n".join(page.get_text() for page in pdf.pages())
     
     if texte.strip():
         return texte, False  # texte extrait avec succès, pas besoin d'OCR
         
     print(f"🔍 {pdf_path.name} PDF scanné détecté → OCR")
     texte = extraire_texte_ocr(pdf_path)
-
     return texte, True  # texte extrait via OCR
 
 def extraire_date_document(texte: str) -> str:
