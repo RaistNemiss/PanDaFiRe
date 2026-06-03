@@ -14,6 +14,7 @@ settings.json
 # Logs
 *.log
 *.jsonl
+jsonl_to_csv.py
 pandafire_decision_log.json
 extraction_log.jsonl
 
