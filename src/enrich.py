@@ -1,8 +1,10 @@
 from pathlib import Path
 from collections import Counter
 import re
+import typer
 
-from .utils import ajouter_nouvelle_entree_json ,ARTICLES_PREPOSITIONS, enlever_accents
+from .utils import ajouter_nouvelle_entree_json ,ARTICLES_PREPOSITIONS, enlever_accents, choisir_dans_liste, entree_json_existe
+from .config import charger_config_emetteurs
 
 
 
@@ -86,3 +88,40 @@ def extraire_mot_significatif(nom: str) -> list[str]:
             candidats.append(mot_clean.lower())
     
     return candidats
+
+def enrich_manuel() -> None:
+    """Enrichir la liste des émetteurs de façon interactive."""
+
+    emetteurs = charger_config_emetteurs()
+
+    typer.echo("\n🏢 Ajout d'un nouvel émetteur\n" + "-" * 40)
+
+    # 1. nom de l'émetteur (obligatoire)
+    nom_nouvel_emetteur = typer.prompt("Nom de l'émetteur").strip()
+    if not nom_nouvel_emetteur:
+        typer.echo("❌ Le nom de la compagnie est obligatoire.")
+        raise typer.Abort()
+    
+    # 2. catégorie de l'émetteur choix dans
+    categories = list(dict.fromkeys(emetteur["category"] for emetteur in emetteurs.values()))
+    choix_categorie = choisir_dans_liste(
+        categories,
+         titre="Catégories disponibles :",
+         label_prompt=f"Catégorie pour {nom_nouvel_emetteur}")
+    
+    if choix_categorie is None:
+        typer.echo("❌ La catégorie est obligatoire.")
+        raise typer.Abort()
+    categorie_select = categories[choix_categorie]
+
+    if entree_json_existe(nom_nouvel_emetteur, emetteurs):
+        typer.echo(f"⚠️ L'émetteur '{nom_nouvel_emetteur}' existe déjà.")
+        if not typer.confirm("Voulez-vous l'écraser ?", default=False):
+            raise typer.Abort()
+        ecraser = True
+    
+    email = typer.prompt("Email", default="", show_default=False).strip()
+    site_web_a = typer.prompt("Site web", default="", show_default=False).strip()
+    site_web_b = typer.prompt("Site web alternatif", default="", show_default=False).strip()
+    telephone = typer.prompt("Téléphone", default="", show_default=False).strip()
+    mot_cle_supplementaire = typer.prompt("Mots-clés supplémentaires (séparés par des virgules)", default="", show_default=False).strip()

@@ -8,8 +8,8 @@ from .utils import ajouter_nouvelle_entree_json, choisir_dans_liste
 from .config import charger_config, charger_config_emetteurs
 from .processor import process_pdf
 from .logger import lire_extraction_log, log_run
-from .enrich import candidats_frequents, ajouter_emetteur_json
-from .config_path import CONFIG_PATH, DEFAULT_OUTPUT_PATH,set_output_path, get_output_path
+from .enrich import candidats_frequents, ajouter_emetteur_json, enrich_manuel
+from .config_path import CONFIG_PATH, DEFAULT_OUTPUT_PATH, set_output_path, get_output_path
 
 app = typer.Typer()
 
@@ -55,8 +55,11 @@ def _traiter_fichier(path: Path, dry_run: bool, debug: bool, output: bool) -> No
 
 @app.command()
 @log_run
-def enrich():
+def enrich(manual : bool = typer.Option(False, "--manual", "-m", help="Ajouter manuellement un émetteur sans passer par les candidats fréquents")) -> None:        
     """Enrichir la liste des émetteurs depuis les candidats fréquents."""
+
+    if manual :
+        enrich_manuel()
 
     # Fonction locale pour formater un candidat (nom, occurrence)
     def format_candidat(c) -> str:
