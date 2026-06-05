@@ -23,7 +23,7 @@ Outil Python pour analyser et renommer automatiquement des fichiers PDF :
 
 ### Dépendances système
 
-PanDaFiRe nécessite **Tesseract** (OCR) et **Poppler** (conversion PDF → image) installés sur ta machine.
+PanDaFiRe nécessite **Tesseract** (OCR).
 
 #### 🪟 Windows
 
@@ -32,14 +32,9 @@ PanDaFiRe nécessite **Tesseract** (OCR) et **Poppler** (conversion PDF → imag
    - Installer (par défaut : `C:\Program Files\Tesseract-OCR\`)
    - ⚠️ Pense à installer le pack de langue **français** lors de l'installation
 
-2. **Poppler**
-   - Télécharger : https://github.com/oschwartz10612/poppler-windows/releases
-   - Décompresser (ex. `C:\TEMP\poppler-XX\Library\bin`)
-
-3. **Configurer les chemins** via variables d'environnement (recommandé) :
+2. **Configurer les chemins** via variables d'environnement (recommandé) :
    ```powershell
    setx TESSERACT_PATH "C:\Program Files\Tesseract-OCR\tesseract.exe"
-   setx POPPLER_PATH "C:\TEMP\poppler-26.02.0\Library\bin"
    ```
    *(ou éditer directement `src/config_path.py`)*
 
@@ -47,13 +42,13 @@ PanDaFiRe nécessite **Tesseract** (OCR) et **Poppler** (conversion PDF → imag
 
 ```bash
 sudo apt update
-sudo apt install tesseract-ocr tesseract-ocr-fra poppler-utils
+sudo apt install tesseract-ocr tesseract-ocr-fra
 ```
 
 #### 🍎 macOS (Homebrew)
 
 ```bash
-brew install tesseract tesseract-lang poppler
+brew install tesseract tesseract-lang
 ```
 
 ### Python
