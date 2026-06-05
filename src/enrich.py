@@ -2,9 +2,9 @@ from pathlib import Path
 from collections import Counter
 import re
 import typer
-
-from .utils import ajouter_nouvelle_entree_json ,ARTICLES_PREPOSITIONS, enlever_accents, choisir_dans_liste, entree_json_existe
+from .utils import ajouter_nouvelle_entree_json, ARTICLES_PREPOSITIONS, enlever_accents, choisir_dans_liste, entree_json_existe, ajuster_score_keywords_ambigus
 from .config import charger_config_emetteurs
+from .config_path import CONFIG_PATH
 
 
 
@@ -30,7 +30,7 @@ def ajouter_emetteur_json(emetteur_select: str, categorie_emetteur: str, emetteu
 
     nouveau_emetteur = emetteur_select.strip()
     
-    emetteur_est_ajoute = ajouter_nouvelle_entree_json(description=nouveau_emetteur, keywords=generer_mot_clef(nouveau_emetteur), json_path=emetteur_json_path, nom_categorie=categorie_emetteur)
+    emetteur_est_ajoute = ajouter_nouvelle_entree_json(description=nouveau_emetteur, keywords=generer_keywords_depuis_nom(nouveau_emetteur), json_path=emetteur_json_path, nom_categorie=categorie_emetteur)
 
     if emetteur_est_ajoute:
         print(f"✅ Émetteur ajouté : {nouveau_emetteur}")       
@@ -38,7 +38,7 @@ def ajouter_emetteur_json(emetteur_select: str, categorie_emetteur: str, emetteu
         print(f"⚠️ L'émetteur '{nouveau_emetteur}' existe déjà dans la configuration.")
 
 
-def generer_mot_clef(nom: str) -> dict:
+def generer_keywords_depuis_nom(nom: str) -> dict[str, int]:
 
     nom_clean = nom.lower().strip()
 
@@ -72,6 +72,42 @@ def generer_mot_clef(nom: str) -> dict:
 
     return keywords
 
+def generer_keywords_emetteur(
+        nom: str, 
+        email: str = "", 
+        site_web_a: str = "", 
+        site_web_b: str = "", 
+        telephone: str = "", 
+        mot_cle_supplementaire: str = "") -> tuple[dict[str, int], list[str]]:
+    
+    keywords = generer_keywords_depuis_nom(nom)
+
+    if email:
+        keywords[email.lower()] = 4
+        domaine_email = "@" + email.split("@")[-1]
+        keywords[domaine_email] = 2
+
+    if site_web_a:
+        keywords[site_web_a.lower()] = 4
+    if site_web_b:
+        keywords[site_web_b.lower()] = 4
+    if telephone:
+        keywords[telephone] = 5
+
+        # normalisation du téléphone pour maximiser les chances de correspondance (ex: "+41 77 777 77 77" → "41777777777")
+        tel_normalise = "".join(c for c in telephone if c.isdigit())
+        
+        if tel_normalise:
+            keywords[tel_normalise] = 3
+    
+    if mot_cle_supplementaire:
+        for mot in mot_cle_supplementaire.split(","):
+            mot_clean = mot.strip().lower()
+            if mot_clean and mot_clean not in keywords:
+                keywords[mot_clean] = 1
+    
+    return ajuster_score_keywords_ambigus(keywords, config_json=charger_config_emetteurs())
+
 def extraire_mot_significatif(nom: str) -> list[str]:
     mots = nom.split()
 
@@ -93,16 +129,16 @@ def enrich_manuel() -> None:
     """Enrichir la liste des émetteurs de façon interactive."""
 
     emetteurs = charger_config_emetteurs()
-
+    ecraser = False
     typer.echo("\n🏢 Ajout d'un nouvel émetteur\n" + "-" * 40)
 
-    # 1. nom de l'émetteur (obligatoire)
+    # 1. demander le nom de l'émetteur (obligatoire)
     nom_nouvel_emetteur = typer.prompt("Nom de l'émetteur").strip()
     if not nom_nouvel_emetteur:
         typer.echo("❌ Le nom de la compagnie est obligatoire.")
         raise typer.Abort()
     
-    # 2. catégorie de l'émetteur choix dans
+    # 2. choisir la catégorie de l'émetteur dans la liste des catégories disponibles
     categories = list(dict.fromkeys(emetteur["category"] for emetteur in emetteurs.values()))
     choix_categorie = choisir_dans_liste(
         categories,
@@ -114,14 +150,45 @@ def enrich_manuel() -> None:
         raise typer.Abort()
     categorie_select = categories[choix_categorie]
 
+    # 3. vérifier si l'emmeteur existe déjà et demander si le mettre à jour ou annuler
     if entree_json_existe(nom_nouvel_emetteur, emetteurs):
         typer.echo(f"⚠️ L'émetteur '{nom_nouvel_emetteur}' existe déjà.")
         if not typer.confirm("Voulez-vous l'écraser ?", default=False):
             raise typer.Abort()
         ecraser = True
-    
+
+    # 4. demander le restes des informations
     email = typer.prompt("Email", default="", show_default=False).strip()
     site_web_a = typer.prompt("Site web", default="", show_default=False).strip()
     site_web_b = typer.prompt("Site web alternatif", default="", show_default=False).strip()
     telephone = typer.prompt("Téléphone", default="", show_default=False).strip()
     mot_cle_supplementaire = typer.prompt("Mots-clés supplémentaires (séparés par des virgules)", default="", show_default=False).strip()
+    keywords_emetteur, keywords_ajustes = generer_keywords_emetteur(nom_nouvel_emetteur, email, site_web_a, site_web_b, telephone, mot_cle_supplementaire)
+
+    if keywords_ajustes:
+        typer.echo("⚠️ Certains mots-clés sont ambigus avec d'autres émetteurs connus. Scores ajustés :")
+        for keyword in keywords_ajustes:
+            typer.echo(f"   -  mot-clé : '{keyword}' → score ajusté à {keywords_emetteur[keyword]}")
+
+    #récap + confirmation
+    typer.echo(f"\n📋 Récapitulatif pour « {nom_nouvel_emetteur} » :")
+    typer.echo(f"Catégorie : {categorie_select}")
+    for mot, poids in keywords_emetteur.items():
+        typer.echo(f"   • {mot} (poids {poids})")
+
+    if not typer.confirm("\nConfirmer ?", default=True):
+        typer.echo("❌ Annulé.")
+        raise typer.Abort()
+    
+    success = ajouter_nouvelle_entree_json(
+        description=nom_nouvel_emetteur, 
+        keywords=keywords_emetteur, 
+        json_path=CONFIG_PATH / "emetteurs.json", 
+        nom_categorie=categorie_select, 
+        overwrite=ecraser
+        )
+    
+    if success:
+        typer.echo(f"✅ {nom_nouvel_emetteur} {'mis à jour' if ecraser else 'ajouté'} !")
+    else:
+        typer.echo("❌ Échec de l'ajout.")

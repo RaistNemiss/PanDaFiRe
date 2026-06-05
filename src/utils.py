@@ -88,3 +88,29 @@ def choisir_dans_liste(
     item_select = items[choix - 1]
     typer.confirm(f"Confirmer : {formatter(item_select)} ?", abort=True)
     return choix - 1
+
+def entree_json_existe(mot_cle: str, config_json: dict) -> bool:
+
+    mot_cle_clean = mot_cle.lower().strip()
+    
+    return any(
+        dest["description"].lower() == mot_cle_clean
+        for dest in config_json.values()
+    )
+
+def ajuster_score_keywords_ambigus(keywords: dict[str, int], config_json: dict[str, dict]) -> tuple[dict[str, int], list[str]]:
+
+    config_keywords = []
+    keywords_ajustes = []
+
+    # 1. ajouter dans une liste toutes les clés du config_json
+    for i in config_json.values():
+        config_keywords.extend(i.get("keywords", {}).keys())
+    
+    # 2. pour chaque mot clé du keywords, si il existe dans config_keywords et que son score est > 1, le réduire à 1 pour éviter les faux positifs
+    for mot_cle, score in keywords.items():
+        if mot_cle in config_keywords and score > 1:
+            keywords[mot_cle] = 1
+            keywords_ajustes.append(mot_cle)
+
+    return keywords, keywords_ajustes
