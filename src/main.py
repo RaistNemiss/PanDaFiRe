@@ -9,7 +9,12 @@ from .config import charger_config, charger_config_emetteurs
 from .processor import process_pdf
 from .logger import lire_extraction_log, log_run
 from .enrich import candidats_frequents, ajouter_emetteur_json, enrich_manuel
-from .config_path import CONFIG_PATH, DEFAULT_OUTPUT_PATH, set_output_path, get_output_path
+from .config_path import (
+    CONFIG_PATH,
+    DEFAULT_OUTPUT_PATH,
+    set_output_path,
+    get_output_path,
+)
 
 app = typer.Typer()
 
@@ -22,10 +27,19 @@ TYPES, EMETTEURS, DESTINATAIRES = charger_config()
 def run(
     path: Path = typer.Argument(..., help="Fichier PDF ou dossier à traiter"),
     debug: bool = typer.Option(False, "--debug", "-d", help="Afficher les scores"),
-    dry_run: bool = typer.Option(False, "--dry-run", "-n", help="Simuler sans renommer"),
-    recursive: bool = typer.Option(False, "--recursive", "-r", help="Inclure les sous-dossiers"),
-    output: bool = typer.Option(False, "--output", "-o", help=f"Autoriser le déplacement des fichiers renommés dans le dossier de sortie (par défaut : {DEFAULT_OUTPUT_PATH})"),
-    ):
+    dry_run: bool = typer.Option(
+        False, "--dry-run", "-n", help="Simuler sans renommer"
+    ),
+    recursive: bool = typer.Option(
+        False, "--recursive", "-r", help="Inclure les sous-dossiers"
+    ),
+    output: bool = typer.Option(
+        False,
+        "--output",
+        "-o",
+        help=f"Autoriser le déplacement des fichiers renommés dans le dossier de sortie (par défaut : {DEFAULT_OUTPUT_PATH})",
+    ),
+):
     """Traite un fichier PDF ou tous les PDF d'un dossier."""
     if path.is_dir():
         _traiter_dossier(path, recursive, dry_run, debug, output)
@@ -36,7 +50,9 @@ def run(
         raise typer.Exit(code=1)
 
 
-def _traiter_dossier(path: Path, recursive: bool, dry_run: bool, debug: bool, output: bool) -> None:
+def _traiter_dossier(
+    path: Path, recursive: bool, dry_run: bool, debug: bool, output: bool
+) -> None:
     pdf_files = sorted(path.rglob("*.pdf") if recursive else path.glob("*.pdf"))
 
     if not pdf_files:
@@ -50,21 +66,30 @@ def _traiter_dossier(path: Path, recursive: bool, dry_run: bool, debug: bool, ou
         except Exception as e:
             typer.echo(f"❌ Erreur sur {pdf_file.name} : {e}")
 
+
 def _traiter_fichier(path: Path, dry_run: bool, debug: bool, output: bool) -> None:
     process_pdf(path, TYPES, EMETTEURS, DESTINATAIRES, dry_run, debug, output)
 
+
 @app.command()
 @log_run
-def enrich(manual : bool = typer.Option(False, "--manual", "-m", help="Ajouter manuellement un émetteur sans passer par les candidats fréquents")) -> None:        
+def enrich(
+    manual: bool = typer.Option(
+        False,
+        "--manual",
+        "-m",
+        help="Ajouter manuellement un émetteur sans passer par les candidats fréquents",
+    ),
+) -> None:
     """Enrichir la liste des émetteurs depuis les candidats fréquents."""
 
-    if manual :
+    if manual:
         enrich_manuel()
 
     # Fonction locale pour formater un candidat (nom, occurrence)
     def format_candidat(c) -> str:
         return f"{c[0]} : {c[1]} occurrence(s)"
-    
+
     while True:
         # recharger la config à chaque tour pour refléter les ajouts précédents,
         emetteurs = charger_config_emetteurs()
@@ -75,16 +100,17 @@ def enrich(manual : bool = typer.Option(False, "--manual", "-m", help="Ajouter m
             emetteurs_connus.update(
                 keyword.lower() for keyword in emetteur.get("keywords", {})
             )
-        categories = list(dict.fromkeys(emetteur["category"] for emetteur in emetteurs.values()))
+        categories = list(
+            dict.fromkeys(emetteur["category"] for emetteur in emetteurs.values())
+        )
 
         # filtrer les candidats déjà connus dans les émetteurs
         candidats = [c for c in candidats if c[0].lower() not in emetteurs_connus]
-                     
 
         if not candidats:
             typer.echo("Aucun nouveau candidat à traiter. 🎉")
             return
-        
+
         # Étape 1 : choisir le candidat
         choix_candidat_emetteur = choisir_dans_liste(
             candidats,
@@ -111,17 +137,16 @@ def enrich(manual : bool = typer.Option(False, "--manual", "-m", help="Ajouter m
             nom_candidat, categorie_select, CONFIG_PATH / "emetteurs.json"
         )
         typer.echo(f"✅ '{nom_candidat}' ajouté dans '{categorie_select}'")
-    
+
         if not typer.confirm("Ajouter un autre émetteur ?"):
             break
 
+
 @app.command()
 @log_run
-def register(
-    json_path: Path = CONFIG_PATH / "destinataire.json"
-) -> None:
+def register(json_path: Path = CONFIG_PATH / "destinataire.json") -> None:
     """Ajoute un nouveau destinataire de façon interactive."""
-    
+
     typer.echo("\n📇 Ajout d'un nouveau destinataire\n" + "-" * 40)
 
     # Séquence guidée
@@ -134,7 +159,7 @@ def register(
     if not prenom and not nom:
         typer.echo("❌ Au moins un prénom ou un nom doit être fourni.")
         raise typer.Abort()
-    
+
     # Vérification de l'existence du destinataire dans le JSON Destinataires
     if destinataire_existe(nom_complet):
         typer.echo(f"⚠️ Le destinataire '{nom_complet}' existe déjà.")
@@ -167,18 +192,25 @@ def register(
     else:
         typer.echo("❌ Échec de l'ajout.")
 
+
 @app.command()
 @log_run
-def set_output(nouveau_output_path: Path = typer.Argument(..., help=f"Configurer le dossier de sortie pour les fichiers renommés (actuellement : {get_output_path()})")) -> None:
+def set_output(
+    nouveau_output_path: Path = typer.Argument(
+        ...,
+        help=f"Configurer le dossier de sortie pour les fichiers renommés (actuellement : {get_output_path()})",
+    ),
+) -> None:
     """Définir le dossier de sortie pour les fichiers renommés."""
     if not nouveau_output_path.is_dir():
-        typer.echo(f"❌ Le chemin spécifié n'est pas un dossier : {nouveau_output_path}")
+        typer.echo(
+            f"❌ Le chemin spécifié n'est pas un dossier : {nouveau_output_path}"
+        )
         raise typer.Exit(code=1)
-        
+
     set_output_path(nouveau_output_path)
     typer.echo(f"✅ Dossier de sortie défini : {nouveau_output_path.resolve()}")
 
 
 if __name__ == "__main__":
     app()
-    

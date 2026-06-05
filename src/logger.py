@@ -8,6 +8,7 @@ from .config_path import LOG_PATH
 
 RunType = Literal["START", "END", "ABORT", "ERROR"]
 
+
 def init_extraction_log_file():
     # Si le dossier de logs n'existe pas, on le crée automatiquement pour éviter les erreurs d'écriture du log
     if not LOG_PATH.parent.exists():
@@ -16,6 +17,7 @@ def init_extraction_log_file():
     # si le fichier de log n'existe pas, on le crée pour éviter les erreurs d'écriture du log
     if not LOG_PATH.exists():
         LOG_PATH.touch()
+
 
 def extraction_logger(
     pdf_path: Path,
@@ -31,7 +33,7 @@ def extraction_logger(
     entete_brut_preview: str = "",
     entete_normalise_preview: str = "",
 ):
-    
+
     log_entry = {
         "timestamp": datetime.now().isoformat(),
         "file": pdf_path.name,
@@ -53,12 +55,14 @@ def extraction_logger(
     with open(fichier_log, "a", encoding="utf-8") as f:
         f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
 
+
 def lire_extraction_log(fichier_log=LOG_PATH) -> list[dict]:
     if not Path(fichier_log).exists():
         return []
     with open(fichier_log, "r", encoding="utf-8") as f:
         return [json.loads(line) for line in f if line.strip()]
-    
+
+
 def log_run(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -72,18 +76,22 @@ def log_run(func):
             run_log(name, "ABORT", "Ctrl+C")
             raise
         except SystemExit as e:
-            #type.Exit / typer.Abort passent par ici
+            # type.Exit / typer.Abort passent par ici
             code = getattr(e, "code", None)
             run_log(name, "ABORT", f"exit code {code}")
             raise
         except Exception as e:
             run_log(name, "ERROR", f"{type(e).__name__}: {e}")
             raise
+
     return wrapper
+
 
 def run_log(function_name: str, run_type: RunType, detail: str = "") -> None:
     runlog_path = LOG_PATH.parent / "run.log"
-    runlog_path.parent.mkdir(parents=True, exist_ok=True)  # Assure que le dossier existe
+    runlog_path.parent.mkdir(
+        parents=True, exist_ok=True
+    )  # Assure que le dossier existe
 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     line = f"[{timestamp}] {function_name:<12} | {run_type:<6}"
