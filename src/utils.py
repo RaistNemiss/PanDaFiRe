@@ -3,7 +3,7 @@ import unicodedata
 from pathlib import Path
 import json
 import typer
-from typing import Optional
+from typing import Optional, Callable
 
 ARTICLES_PREPOSITIONS = r"\b(de|du|la|des|le|les|et|à|au|aux)\b"
 
@@ -65,7 +65,7 @@ def choisir_dans_liste(
     items: list,
     titre: str,
     label_prompt: str,
-    formatter=str,
+    formatter: Callable[[str], str] = str,
 ) -> Optional[int]:
     """
     Affiche une liste numérotée et demande à l'utilisateur d'en choisir un élément.

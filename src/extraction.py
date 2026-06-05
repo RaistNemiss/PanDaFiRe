@@ -94,23 +94,23 @@ def extraire_candidats_emetteur(texte: str) -> list:
                      "Madame", "Monsieur", "objet",)
     
     for ligne in lignes_texte[:15]:  # on se concentre sur les premières lignes du document
-        l = ligne.strip() #supprime les espaces et/ou tabulation en début et fin de ligne
-        l_minusucule = l.lower()
+        ligne_clean = ligne.strip() #supprime les espaces et/ou tabulation en début et fin de ligne
+        l_minusucule = ligne_clean.lower()
     
         # Filtre 1 : mots exclus
         if any(exclu in l_minusucule for exclu in mot_exclus):
             continue
         
         # Filtre 2 : longueur raisonnable
-        if not (6 <= len(l) <= 60):
+        if not (6 <= len(ligne_clean) <= 60):
             continue
 
         # Filtre 3 : pas de chiffres
-        if re.search(r"\d", l):
+        if re.search(r"\d", ligne_clean):
             continue
 
         # Filtre 4 : ratio de mots avec majuscules
-        mots = [m.strip(".,") for m in l.split() if len(m) > 1] # exclut les lettres isolées.
+        mots = [m.strip(".,") for m in ligne_clean.split() if len(m) > 1] # exclut les lettres isolées.
 
         if not mots:
             continue
@@ -123,7 +123,7 @@ def extraire_candidats_emetteur(texte: str) -> list:
         if ratio_majuscule < 0.5:
             continue
 
-        candidats.append(l)
+        candidats.append(ligne_clean)
     
     return candidats
 
