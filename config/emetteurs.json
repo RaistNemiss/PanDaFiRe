@@ -417,5 +417,36 @@
             "scovaud@fso-svo.ch": 5,
             "formation@fso-svo.ch": 5
         }
+    },
+    "efaje": {
+        "description": "EFAJE",
+        "category": "service",
+        "keywords": {
+            "efaje": 5,
+            "crd@efaje.ch": 4,
+            "@efaje.ch": 2,
+            "http://efaje.ch": 4,
+            "021 886 14 00": 5,
+            "0218861400": 3,
+            "association efaje": 1,
+            "secteur crd": 1
+        }
+    },
+    "office_d_impots": {
+        "description": "Office d'impôts",
+        "category": "administration",
+        "keywords": {
+            "office d'impots": 5,
+            "officed'impots": 4,
+            "info.aci@vd.ch": 4,
+            "@vd.ch": 2,
+            "www.vd.ch/etat-droit-finances/impots": 4,
+            "www.vd.ch/impots": 4,
+            "021'316'00'00": 5,
+            "0213160000": 3,
+            "no de contribuable": 1,
+            "code de contrôle": 1,
+            "impot sur le revenu et la fortune": 1
+        }
     }
 }
