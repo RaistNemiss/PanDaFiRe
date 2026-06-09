@@ -16,14 +16,11 @@ import os
 BASE_PATH = Path(__file__).resolve().parent.parent
 CONFIG_PATH = BASE_PATH / "config"
 DESTINATAIRE_PATH = CONFIG_PATH / "destinataire.json"
-TYPES_PATH = CONFIG_PATH / "types_documents.json"
+TYPEDOC_PATH = CONFIG_PATH / "types_documents.json"
 EMETTEURS_PATH = CONFIG_PATH / "emetteurs.json"
 LOG_PATH = BASE_PATH / "logs" / "extraction_log.jsonl"
 SETTINGS_PATH = CONFIG_PATH / "settings.json"
-POPPLER_PATH = Path(os.getenv("POPPLER_PATH", r"C:\TEMP\poppler-26.02.0\Library\bin"))
-TESSERACT_PATH = Path(
-    os.getenv("TESSERACT_PATH", r"C:\TEMP\Tesseract-OCR\tesseract.exe")
-)
+TESSERACT_PATH = Path(os.getenv("TESSERACT_PATH", r"C:\TEMP\Tesseract-OCR\tesseract.exe"))
 DEFAULT_OUTPUT_PATH = Path.home() / "Documents"
 
 

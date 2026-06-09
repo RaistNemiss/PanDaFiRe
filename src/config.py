@@ -2,14 +2,17 @@
 
 import json
 from pathlib import Path
+from typing import Callable
 
-from .config_path import DESTINATAIRE_PATH, TYPES_PATH, EMETTEURS_PATH
+from .config_path import DESTINATAIRE_PATH, TYPEDOC_PATH, EMETTEURS_PATH
 from .utils import ajouter_nouvelle_entree_json
+from .entry_service import TypeDeConfig
 
 
 def charger_config() -> tuple[dict, dict, dict]:
     """Charge et retourne TYPES, EMETTEURS, DESTINATAIRES."""
-    types = charger_config_types()
+
+    types = charger_config_typedoc()
     emetteurs = charger_config_emetteurs()
     destinataires = charger_config_destinataires()
 
@@ -31,8 +34,8 @@ def charger_config_emetteurs() -> dict:
     return _charger_json(EMETTEURS_PATH, "emetteurs.json")
 
 
-def charger_config_types() -> dict:
-    return _charger_json(TYPES_PATH, "types.json")
+def charger_config_typedoc() -> dict:
+    return _charger_json(TYPEDOC_PATH, "types.json")
 
 
 def charger_config_destinataires() -> dict:
@@ -72,6 +75,16 @@ def trouver_categorie_config(nom_emetteur: str, emetteurs: dict) -> str:
     """Trouve la catégorie d'un émetteur à partir de la configuration emetteurs.json. Retourne "inconnu" si l'émetteur n'est pas trouvé ou si la configuration est absente/mal formée."""
     return emetteurs.get(nom_emetteur, {}).get("category", "inconnu")
 
+# Mapping des types de config à leurs fonctions de chargement
+_LOADERS : dict[TypeDeConfig, Callable[[], dict]] = {
+    "emetteurs": charger_config_emetteurs,
+    "typedoc": charger_config_typedoc,
+    "destinataires": charger_config_destinataires,
+}
+
+def charger_config_par_type(type_config: TypeDeConfig) -> dict:
+    """Charge une configuration spécifique (emetteurs, types ou destinataires)."""
+    return _LOADERS[type_config]()
 
 if __name__ == "__main__":
     pass
