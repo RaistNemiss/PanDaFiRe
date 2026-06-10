@@ -12,6 +12,7 @@ from .utils import (
 )
 from .config import charger_config_emetteurs
 from .config_path import CONFIG_PATH
+from .entry_service import JsonNewEntryDraft, PanDaFiReError
 
 
 def candidats_frequents(logs: list[dict]) -> list[tuple[str, int]]:
@@ -37,19 +38,20 @@ def ajouter_emetteur_json(
     emetteur_select: str, categorie_emetteur: str, emetteur_json_path: Path
 ) -> None:
 
-    nouveau_emetteur = emetteur_select.strip()
-
-    emetteur_est_ajoute = ajouter_nouvelle_entree_json(
-        description=nouveau_emetteur,
-        keywords=generer_keywords_depuis_nom(nouveau_emetteur),
+    brouillon_nouveau_emetteur = JsonNewEntryDraft(
+        config_type="emetteurs",
+        description=emetteur_select,
+        keywords=generer_keywords_depuis_nom(emetteur_select),
         json_path=emetteur_json_path,
-        nom_categorie=categorie_emetteur,
+        category=categorie_emetteur,
     )
 
-    if emetteur_est_ajoute:
-        print(f"✅ Émetteur ajouté : {nouveau_emetteur}")
+    try:
+        ajouter_nouvelle_entree_json(brouillon_nouveau_emetteur)
+    except PanDaFiReError as e:
+        typer.echo(f"❌ Échec de l'ajout : {e}")
     else:
-        print(f"⚠️ L'émetteur '{nouveau_emetteur}' existe déjà dans la configuration.")
+        typer.echo(f"✅ '{brouillon_nouveau_emetteur.description}' ajouté !")
 
 
 def generer_keywords_depuis_nom(nom: str) -> dict[str, int]:

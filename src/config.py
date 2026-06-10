@@ -6,6 +6,7 @@ from typing import Callable, Literal
 
 from .config_path import DESTINATAIRE_PATH, TYPEDOC_PATH, EMETTEURS_PATH
 from .utils import ajouter_nouvelle_entree_json
+from .entry_service import JsonNewEntryDraft
 
 
 TypeDeConfig = Literal["emetteurs", "typedoc", "destinataires"]
@@ -53,6 +54,7 @@ def init_destinataire_config() -> None:
     if DESTINATAIRE_PATH.exists():
         return
 
+    
     print("⚠️ destinataire.json introuvable → création du fichier")
 
     keywords_homer = {
@@ -63,11 +65,9 @@ def init_destinataire_config() -> None:
         "homer.simpson@email.com": 6,
     }
 
-    ajouter_nouvelle_entree_json(
-        description="Homer Simpson",
-        keywords=keywords_homer,
-        json_path=DESTINATAIRE_PATH,
-    )
+    brouillon_homer = JsonNewEntryDraft("destinataires", "Homer Simpson", keywords=keywords_homer, json_path=DESTINATAIRE_PATH)
+
+    ajouter_nouvelle_entree_json(brouillon_homer)
 
     print("✅ destinataire.json créé avec un utilisateur exemple")
 

@@ -16,7 +16,12 @@ class EntryExistsError(PanDaFiReError):
     def __init__(self, new_entry: str):
         self.username = new_entry # attribut accessible via e.username
         super().__init__(f"L'élément '{new_entry}' existe déjà.")
-
+class JsonConfigNotFoundError(PanDaFiReError):
+    """Fichier JSON de configuration introuvable."""
+    def __init__(self, json_path: Path):
+        self.json_path = json_path
+        super().__init__(f"Fichier JSON de configuration introuvable : {json_path}")
+        
 @dataclass
 class JsonNewEntryDraft():
     config_type: TypeDeConfig

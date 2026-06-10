@@ -1,6 +1,5 @@
 import re
 import unicodedata
-from pathlib import Path
 import json
 import typer
 from typing import Optional, Callable
@@ -38,9 +37,7 @@ def enlever_accents(text: str) -> str:
 def ajouter_nouvelle_entree_json(brouillon: JsonNewEntryDraft):
 
     description_clean = brouillon.description.strip()
-    nouvelle_clef = re.sub(r"\s+", "_", normaliser_text(brouillon.description)).strip(
-        "_"
-    )
+    nouvelle_clef = generer_clef_json(brouillon.description)
     nouvelle_entree = {
         "description": description_clean,
         "category": brouillon.category,
@@ -106,12 +103,16 @@ def choisir_dans_liste(
 
 def entree_json_existe(mot_cle: str, config_json: dict) -> bool:
 
-    mot_cle_clean = mot_cle.lower().strip()
+    mot_cle_clean = generer_clef_json(mot_cle)
 
     return any(
         dest["description"].lower() == mot_cle_clean for dest in config_json.values()
     )
 
+def generer_clef_json(mot_cle: str) -> str:
+    return re.sub(r"\s+", "_", normaliser_text(mot_cle)).strip(
+        "_"
+    )
 
 def ajuster_score_keywords_ambigus(
     keywords: dict[str, int], config_json: dict[str, dict], exclure: str = ""

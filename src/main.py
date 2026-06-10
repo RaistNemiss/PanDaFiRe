@@ -3,13 +3,13 @@
 import typer
 from pathlib import Path
 
-from .destinataire import generer_keywords_destinataire, destinataire_existe
+from .destinataire import generer_keywords_destinataire
 from .utils import ajouter_nouvelle_entree_json, choisir_dans_liste
 from .config import charger_config, charger_config_emetteurs
 from .processor import process_pdf
 from .logger import lire_extraction_log, log_run
 from .enrich import candidats_frequents, ajouter_emetteur_json, enrich_manuel
-from .entry_service import JsonNewEntryDraft
+from .entry_service import JsonNewEntryDraft, prepare_nouvelle_entree, PanDaFiReError, ValidationError, EntryExistsError
 from .config_path import (
     CONFIG_PATH,
     DEFAULT_OUTPUT_PATH,
@@ -150,48 +150,44 @@ def register(json_path: Path = CONFIG_PATH / "destinataire.json") -> None:
 
     typer.echo("\n📇 Ajout d'un nouveau destinataire\n" + "-" * 40)
 
+
     # Séquence guidée
     prenom = typer.prompt("Prénom").strip()
     nom = typer.prompt("Nom").strip()
     nom_complet = f"{prenom} {nom}".strip()
-    ecraser = False
 
-    # obliger au moins un prénom ou un nom pour éviter les entrées génériques "inconnu".
-    if not prenom and not nom:
-        typer.echo("❌ Au moins un prénom ou un nom doit être fourni.")
+    brouillon_destinataire = JsonNewEntryDraft("destinataires", nom_complet, keywords={}, json_path=json_path)
+
+    # 1. Validation brouillon + vérification existence dans JSON destinataires
+    try:
+        prepare_nouvelle_entree(brouillon_destinataire)
+    except ValidationError as e:
+        typer.echo(f"❌ {e}")
         raise typer.Abort()
-
-    # Vérification de l'existence du destinataire dans le JSON Destinataires
-    if destinataire_existe(nom_complet):
-        typer.echo(f"⚠️ Le destinataire '{nom_complet}' existe déjà.")
+    except EntryExistsError as e:
+        typer.echo(f"⚠️ {e}")
         if not typer.confirm("Voulez-vous l'écraser ?", default=False):
             raise typer.Abort()
-        ecraser = True
+        brouillon_destinataire.overwrite = True
 
+    # 2. Saisie des mots-clé avec score d'importance
     email = typer.prompt("Email", default="", show_default=False).strip()
     telephone = typer.prompt("Téléphone", default="", show_default=False).strip()
+    brouillon_destinataire.keywords = generer_keywords_destinataire(nom, prenom, email, telephone)
 
-    keywords_destinataire = generer_keywords_destinataire(nom, prenom, email, telephone)
+    # 3. Récapitulatif + confirmation
+    _afficher_recap_confirmer(brouillon_destinataire)
 
-    # Récap + confirmation
-    typer.echo(f"\n📋 Récapitulatif pour « {nom_complet} » :")
-    for mot, poids in keywords_destinataire.items():
-        typer.echo(f"   • {mot} (poids {poids})")
-
-    if not typer.confirm("\nConfirmer ?", default=True):
-        typer.echo("❌ Annulé.")
+    # 4. Ajout dans le JSON
+    try:
+        ajouter_nouvelle_entree_json(brouillon_destinataire)
+    except PanDaFiReError as e:
+        typer.echo(f"❌ Échec de l'ajout : {e}")
         raise typer.Abort()
-
-    success = ajouter_nouvelle_entree_json(
-        description=nom_complet,
-        keywords=keywords_destinataire,
-        json_path=json_path,
-        overwrite=ecraser,
-    )
-    if success:
-        typer.echo(f"✅ {nom_complet} {'mis à jour' if ecraser else 'ajouté'} !")
     else:
-        typer.echo("❌ Échec de l'ajout.")
+        typer.echo(f"✅ '{nom_complet}' {'mis à jour' if brouillon_destinataire.overwrite else 'ajouté'} !")
+
+
 
 def _afficher_recap_confirmer(nouvelle_entree_brouillon: JsonNewEntryDraft):
     """
