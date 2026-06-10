@@ -1,11 +1,10 @@
 from pathlib import Path
-from typing import Literal
 from dataclasses import dataclass, field
 
 from .utils import entree_json_existe
-from .config import charger_config_par_type
+from .config import charger_config_par_type, TypeDeConfig
 
-TypeDeConfig = Literal["emetteurs", "typedoc", "destinataires"]
+
 
 class ValidationError(Exception):
     """Données invalides fournies."""
