@@ -4,13 +4,14 @@ from dataclasses import dataclass, field
 from .utils import entree_json_existe
 from .config import charger_config_par_type, TypeDeConfig
 
+class PanDaFiReError(Exception):
+    """Base de toutes les erreurs métier PanDaFiRe."""
 
-
-class ValidationError(Exception):
+class ValidationError(PanDaFiReError):
     """Données invalides fournies."""
 
 
-class EntryExistsError(Exception):
+class EntryExistsError(PanDaFiReError):
     """L'élément existe déjà."""
     def __init__(self, new_entry: str):
         self.username = new_entry # attribut accessible via e.username

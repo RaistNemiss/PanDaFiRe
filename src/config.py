@@ -2,12 +2,13 @@
 
 import json
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Literal
 
 from .config_path import DESTINATAIRE_PATH, TYPEDOC_PATH, EMETTEURS_PATH
 from .utils import ajouter_nouvelle_entree_json
-from .entry_service import TypeDeConfig
 
+
+TypeDeConfig = Literal["emetteurs", "typedoc", "destinataires"]
 
 def charger_config() -> tuple[dict, dict, dict]:
     """Charge et retourne TYPES, EMETTEURS, DESTINATAIRES."""

@@ -9,6 +9,7 @@ from .config import charger_config, charger_config_emetteurs
 from .processor import process_pdf
 from .logger import lire_extraction_log, log_run
 from .enrich import candidats_frequents, ajouter_emetteur_json, enrich_manuel
+from .entry_service import JsonNewEntryDraft
 from .config_path import (
     CONFIG_PATH,
     DEFAULT_OUTPUT_PATH,
@@ -191,6 +192,42 @@ def register(json_path: Path = CONFIG_PATH / "destinataire.json") -> None:
         typer.echo(f"✅ {nom_complet} {'mis à jour' if ecraser else 'ajouté'} !")
     else:
         typer.echo("❌ Échec de l'ajout.")
+
+def _afficher_recap_confirmer(nouvelle_entree_brouillon: JsonNewEntryDraft):
+    """
+    Affiche le récapitulatif d'un draft et demande confirmation à l'utilisateur.
+
+    Lève typer.Abort() si l'utilisateur refuse.
+    """
+
+    typer.echo(f"\n📋 Récapitulatif pour « {nouvelle_entree_brouillon.description} » :")
+
+    # 1. afficher catégorie si présente
+    if nouvelle_entree_brouillon.category:
+        typer.echo(f"   📂 Catégorie : {nouvelle_entree_brouillon.category}")
+
+    # 2. afficher les mots clé et leurs poids
+    typer.echo("   🔑 Keywords :")
+    for mot, poids in nouvelle_entree_brouillon.keywords.items():
+        typer.echo(f"      • {mot} (poids {poids})")
+
+    # 3. avertissment mots ajustés
+    if nouvelle_entree_brouillon.keywords_ajustes:
+        typer.echo(f"\n les mots clés suivant ont vu leur poids réduits cars ils sont partagés d'autres {nouvelle_entree_brouillon.config_type}.")
+        for mot in nouvelle_entree_brouillon.keywords_ajustes:
+            typer.echo(f"      • {mot}")
+
+    # 4. avertissment écrasement
+    if nouvelle_entree_brouillon.overwrite:
+        typer.echo(
+            f"\n   🔄 ATTENTION : l'entrée « {nouvelle_entree_brouillon.description} » "
+            "existe déjà et sera écrasée."
+        )
+
+    # 5. confirmation
+    if not typer.confirm("\nConfirmer ?", default=True):
+        typer.echo("❌ Annulé.")
+        raise typer.Abort()
 
 
 @app.command()
