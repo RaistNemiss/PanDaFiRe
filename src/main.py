@@ -171,12 +171,15 @@ def _cli_ajouter_nouvelle_entree_json(
 ):
     """Ajoute une nouvelle entree dans un fichier config_json de façon interactive."""
 
-    typer.echo(f"\n📇 Ajout d'un nouveau {type_de_config}\n" + "-" * 40)
-
     # Séquence guidée
-    prenom = typer.prompt("Prénom").strip()
-    nom = typer.prompt("Nom").strip()
-    nom_complet = f"{prenom} {nom}".strip()
+    if type_de_config == "destinataires":
+        typer.echo("\n📇 Ajout d'un nouveau destinataire\n" + "-" * 40)
+        prenom = typer.prompt("Prénom").strip()
+        nom = typer.prompt("Nom").strip()
+        nom_complet = f"{prenom} {nom}".strip()
+    if type_de_config == "emetteurs":
+        typer.echo("\n📇 Ajout d'un nouvel émetteur\n" + "-" * 40)
+        nom_complet = typer.prompt("Nom de l'émetteur").strip()
 
     brouillon = JsonNewEntryDraft(
         type_de_config, nom_complet, keywords={}, json_path=json_path
