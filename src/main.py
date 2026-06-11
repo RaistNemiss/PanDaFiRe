@@ -2,14 +2,15 @@
 
 import typer
 from pathlib import Path
+from typing import Callable, Optional
 
 from .destinataire import generer_keywords_destinataire
-from .utils import ajouter_nouvelle_entree_json, choisir_dans_liste
-from .config import charger_config, charger_config_emetteurs
-from .processor import process_pdf
+from .utils import ajouter_nouvelle_entree_json
+from .config import charger_config, charger_config_emetteurs, categorie_disponible, prepare_nouvelle_entree
 from .logger import lire_extraction_log, log_run
-from .enrich import candidats_frequents, ajouter_emetteur_json, enrich_manuel
-from .entry_service import JsonNewEntryDraft, prepare_nouvelle_entree, PanDaFiReError, ValidationError, EntryExistsError
+from .enrich import candidats_frequents, ajouter_emetteur_json
+from .processor import process_pdf
+from .entry_service import JsonNewEntryDraft, PanDaFiReError, ValidationError, EntryExistsError, TypeDeConfig
 from .config_path import (
     CONFIG_PATH,
     DEFAULT_OUTPUT_PATH,
@@ -85,7 +86,7 @@ def enrich(
     """Enrichir la liste des émetteurs depuis les candidats fréquents."""
 
     if manual:
-        enrich_manuel()
+        _cli_ajouter_nouvelle_entree_json(json_path=CONFIG_PATH / "emetteurs.json", type_de_config="emetteurs")
 
     # Fonction locale pour formater un candidat (nom, occurrence)
     def format_candidat(c) -> str:
@@ -113,7 +114,7 @@ def enrich(
             return
 
         # Étape 1 : choisir le candidat
-        choix_candidat_emetteur = choisir_dans_liste(
+        choix_candidat_emetteur = _choisir_dans_liste(
             candidats,
             titre="Candidats émetteurs fréquents :",
             label_prompt="Choisir un candidat",
@@ -124,7 +125,7 @@ def enrich(
         nom_candidat = candidats[choix_candidat_emetteur][0]
 
         # Étape 2 : choisir la catégorie
-        choix_categorie = choisir_dans_liste(
+        choix_categorie = _choisir_dans_liste(
             categories,
             titre="Catégories disponibles :",
             label_prompt=f"Catégorie pour '{nom_candidat}'",
@@ -147,8 +148,13 @@ def enrich(
 @log_run
 def register(json_path: Path = CONFIG_PATH / "destinataire.json") -> None:
     """Ajoute un nouveau destinataire de façon interactive."""
+    _cli_ajouter_nouvelle_entree_json(json_path=json_path, type_de_config="destinataires")
 
-    typer.echo("\n📇 Ajout d'un nouveau destinataire\n" + "-" * 40)
+
+def _cli_ajouter_nouvelle_entree_json(json_path : Path, type_de_config : TypeDeConfig, category_needed : bool = False):
+    """Ajoute une nouvelle entree dans un fichier config_json de façon interactive."""
+
+    typer.echo(f"\n📇 Ajout d'un nouveau {type_de_config}\n" + "-" * 40)
 
 
     # Séquence guidée
@@ -156,11 +162,11 @@ def register(json_path: Path = CONFIG_PATH / "destinataire.json") -> None:
     nom = typer.prompt("Nom").strip()
     nom_complet = f"{prenom} {nom}".strip()
 
-    brouillon_destinataire = JsonNewEntryDraft("destinataires", nom_complet, keywords={}, json_path=json_path)
+    brouillon = JsonNewEntryDraft(type_de_config, nom_complet, keywords={}, json_path=json_path)
 
     # 1. Validation brouillon + vérification existence dans JSON destinataires
     try:
-        prepare_nouvelle_entree(brouillon_destinataire)
+        prepare_nouvelle_entree(brouillon)
     except ValidationError as e:
         typer.echo(f"❌ {e}")
         raise typer.Abort()
@@ -168,25 +174,32 @@ def register(json_path: Path = CONFIG_PATH / "destinataire.json") -> None:
         typer.echo(f"⚠️ {e}")
         if not typer.confirm("Voulez-vous l'écraser ?", default=False):
             raise typer.Abort()
-        brouillon_destinataire.overwrite = True
+        brouillon.overwrite = True
 
     # 2. Saisie des mots-clé avec score d'importance
     email = typer.prompt("Email", default="", show_default=False).strip()
     telephone = typer.prompt("Téléphone", default="", show_default=False).strip()
-    brouillon_destinataire.keywords = generer_keywords_destinataire(nom, prenom, email, telephone)
+    brouillon.keywords = generer_keywords_destinataire(nom, prenom, email, telephone)
+
+
+    if category_needed:
+        categories = categorie_disponible(type_de_config=type_de_config)
+        choix_categorie = _choisir_dans_liste(items=categories, titre="Catégories disponibles :", label_prompt=f"Catégorie pour {brouillon.description}")
+        if choix_categorie is None:
+            return
+        brouillon.category = categories[choix_categorie]
 
     # 3. Récapitulatif + confirmation
-    _afficher_recap_confirmer(brouillon_destinataire)
+    _afficher_recap_confirmer(brouillon)
 
     # 4. Ajout dans le JSON
     try:
-        ajouter_nouvelle_entree_json(brouillon_destinataire)
+        ajouter_nouvelle_entree_json(brouillon)
     except PanDaFiReError as e:
         typer.echo(f"❌ Échec de l'ajout : {e}")
         raise typer.Abort()
     else:
-        typer.echo(f"✅ '{nom_complet}' {'mis à jour' if brouillon_destinataire.overwrite else 'ajouté'} !")
-
+        typer.echo(f"✅ '{nom_complet}' {'mis à jour' if brouillon.overwrite else 'ajouté'} !")
 
 
 def _afficher_recap_confirmer(nouvelle_entree_brouillon: JsonNewEntryDraft):
@@ -224,6 +237,35 @@ def _afficher_recap_confirmer(nouvelle_entree_brouillon: JsonNewEntryDraft):
     if not typer.confirm("\nConfirmer ?", default=True):
         typer.echo("❌ Annulé.")
         raise typer.Abort()
+
+
+def _choisir_dans_liste(
+    items: list,
+    titre: str,
+    label_prompt: str,
+    formatter: Callable[[str], str] = str,
+) -> Optional[int]:
+    """
+    Affiche une liste numérotée et demande à l'utilisateur d'en choisir un élément.
+
+    Retourne l'index choisi (0-based) ou None si annulé/invalide.
+    """
+    typer.echo(f"\n📋 {titre}")
+    for i, item in enumerate(items, start=1):
+        typer.echo(f"  {i} - {formatter(item)}")
+
+    choix = typer.prompt(f"{label_prompt} (0 pour quitter)", type=int)
+
+    if choix == 0:
+        typer.echo("Annulé.")
+        return None
+    if choix < 1 or choix > len(items):
+        typer.echo("❌ Choix invalide.")
+        return None
+
+    item_select = items[choix - 1]
+    typer.confirm(f"Confirmer : {formatter(item_select)} ?", abort=True)
+    return choix - 1
 
 
 @app.command()

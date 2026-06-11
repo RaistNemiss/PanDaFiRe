@@ -1,8 +1,7 @@
 import re
 import unicodedata
 import json
-import typer
-from typing import Optional, Callable
+
 
 from .entry_service import JsonNewEntryDraft, EntryExistsError, PanDaFiReError
 
@@ -72,47 +71,20 @@ def ajouter_nouvelle_entree_json(brouillon: JsonNewEntryDraft):
         raise PanDaFiReError(f"Erreur lors de l'écriture dans {brouillon.json_path.name} : {e}") from e
 
 
-def choisir_dans_liste(
-    items: list,
-    titre: str,
-    label_prompt: str,
-    formatter: Callable[[str], str] = str,
-) -> Optional[int]:
-    """
-    Affiche une liste numérotée et demande à l'utilisateur d'en choisir un élément.
-
-    Retourne l'index choisi (0-based) ou None si annulé/invalide.
-    """
-    typer.echo(f"\n📋 {titre}")
-    for i, item in enumerate(items, start=1):
-        typer.echo(f"  {i} - {formatter(item)}")
-
-    choix = typer.prompt(f"{label_prompt} (0 pour quitter)", type=int)
-
-    if choix == 0:
-        typer.echo("Annulé.")
-        return None
-    if choix < 1 or choix > len(items):
-        typer.echo("❌ Choix invalide.")
-        return None
-
-    item_select = items[choix - 1]
-    typer.confirm(f"Confirmer : {formatter(item_select)} ?", abort=True)
-    return choix - 1
-
-
 def entree_json_existe(mot_cle: str, config_json: dict) -> bool:
-
+    
     mot_cle_clean = generer_clef_json(mot_cle)
 
     return any(
         dest["description"].lower() == mot_cle_clean for dest in config_json.values()
     )
 
+
 def generer_clef_json(mot_cle: str) -> str:
     return re.sub(r"\s+", "_", normaliser_text(mot_cle)).strip(
         "_"
     )
+
 
 def ajuster_score_keywords_ambigus(
     keywords: dict[str, int], config_json: dict[str, dict], exclure: str = ""
@@ -137,3 +109,5 @@ def ajuster_score_keywords_ambigus(
             keywords_ajustes.append(mot_cle)
 
     return keywords, keywords_ajustes
+
+

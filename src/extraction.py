@@ -206,8 +206,8 @@ def extraire_noms_societes(texte: str) -> list:
 
     return candidats
 
-def extraire_nom_pdf_sans_date(nom: str) -> str:
-    nom_sans_dates = nom.lower()
+def extraire_nom_pdf_sans_date(nom_pdf: str) -> str:
+    nom_sans_dates = nom_pdf.lower()
 
     for regex in REGEX_DATES_CANDIDATS_FICHIER:
         nom_sans_dates = re.sub(regex, "", nom_sans_dates, flags=re.IGNORECASE)

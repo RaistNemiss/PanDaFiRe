@@ -2,14 +2,13 @@
 
 import json
 from pathlib import Path
-from typing import Callable, Literal
+from typing import Callable
 
 from .config_path import DESTINATAIRE_PATH, TYPEDOC_PATH, EMETTEURS_PATH
-from .utils import ajouter_nouvelle_entree_json
-from .entry_service import JsonNewEntryDraft
+from .utils import ajouter_nouvelle_entree_json, entree_json_existe
+from .entry_service import JsonNewEntryDraft, ValidationError, EntryExistsError, TypeDeConfig
 
 
-TypeDeConfig = Literal["emetteurs", "typedoc", "destinataires"]
 
 def charger_config() -> tuple[dict, dict, dict]:
     """Charge et retourne TYPES, EMETTEURS, DESTINATAIRES."""
@@ -76,6 +75,11 @@ def trouver_categorie_config(nom_emetteur: str, emetteurs: dict) -> str:
     """Trouve la catégorie d'un émetteur à partir de la configuration emetteurs.json. Retourne "inconnu" si l'émetteur n'est pas trouvé ou si la configuration est absente/mal formée."""
     return emetteurs.get(nom_emetteur, {}).get("category", "inconnu")
 
+def categorie_disponible(type_de_config : TypeDeConfig) -> list[str] :
+    config_json = charger_config_par_type(type_de_config)
+    return list(dict.fromkeys(entree["category"] for entree in config_json.values()))
+
+
 # Mapping des types de config à leurs fonctions de chargement
 _LOADERS : dict[TypeDeConfig, Callable[[], dict]] = {
     "emetteurs": charger_config_emetteurs,
@@ -86,6 +90,15 @@ _LOADERS : dict[TypeDeConfig, Callable[[], dict]] = {
 def charger_config_par_type(type_config: TypeDeConfig) -> dict:
     """Charge une configuration spécifique (emetteurs, types ou destinataires)."""
     return _LOADERS[type_config]()
+
+
+def prepare_nouvelle_entree(nouvelle_entree: JsonNewEntryDraft) -> JsonNewEntryDraft: 
+    if not nouvelle_entree.description.strip():
+        raise ValidationError("Au moins un prénom ou un nom doit être fourni.")
+    if entree_json_existe(nouvelle_entree.description, charger_config_par_type(nouvelle_entree.config_type)):
+        raise EntryExistsError(nouvelle_entree.description)
+    return nouvelle_entree
+
 
 if __name__ == "__main__":
     pass
