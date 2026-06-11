@@ -93,6 +93,8 @@ def charger_config_par_type(type_config: TypeDeConfig) -> dict:
 
 
 def prepare_nouvelle_entree(nouvelle_entree: JsonNewEntryDraft) -> JsonNewEntryDraft: 
+    config = charger_config_par_type(nouvelle_entree.config_type)
+    print(f"📂 Fichier chargé : {nouvelle_entree.config_type} -> {config}")  # DEBUG
     if not nouvelle_entree.description.strip():
         raise ValidationError("Au moins un prénom ou un nom doit être fourni.")
     if entree_json_existe(nouvelle_entree.description, charger_config_par_type(nouvelle_entree.config_type)):

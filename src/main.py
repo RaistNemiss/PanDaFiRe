@@ -6,11 +6,22 @@ from typing import Callable, Optional
 
 from .destinataire import generer_keywords_destinataire
 from .utils import ajouter_nouvelle_entree_json
-from .config import charger_config, charger_config_emetteurs, categorie_disponible, prepare_nouvelle_entree
+from .config import (
+    charger_config,
+    charger_config_emetteurs,
+    categorie_disponible,
+    prepare_nouvelle_entree,
+)
 from .logger import lire_extraction_log, log_run
 from .enrich import candidats_frequents, ajouter_emetteur_json
 from .processor import process_pdf
-from .entry_service import JsonNewEntryDraft, PanDaFiReError, ValidationError, EntryExistsError, TypeDeConfig
+from .entry_service import (
+    JsonNewEntryDraft,
+    PanDaFiReError,
+    ValidationError,
+    EntryExistsError,
+    TypeDeConfig,
+)
 from .config_path import (
     CONFIG_PATH,
     DEFAULT_OUTPUT_PATH,
@@ -86,7 +97,9 @@ def enrich(
     """Enrichir la liste des émetteurs depuis les candidats fréquents."""
 
     if manual:
-        _cli_ajouter_nouvelle_entree_json(json_path=CONFIG_PATH / "emetteurs.json", type_de_config="emetteurs")
+        _cli_ajouter_nouvelle_entree_json(
+            json_path=CONFIG_PATH / "emetteurs.json", type_de_config="emetteurs"
+        )
 
     # Fonction locale pour formater un candidat (nom, occurrence)
     def format_candidat(c) -> str:
@@ -148,21 +161,26 @@ def enrich(
 @log_run
 def register(json_path: Path = CONFIG_PATH / "destinataire.json") -> None:
     """Ajoute un nouveau destinataire de façon interactive."""
-    _cli_ajouter_nouvelle_entree_json(json_path=json_path, type_de_config="destinataires")
+    _cli_ajouter_nouvelle_entree_json(
+        json_path=json_path, type_de_config="destinataires"
+    )
 
 
-def _cli_ajouter_nouvelle_entree_json(json_path : Path, type_de_config : TypeDeConfig, category_needed : bool = False):
+def _cli_ajouter_nouvelle_entree_json(
+    json_path: Path, type_de_config: TypeDeConfig, category_needed: bool = False
+):
     """Ajoute une nouvelle entree dans un fichier config_json de façon interactive."""
 
     typer.echo(f"\n📇 Ajout d'un nouveau {type_de_config}\n" + "-" * 40)
-
 
     # Séquence guidée
     prenom = typer.prompt("Prénom").strip()
     nom = typer.prompt("Nom").strip()
     nom_complet = f"{prenom} {nom}".strip()
 
-    brouillon = JsonNewEntryDraft(type_de_config, nom_complet, keywords={}, json_path=json_path)
+    brouillon = JsonNewEntryDraft(
+        type_de_config, nom_complet, keywords={}, json_path=json_path
+    )
 
     # 1. Validation brouillon + vérification existence dans JSON destinataires
     try:
@@ -181,10 +199,13 @@ def _cli_ajouter_nouvelle_entree_json(json_path : Path, type_de_config : TypeDeC
     telephone = typer.prompt("Téléphone", default="", show_default=False).strip()
     brouillon.keywords = generer_keywords_destinataire(nom, prenom, email, telephone)
 
-
     if category_needed:
         categories = categorie_disponible(type_de_config=type_de_config)
-        choix_categorie = _choisir_dans_liste(items=categories, titre="Catégories disponibles :", label_prompt=f"Catégorie pour {brouillon.description}")
+        choix_categorie = _choisir_dans_liste(
+            items=categories,
+            titre="Catégories disponibles :",
+            label_prompt=f"Catégorie pour {brouillon.description}",
+        )
         if choix_categorie is None:
             return
         brouillon.category = categories[choix_categorie]
@@ -199,7 +220,9 @@ def _cli_ajouter_nouvelle_entree_json(json_path : Path, type_de_config : TypeDeC
         typer.echo(f"❌ Échec de l'ajout : {e}")
         raise typer.Abort()
     else:
-        typer.echo(f"✅ '{nom_complet}' {'mis à jour' if brouillon.overwrite else 'ajouté'} !")
+        typer.echo(
+            f"✅ '{nom_complet}' {'mis à jour' if brouillon.overwrite else 'ajouté'} !"
+        )
 
 
 def _afficher_recap_confirmer(nouvelle_entree_brouillon: JsonNewEntryDraft):
@@ -222,7 +245,9 @@ def _afficher_recap_confirmer(nouvelle_entree_brouillon: JsonNewEntryDraft):
 
     # 3. avertissment mots ajustés
     if nouvelle_entree_brouillon.keywords_ajustes:
-        typer.echo(f"\n les mots clés suivant ont vu leur poids réduits cars ils sont partagés d'autres {nouvelle_entree_brouillon.config_type}.")
+        typer.echo(
+            f"\n les mots clés suivant ont vu leur poids réduits cars ils sont partagés d'autres {nouvelle_entree_brouillon.config_type}."
+        )
         for mot in nouvelle_entree_brouillon.keywords_ajustes:
             typer.echo(f"      • {mot}")
 

@@ -74,10 +74,8 @@ def ajouter_nouvelle_entree_json(brouillon: JsonNewEntryDraft):
 def entree_json_existe(mot_cle: str, config_json: dict) -> bool:
     
     mot_cle_clean = generer_clef_json(mot_cle)
-
-    return any(
-        dest["description"].lower() == mot_cle_clean for dest in config_json.values()
-    )
+    print(f"🔍 Vérification de l'existence de la clé '{mot_cle_clean}' dans la configuration...")  # DEBUG
+    return mot_cle_clean in config_json
 
 
 def generer_clef_json(mot_cle: str) -> str:
@@ -109,5 +107,3 @@ def ajuster_score_keywords_ambigus(
             keywords_ajustes.append(mot_cle)
 
     return keywords, keywords_ajustes
-
-
