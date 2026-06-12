@@ -171,15 +171,7 @@ def _cli_ajouter_nouvelle_entree_json(
 ):
     """Ajoute une nouvelle entree dans un fichier config_json de façon interactive."""
 
-    # Séquence guidée
-    if type_de_config == "destinataires":
-        typer.echo("\n📇 Ajout d'un nouveau destinataire\n" + "-" * 40)
-        prenom = typer.prompt("Prénom").strip()
-        nom = typer.prompt("Nom").strip()
-        nom_complet = f"{prenom} {nom}".strip()
-    if type_de_config == "emetteurs":
-        typer.echo("\n📇 Ajout d'un nouvel émetteur\n" + "-" * 40)
-        nom_complet = typer.prompt("Nom de l'émetteur").strip()
+    nom_complet, prenom, nom = _cli_saisir_identite(type_de_config)
 
     brouillon = JsonNewEntryDraft(
         type_de_config, nom_complet, keywords={}, json_path=json_path
@@ -226,6 +218,23 @@ def _cli_ajouter_nouvelle_entree_json(
         typer.echo(
             f"✅ '{nom_complet}' {'mis à jour' if brouillon.overwrite else 'ajouté'} !"
         )
+
+def _cli_saisir_identite(type_de_config:TypeDeConfig) -> tuple(str, str, str,):
+    
+    # Séquence guidée
+    if type_de_config == "destinataires":
+        typer.echo("\n📇 Ajout d'un nouveau destinataire\n" + "-" * 40)
+        prenom = typer.prompt("Prénom").strip()
+        nom = typer.prompt("Nom").strip()
+        nom_complet = f"{prenom} {nom}".strip()
+        return nom_complet, prenom, nom
+    
+    if type_de_config == "emetteurs":
+        typer.echo("\n📇 Ajout d'un nouvel émetteur\n" + "-" * 40)
+        nom_complet = typer.prompt("Nom de l'émetteur").strip()
+        return nom_complet, "", ""
+    
+    raise ValidationError(f"Type de config non géré : {type_de_config}")
 
 
 def _afficher_recap_confirmer(nouvelle_entree_brouillon: JsonNewEntryDraft):
