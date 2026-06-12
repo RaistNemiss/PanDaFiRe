@@ -47,15 +47,3 @@ def generer_keywords_destinataire(
             keywords[tel_normalise] = 3
 
     return keywords
-
-
-def destinataire_existe(nom_complet: str) -> bool:
-
-    destinataires = charger_config_destinataires()
-
-    nom_complet_clean = nom_complet.lower().strip()
-
-    return any(
-        dest["description"].lower() == nom_complet_clean
-        for dest in destinataires.values()
-    )
