@@ -1,5 +1,4 @@
-from .config import charger_config_destinataires
-
+""" Fonctions pour gérer les destinataires. """
 
 def determiner_initiales_destinataire(nom: str) -> str:
 

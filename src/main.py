@@ -13,7 +13,11 @@ from .config import (
     prepare_nouvelle_entree,
 )
 from .logger import lire_extraction_log, log_run
-from .enrich import candidats_frequents, ajouter_emetteur_json
+from .enrich import (
+    candidats_frequents,
+    generer_keywords_depuis_nom,
+    generer_keywords_emetteur,
+)
 from .processor import process_pdf
 from .entry_service import (
     JsonNewEntryDraft,
@@ -100,6 +104,7 @@ def enrich(
         _cli_ajouter_nouvelle_entree_json(
             json_path=CONFIG_PATH / "emetteurs.json", type_de_config="emetteurs"
         )
+        return
 
     # Fonction locale pour formater un candidat (nom, occurrence)
     def format_candidat(c) -> str:
@@ -147,14 +152,34 @@ def enrich(
             return
         categorie_select = categories[choix_categorie]
 
-        # Étape 3 : ajout dans le fichier JSON des émetteurs
-        ajouter_emetteur_json(
-            nom_candidat, categorie_select, CONFIG_PATH / "emetteurs.json"
-        )
-        typer.echo(f"✅ '{nom_candidat}' ajouté dans '{categorie_select}'")
 
-        if not typer.confirm("Ajouter un autre émetteur ?"):
-            break
+        # Étape 3 : construction du brouillon (mécanique pure, GUI-ready)
+        brouillon = JsonNewEntryDraft(
+            config_type="emetteurs",
+            description=nom_candidat,
+            keywords=generer_keywords_depuis_nom(nom_candidat),
+            json_path=CONFIG_PATH / "emetteurs.json",
+            category=categorie_select,
+        )
+
+        try:
+            prepare_nouvelle_entree(brouillon)
+        except ValidationError as e:
+            typer.echo(f"❌ {e}")
+            continue  # revenir à la liste des candidats
+        except EntryExistsError as e:
+            typer.echo(f"⚠️ {e}")
+            if not typer.confirm("Voulez-vous l'écraser ?", default=False):
+                continue  # revenir à la liste des candidats
+            brouillon.overwrite = True
+
+        try:
+            ajouter_nouvelle_entree_json(brouillon)
+        except PanDaFiReError as e:
+            typer.echo(f"❌ Échec de l'ajout : {e}")
+            continue  # revenir à la liste des candidats
+        else:
+            typer.echo(f"✅ '{nom_candidat}' ajouté dans '{categorie_select}'")
 
 
 @app.command()
@@ -167,8 +192,8 @@ def register(json_path: Path = CONFIG_PATH / "destinataire.json") -> None:
 
 
 def _cli_ajouter_nouvelle_entree_json(
-    json_path: Path, type_de_config: TypeDeConfig, category_needed: bool = False
-):
+    json_path: Path, type_de_config: TypeDeConfig
+) -> None:
     """Ajoute une nouvelle entree dans un fichier config_json de façon interactive."""
 
     nom_complet, prenom, nom = _cli_saisir_identite(type_de_config)
@@ -190,20 +215,7 @@ def _cli_ajouter_nouvelle_entree_json(
         brouillon.overwrite = True
 
     # 2. Saisie des mots-clé avec score d'importance
-    email = typer.prompt("Email", default="", show_default=False).strip()
-    telephone = typer.prompt("Téléphone", default="", show_default=False).strip()
-    brouillon.keywords = generer_keywords_destinataire(nom, prenom, email, telephone)
-
-    if category_needed:
-        categories = categorie_disponible(type_de_config=type_de_config)
-        choix_categorie = _choisir_dans_liste(
-            items=categories,
-            titre="Catégories disponibles :",
-            label_prompt=f"Catégorie pour {brouillon.description}",
-        )
-        if choix_categorie is None:
-            return
-        brouillon.category = categories[choix_categorie]
+    _cli_saisir_mots_cles(brouillon, type_de_config, prenom, nom)
 
     # 3. Récapitulatif + confirmation
     _afficher_recap_confirmer(brouillon)
@@ -219,8 +231,9 @@ def _cli_ajouter_nouvelle_entree_json(
             f"✅ '{nom_complet}' {'mis à jour' if brouillon.overwrite else 'ajouté'} !"
         )
 
-def _cli_saisir_identite(type_de_config:TypeDeConfig) -> tuple(str, str, str,):
-    
+
+def _cli_saisir_identite(type_de_config: TypeDeConfig) -> tuple[str, str, str]:
+
     # Séquence guidée
     if type_de_config == "destinataires":
         typer.echo("\n📇 Ajout d'un nouveau destinataire\n" + "-" * 40)
@@ -228,13 +241,60 @@ def _cli_saisir_identite(type_de_config:TypeDeConfig) -> tuple(str, str, str,):
         nom = typer.prompt("Nom").strip()
         nom_complet = f"{prenom} {nom}".strip()
         return nom_complet, prenom, nom
-    
+
     if type_de_config == "emetteurs":
         typer.echo("\n📇 Ajout d'un nouvel émetteur\n" + "-" * 40)
         nom_complet = typer.prompt("Nom de l'émetteur").strip()
         return nom_complet, "", ""
-    
+
     raise ValidationError(f"Type de config non géré : {type_de_config}")
+
+
+def _cli_saisir_mots_cles(
+    brouillon: JsonNewEntryDraft, type_de_config: TypeDeConfig, prenom: str, nom: str
+) -> None:
+    """Guide l'utilisateur pour saisir les mots-clé et leurs poids d'importance."""
+
+    email = typer.prompt("Email", default="", show_default=False).strip()
+    telephone = typer.prompt("Téléphone", default="", show_default=False).strip()
+
+    # Destinataires
+    if type_de_config == "destinataires":
+        brouillon.keywords = generer_keywords_destinataire(
+            nom, prenom, email, telephone
+        )
+
+    # Emetteurs
+    if type_de_config == "emetteurs":
+        # site web et mots-clé supplémentaires pour les émetteurs
+        site_web_a = typer.prompt("Site web", default="", show_default=False).strip()
+        site_web_b = typer.prompt(
+            "Site web alternatif", default="", show_default=False
+        ).strip()
+        mot_cle_supplementaire = typer.prompt(
+            "Mots-clés supplémentaires (séparés par des virgules)",
+            default="",
+            show_default=False,
+        ).strip()
+
+        brouillon.keywords, brouillon.keywords_ajustes = generer_keywords_emetteur(
+            brouillon.description,
+            email,
+            site_web_a,
+            site_web_b,
+            telephone,
+            mot_cle_supplementaire,
+        )
+
+        categories = categorie_disponible(type_de_config=type_de_config)
+        choix_categorie = _choisir_dans_liste(
+            items=categories,
+            titre="Catégories disponibles :",
+            label_prompt=f"Catégorie pour {brouillon.description}",
+        )
+        if choix_categorie is None:
+            raise typer.Abort()
+        brouillon.category = categories[choix_categorie]
 
 
 def _afficher_recap_confirmer(nouvelle_entree_brouillon: JsonNewEntryDraft):
@@ -301,7 +361,9 @@ def _choisir_dans_liste(
         return None
 
     item_select = items[choix - 1]
-    typer.confirm(f"Confirmer : {formatter(item_select)} ?", abort=True)
+    if not typer.confirm(f"Confirmer : {formatter(item_select)} ?", default=True):
+        typer.echo("❌ Annulé.")
+        return None
     return choix - 1
 
 
