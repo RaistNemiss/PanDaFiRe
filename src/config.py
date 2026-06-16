@@ -75,6 +75,7 @@ def trouver_categorie_config(nom_emetteur: str, emetteurs: dict) -> str:
     """Trouve la catégorie d'un émetteur à partir de la configuration emetteurs.json. Retourne "inconnu" si l'émetteur n'est pas trouvé ou si la configuration est absente/mal formée."""
     return emetteurs.get(nom_emetteur, {}).get("category", "inconnu")
 
+
 def categorie_disponible(type_de_config : TypeDeConfig) -> list[str] :
     config_json = charger_config_par_type(type_de_config)
     return list(dict.fromkeys(entree["category"] for entree in config_json.values()))
