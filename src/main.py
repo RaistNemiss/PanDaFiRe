@@ -8,7 +8,6 @@ from .destinataire import generer_keywords_destinataire
 from .utils import ajouter_nouvelle_entree_json, valider_choix_liste
 from .config import (
     charger_config,
-    charger_config_emetteurs,
     categorie_disponible,
     prepare_nouvelle_entree,
 )
