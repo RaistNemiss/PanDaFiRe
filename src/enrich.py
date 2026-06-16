@@ -7,7 +7,7 @@ from .utils import (
     enlever_accents,
     ajuster_score_keywords_ambigus,
 )
-from .config import charger_config_emetteurs
+from .config import charger_config_emetteurs, categorie_disponible
 
 
 def candidats_frequents(logs: list[dict]) -> list[tuple[str, int]]:
@@ -28,6 +28,26 @@ def candidats_frequents(logs: list[dict]) -> list[tuple[str, int]]:
         if occurrence >= seuil_occurrence
     ]
 
+
+def candidats_emetteur_a_traiter(logs: list[dict]) -> tuple[list, list]:
+
+    # 1. recherche les possibles candidats fréquents dans les logs
+    candidats = candidats_frequents(logs)
+    
+    # 2. charge les emetteurs connu dans une liste
+    emetteurs = charger_config_emetteurs()
+    emetteurs_connus = set()
+    for emetteur in emetteurs.values():
+        emetteurs_connus.add(emetteur["description"].lower())
+        emetteurs_connus.update(keyword.lower() for keyword in emetteur.get("keywords", {}))
+
+    # 3. vérifie que les candidats emetteurs ne sont pas dans la liste des emetteurs connus:
+    candidats = [c for c in candidats if c[0].lower() not in emetteurs_connus]
+
+    # 4. charger les catégories disponible pour les emetteurs
+    categories = categorie_disponible("emetteurs")
+
+    return candidats, categories
 
 
 def generer_keywords_depuis_nom(nom: str) -> dict[str, int]:

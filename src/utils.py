@@ -1,3 +1,5 @@
+"""utils.py"""
+
 import re
 import unicodedata
 import json
@@ -74,7 +76,7 @@ def ajouter_nouvelle_entree_json(brouillon: JsonNewEntryDraft):
 def entree_json_existe(mot_cle: str, config_json: dict) -> bool:
     
     mot_cle_clean = generer_clef_json(mot_cle)
-    print(f"🔍 Vérification de l'existence de la clé '{mot_cle_clean}' dans la configuration...")  # DEBUG
+    # print(f"🔍 Vérification de l'existence de la clé '{mot_cle_clean}' dans la configuration...")  # DEBUG
     return mot_cle_clean in config_json
 
 
@@ -109,10 +111,10 @@ def ajuster_score_keywords_ambigus(
     return keywords, keywords_ajustes
 
 def valider_choix_liste(choix: int, nombre_choix: int) -> Optional[int]:
-    """Convertitun choix utilisateur en index de liste."""
+    """Convertit un choix utilisateur en index de liste."""
 
     if choix == 0:
         return None
-    if 1 < choix <= nombre_choix:
+    if 1 <= choix <= nombre_choix:
         return choix - 1
     return None

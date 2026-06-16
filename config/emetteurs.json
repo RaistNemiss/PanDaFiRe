@@ -448,5 +448,22 @@
             "code de contrôle": 1,
             "impot sur le revenu et la fortune": 1
         }
+    },
+    "dextra_protection_juridique": {
+        "description": "Dextra Protection Juridique",
+        "category": "service",
+        "keywords": {
+            "dextra protection juridique": 5,
+            "dextraprotectionjuridique": 4,
+            "dextra": 1,
+            "protection": 1,
+            "juridique": 1,
+            "info@dextra.ch": 4,
+            "@dextra.ch": 2,
+            "https://dextra.ch": 4,
+            "+41 44 296 60 60": 5,
+            "41442966060": 3,
+            "dextra protection juridique sa": 1
+        }
     }
 }

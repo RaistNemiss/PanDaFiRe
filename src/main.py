@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from .destinataire import generer_keywords_destinataire
-from .utils import ajouter_nouvelle_entree_json
+from .utils import ajouter_nouvelle_entree_json, valider_choix_liste
 from .config import (
     charger_config,
     charger_config_emetteurs,
@@ -14,10 +14,10 @@ from .config import (
 )
 from .logger import lire_extraction_log, log_run
 from .enrich import (
-    candidats_frequents,
     generer_keywords_depuis_nom,
     generer_keywords_emetteur,
-)
+    candidats_emetteur_a_traiter,
+    )
 from .processor import process_pdf
 from .entry_service import (
     JsonNewEntryDraft,
@@ -112,20 +112,7 @@ def enrich(
 
     while True:
         # recharger la config à chaque tour pour refléter les ajouts précédents,
-        emetteurs = charger_config_emetteurs()
-        candidats = candidats_frequents(lire_extraction_log())
-        emetteurs_connus = set()
-        for emetteur in emetteurs.values():
-            emetteurs_connus.add(emetteur["description"].lower())
-            emetteurs_connus.update(
-                keyword.lower() for keyword in emetteur.get("keywords", {})
-            )
-        categories = list(
-            dict.fromkeys(emetteur["category"] for emetteur in emetteurs.values())
-        )
-
-        # filtrer les candidats déjà connus dans les émetteurs
-        candidats = [c for c in candidats if c[0].lower() not in emetteurs_connus]
+        candidats, categories = candidats_emetteur_a_traiter(lire_extraction_log())
 
         if not candidats:
             typer.echo("Aucun nouveau candidat à traiter. 🎉")
@@ -353,18 +340,16 @@ def _choisir_dans_liste(
 
     choix = typer.prompt(f"{label_prompt} (0 pour quitter)", type=int)
 
-    if choix == 0:
-        typer.echo("Annulé.")
-        return None
-    if choix < 1 or choix > len(items):
-        typer.echo("❌ Choix invalide.")
-        return None
 
-    item_select = items[choix - 1]
-    if not typer.confirm(f"Confirmer : {formatter(item_select)} ?", default=True):
+    index = valider_choix_liste(choix, len(items))
+    if index is None:
+        typer.echo("❌ Annulé ou choix invalide.")
+        return None
+    
+    if not typer.confirm(f"Confirmer : {formatter(items[index])} ?", default=True):
         typer.echo("❌ Annulé.")
         return None
-    return choix - 1
+    return index
 
 
 @app.command()
