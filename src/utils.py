@@ -1,7 +1,7 @@
 import re
 import unicodedata
 import json
-
+from typing import Optional
 
 from .entry_service import JsonNewEntryDraft, EntryExistsError, PanDaFiReError
 
@@ -107,3 +107,12 @@ def ajuster_score_keywords_ambigus(
             keywords_ajustes.append(mot_cle)
 
     return keywords, keywords_ajustes
+
+def valider_choix_liste(choix: int, nombre_choix: int) -> Optional[int]:
+    """Convertitun choix utilisateur en index de liste."""
+
+    if choix == 0:
+        return None
+    if 1 < choix <= nombre_choix:
+        return choix - 1
+    return None
