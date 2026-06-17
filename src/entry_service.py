@@ -45,7 +45,7 @@ class Statut(Enum):
 
 # dataclass pour les paramètre de processor.py
 @dataclass
-class ProcessResult:
+class ProcessPdfResult:
     source: Path
     statut : Statut
     destination: Path

@@ -23,7 +23,7 @@ from .entry_service import (
     PanDaFiReError,
     ValidationError,
     EntryExistsError,
-    ProcessResult,
+    ProcessPdfResult,
     TypeDeConfig,
     Statut,
 )
@@ -90,7 +90,7 @@ def _traiter_fichier(path: Path, dry_run: bool, debug: bool, output: bool) -> No
     _cli_afficher_resultat_run(resultat, debug)
 
 
-def _cli_afficher_resultat_run(resultat: ProcessResult, debug: bool ) -> None:
+def _cli_afficher_resultat_run(resultat: ProcessPdfResult, debug: bool ) -> None:
     if debug and resultat.scores:
         typer.echo(f"[DEBUG] {resultat.source.name} scores type     : {resultat.scores.get('type')}")
         typer.echo(f"[DEBUG] {resultat.source.name} scores émetteur : {resultat.scores.get('emetteur')}")

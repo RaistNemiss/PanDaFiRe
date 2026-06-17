@@ -1,6 +1,5 @@
 """Logique de traitement d'un PDF individuel."""
 
-import typer
 import shutil
 from pathlib import Path
 
@@ -12,7 +11,7 @@ from .extraction import (
     extraire_nom_pdf_sans_date,
 )
 from .entry_service import (
-    ProcessResult,
+    ProcessPdfResult,
     Statut,
     FileAlreadyExistError,
     FileNotFoundError,
@@ -33,7 +32,7 @@ def process_pdf(
     dry_run: bool,
     debug: bool,
     output: bool = False,
-) -> ProcessResult:
+) -> ProcessPdfResult:
     """Traite un fichier PDF : extrait, classifie, renomme."""
 
     # 1. Extraction + normalisation
@@ -82,7 +81,7 @@ def process_pdf(
 
     # Dry-run
     if dry_run:
-        return ProcessResult(
+        return ProcessPdfResult(
             source=pdf_path,
             statut=Statut.DRY_RUN,
             destination=Path(
@@ -122,7 +121,7 @@ def _renommer_pdf(
     nom_emetteur: str,
     initiales: str,
     scores: dict,
-) -> ProcessResult:
+) -> ProcessPdfResult:
     """Renomme le PDF sur place avec les initiales du destinataire."""
     nouveau_nom = _construire_nom_pdf(date_doc, type_doc, nom_emetteur, initiales)
     destination = pdf_path.parent / nouveau_nom
@@ -132,7 +131,7 @@ def _renommer_pdf(
         raise FileAlreadyExistError(destination)
 
     pdf_path.rename(destination)
-    return ProcessResult(pdf_path, Statut.RENOMME, destination, scores)
+    return ProcessPdfResult(pdf_path, Statut.RENOMME, destination, scores)
 
 
 def _deplacer_fichier(
@@ -143,7 +142,7 @@ def _deplacer_fichier(
     nom_destinataire: str,
     emetteurs: dict,
     scores: dict,
-) -> ProcessResult:
+) -> ProcessPdfResult:
     """Déplace le fichier PDF dans le dossier de sortie selon son destinataire et sa catégorie."""
 
     if not pdf_path.exists():
@@ -166,7 +165,7 @@ def _deplacer_fichier(
     shutil.move(
         str(pdf_path), str(destination)
     )  # shutil.move gère mieux les déplacements entre disques différents que Path.rename
-    return ProcessResult(pdf_path, Statut.DEPLACE, destination, scores)
+    return ProcessPdfResult(pdf_path, Statut.DEPLACE, destination, scores)
 
 
 if __name__ == "__main__":
