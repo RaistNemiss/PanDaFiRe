@@ -1,6 +1,7 @@
 from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Literal
+from enum import Enum
 
 
 TypeDeConfig = Literal["emetteurs", "typedoc", "destinataires"]
@@ -24,7 +25,33 @@ class JsonConfigNotFoundError(PanDaFiReError):
     def __init__(self, json_path: Path):
         self.json_path = json_path
         super().__init__(f"Fichier JSON de configuration introuvable : {json_path}")
-        
+
+class ProcessError(PanDaFiReError):
+    """Erreur de traitement d'un PDF"""
+
+class FileNotFoundError(ProcessError):
+    pass
+
+class FileAlreadyExistError(ProcessError):
+    """La destination existe déjà, traitement annulé."""
+    def __init__(self, destination: Path) -> None:
+        self.destination = destination
+        super().__init__(f"Fichier déjà existant : {destination.name}")
+
+class Statut(Enum):
+    RENOMME = "renommé"
+    DEPLACE = "déplacé"
+    DRY_RUN = "simulation"
+
+# dataclass pour les paramètre de processor.py
+@dataclass
+class ProcessResult:
+    source: Path
+    statut : Statut
+    destination: Path
+    scores: dict = field(default_factory=dict) # pour le debug
+
+# dataclass pour enrich.py et destinataire.py
 @dataclass
 class JsonNewEntryDraft():
     config_type: TypeDeConfig

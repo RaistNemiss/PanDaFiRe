@@ -11,6 +11,12 @@ from .extraction import (
     extraire_noms_societes,
     extraire_nom_pdf_sans_date,
 )
+from .entry_service import (
+    ProcessResult,
+    Statut,
+    FileAlreadyExistError,
+    FileNotFoundError,
+)
 from .classifier import identifier_par_score
 from .logger import extraction_logger
 from .utils import normaliser_text
@@ -23,32 +29,32 @@ def process_pdf(
     pdf_path: Path,
     types: dict,
     emetteurs: dict,
-    destinataires: dict,
+    destinataire: dict,
     dry_run: bool,
     debug: bool,
     output: bool = False,
-) -> None:
+) -> ProcessResult:
     """Traite un fichier PDF : extrait, classifie, renomme."""
 
-    # Extraction + normalisation
+    # 1. Extraction + normalisation
     texte_brut, ocr_utilise = extraire_texte(pdf_path)
     texte_normalise = normaliser_text(
         texte_brut, stopwords=False
     )  # on garde les stopwords pour la classification émetteur/destinataire
 
-    # Classification
+    # 2. Classification
     type_doc, type_doc_scores = identifier_par_score(
         texte_normalise, types, retour_score=True
     )
     nom_emetteur, emetteur_scores = identifier_par_score(
         texte_normalise, emetteurs, retour_score=True
     )
-    nom_destinataire = identifier_par_score(texte_normalise, destinataires)
+    nom_destinataire = identifier_par_score(texte_normalise, destinataire)
 
-    # Extraction date
+    # 3. Extraction date
     date_doc = extraire_date_document(texte_brut)
 
-    # Fallback émetteur inconnu
+    # 4. Fallback émetteur inconnu
     if nom_emetteur == "inconnu":
         candidats_emetteur = extraire_candidats_emetteur(texte_brut)
         candidats_emetteur += extraire_noms_societes(texte_brut)
@@ -56,7 +62,7 @@ def process_pdf(
     else:
         candidats_emetteur = []
 
-    # Log
+    # 5. Log
     extraction_logger(
         pdf_path,
         type_doc,
@@ -71,29 +77,33 @@ def process_pdf(
         entete_normalise_preview=texte_normalise[:200],
     )
 
-    # Debug
-    if debug:
-        typer.echo(f"[DEBUG] {pdf_path.name} scores type     : {type_doc_scores}")
-        typer.echo(f"[DEBUG] {pdf_path.name} scores émetteur : {emetteur_scores}")
-
     initiales = determiner_initiales_destinataire(nom_destinataire)
+    scores = {"type": type_doc_scores, "emetteur": emetteur_scores} if debug else {}
 
     # Dry-run
     if dry_run:
-        typer.echo(
-            f"[Dry-Run] {pdf_path.name} → "
-            f"{type_doc} | {nom_emetteur} | {initiales} | {date_doc}"
+        return ProcessResult(
+            source=pdf_path,
+            statut=Statut.DRY_RUN,
+            destination=Path(
+                _construire_nom_pdf(date_doc, type_doc, nom_emetteur, initiales)
+            ),
+            scores=scores,
         )
-        return
 
-    # output
+    # Deplacement fichier
     if output:
-        _deplacer_fichier(
-            pdf_path, date_doc, type_doc, nom_emetteur, nom_destinataire, emetteurs
+        return _deplacer_fichier(
+            pdf_path,
+            date_doc,
+            type_doc,
+            nom_emetteur,
+            nom_destinataire,
+            emetteurs,
+            scores,
         )
-    else:
-        # Renommage
-        _renommer_pdf(pdf_path, date_doc, type_doc, nom_emetteur, initiales)
+
+    return _renommer_pdf(pdf_path, date_doc, type_doc, nom_emetteur, initiales, scores)
 
 
 def _construire_nom_pdf(
@@ -106,19 +116,23 @@ def _construire_nom_pdf(
 
 
 def _renommer_pdf(
-    pdf_path: Path, date_doc: str, type_doc: str, nom_emetteur: str, initiales: str
-) -> Path:
+    pdf_path: Path,
+    date_doc: str,
+    type_doc: str,
+    nom_emetteur: str,
+    initiales: str,
+    scores: dict,
+) -> ProcessResult:
     """Renomme le PDF sur place avec les initiales du destinataire."""
     nouveau_nom = _construire_nom_pdf(date_doc, type_doc, nom_emetteur, initiales)
     destination = pdf_path.parent / nouveau_nom
 
+    # le fichier existe déjà à la destination
     if destination.exists():
-        typer.echo(f"[Skip] Fichier déjà existant : {destination.name}")
-        return destination
+        raise FileAlreadyExistError(destination)
 
     pdf_path.rename(destination)
-    typer.echo(f"✅ {pdf_path.name} → {destination.name}")
-    return destination
+    return ProcessResult(pdf_path, Statut.RENOMME, destination, scores)
 
 
 def _deplacer_fichier(
@@ -128,12 +142,12 @@ def _deplacer_fichier(
     nom_emetteur: str,
     nom_destinataire: str,
     emetteurs: dict,
-) -> bool:
+    scores: dict,
+) -> ProcessResult:
     """Déplace le fichier PDF dans le dossier de sortie selon son destinataire et sa catégorie."""
 
     if not pdf_path.exists():
-        typer.echo(f"❌ Fichier introuvable : {pdf_path}")
-        return False
+        raise FileNotFoundError(pdf_path)
 
     if type_doc == "inconnu" or nom_emetteur == "inconnu":
         nom_categorie = "_à_trier"
@@ -147,14 +161,12 @@ def _deplacer_fichier(
     # construire la destination finale
     destination = output_dir / _construire_nom_pdf(date_doc, type_doc, nom_emetteur)
     if destination.exists():
-        typer.echo(f"❌ Fichier déjà existant : {destination}")
-        return False
+        raise FileAlreadyExistError(destination)
 
     shutil.move(
         str(pdf_path), str(destination)
     )  # shutil.move gère mieux les déplacements entre disques différents que Path.rename
-    typer.echo(f"✅ {pdf_path.name} déplacé vers {destination}")
-    return True
+    return ProcessResult(pdf_path, Statut.DEPLACE, destination, scores)
 
 
 if __name__ == "__main__":

@@ -51,7 +51,7 @@ def extraire_texte(pdf_path: Path) -> tuple[str, bool]:
     if texte.strip():
         return texte, False  # texte extrait avec succès, pas besoin d'OCR
         
-    print(f"🔍 {pdf_path.name} PDF scanné détecté → OCR")
+    # print(f"🔍 {pdf_path.name} PDF scanné détecté → OCR") # debug
     texte = extraire_texte_ocr(pdf_path)
     return texte, True  # texte extrait via OCR
 

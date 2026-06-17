@@ -23,7 +23,9 @@ from .entry_service import (
     PanDaFiReError,
     ValidationError,
     EntryExistsError,
+    ProcessResult,
     TypeDeConfig,
+    Statut,
 )
 from .config_path import (
     CONFIG_PATH,
@@ -79,13 +81,26 @@ def _traiter_dossier(
     for pdf_file in pdf_files:
         try:
             _traiter_fichier(pdf_file, dry_run, debug, output)
-        except Exception as e:
+        except PanDaFiReError as e:
             typer.echo(f"❌ Erreur sur {pdf_file.name} : {e}")
 
 
 def _traiter_fichier(path: Path, dry_run: bool, debug: bool, output: bool) -> None:
-    process_pdf(path, TYPES, EMETTEURS, DESTINATAIRES, dry_run, debug, output)
+    resultat = process_pdf(path, TYPES, EMETTEURS, DESTINATAIRES, dry_run, debug, output)
+    _cli_afficher_resultat_run(resultat, debug)
 
+
+def _cli_afficher_resultat_run(resultat: ProcessResult, debug: bool ) -> None:
+    if debug and resultat.scores:
+        typer.echo(f"[DEBUG] {resultat.source.name} scores type     : {resultat.scores.get('type')}")
+        typer.echo(f"[DEBUG] {resultat.source.name} scores émetteur : {resultat.scores.get('emetteur')}")
+
+    message = {
+        Statut.RENOMME: f"✅ {resultat.source.name} → {resultat.destination.name}",
+        Statut.DEPLACE: f"✅ {resultat.source.name} déplacé vers",
+        Statut.DRY_RUN: f"[Dry-Run] {resultat.source.name} → {resultat.destination.name}",
+        }
+    typer.echo(message[resultat.statut])
 
 @app.command()
 @log_run
