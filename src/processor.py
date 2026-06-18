@@ -21,19 +21,18 @@ from .logger import extraction_logger
 from .utils import normaliser_text
 from .destinataire import determiner_initiales_destinataire
 from .config_path import get_output_path
-from .config import trouver_categorie_config
+from .config import trouver_categorie_config, charger_config
 
 
 def process_pdf(
     pdf_path: Path,
-    types: dict,
-    emetteurs: dict,
-    destinataire: dict,
     dry_run: bool,
     debug: bool,
     output: bool = False,
 ) -> ProcessPdfResult:
     """Traite un fichier PDF : extrait, classifie, renomme."""
+
+    types, emetteurs, destinataire = charger_config()
 
     # 1. Extraction + normalisation
     texte_brut, ocr_utilise = extraire_texte(pdf_path)

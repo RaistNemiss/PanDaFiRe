@@ -7,7 +7,6 @@ from typing import Callable, Optional
 from .destinataire import generer_keywords_destinataire
 from .utils import ajouter_nouvelle_entree_json, valider_choix_liste
 from .config import (
-    charger_config,
     categorie_disponible,
     prepare_nouvelle_entree,
 )
@@ -35,9 +34,6 @@ from .config_path import (
 )
 
 app = typer.Typer()
-
-# Chargement unique au démarrage
-TYPES, EMETTEURS, DESTINATAIRES = charger_config()
 
 
 @app.command()
@@ -86,7 +82,7 @@ def _traiter_dossier(
 
 
 def _traiter_fichier(path: Path, dry_run: bool, debug: bool, output: bool) -> None:
-    resultat = process_pdf(path, TYPES, EMETTEURS, DESTINATAIRES, dry_run, debug, output)
+    resultat = process_pdf(path, dry_run, debug, output)
     _cli_afficher_resultat_run(resultat, debug)
 
 
