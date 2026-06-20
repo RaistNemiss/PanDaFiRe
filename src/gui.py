@@ -1,8 +1,6 @@
 import customtkinter
 from pathlib import Path
 
-from src.config_path import set_output_path
-
 from .processor import process_pdf
 from .entry_service import Statut, ProcessPdfResult, PanDaFiReError
 from .config_path import set_output_path
@@ -37,28 +35,33 @@ class DialogActions(customtkinter.CTkToplevel):
         print(f"Saisi : {valeur}")  # plus tard → appel de ton métier
         self.destroy()  # ferme la boîte
 
+
 # logique à migrer ailleurs :
 @log_run
-def traiter_chemin_pdf(pdf_path: Path, dry_run: bool, recursive: bool) -> None:
+def traiter_chemin_pdf(pdf_path: Path, dry_run: bool, recursive: bool, output: bool) -> None:
     textbox.delete("1.0", "end")  # on vide la textbox avant chaque traitement
 
     if not pdf_path.exists():
         raise PanDaFiReError(f"⚠️ Le chemin n'existe pas : {pdf_path}")
 
     if pdf_path.is_file():
-        _traiter_fichier(pdf_path, dry_run, debug=False, output=False)
+        _traiter_fichier(pdf_path, dry_run, debug=False, output=output)
     elif pdf_path.is_dir():
-        _gui_traiter_dossier(pdf_path, dry_run, recursive)
+        _gui_traiter_dossier(pdf_path, dry_run, recursive, output)
 
-def _gui_traiter_dossier(dossier: Path, dry_run: bool, recursive: bool) -> None:
-    
-    pdf_files = list(dossier.rglob("*.pdf")) if recursive else list(dossier.glob("*.pdf"))
-    
+
+def _gui_traiter_dossier(dossier: Path, dry_run: bool, recursive: bool, output: bool) -> None:
+
+    pdf_files = (
+        list(dossier.rglob("*.pdf")) if recursive else list(dossier.glob("*.pdf"))
+    )
+
     for pdf_file in pdf_files:
         try:
-            _traiter_fichier(pdf_file, dry_run, debug=False, output=False)
+            _traiter_fichier(pdf_file, dry_run, debug=False, output=output)
         except PanDaFiReError as e:
             log(f"❌ Erreur sur {pdf_file.name} : {e}")
+
 
 def ouvrir_dialog(nom_action):
     DialogActions(nom_action)
@@ -79,15 +82,14 @@ def selection_dossier() -> None:
         chemin_entry.delete(0, "end")
         chemin_entry.insert(0, chemin)
 
+
 def set_output() -> None:
-    chemin = customtkinter.filedialog.askdirectory(
-        title="Choisir le dossier de sortie"
-    )
-    if not chemin:   # ⚠️ l'utilisateur a annulé
+    chemin = customtkinter.filedialog.askdirectory(title="Choisir le dossier de sortie")
+    if not chemin:  # ⚠️ l'utilisateur a annulé
         return
 
     nouveau_path = Path(chemin)
-    set_output_path(nouveau_path)   # 💾 ta fonction qui sauvegarde dans settings.json
+    set_output_path(nouveau_path)  # 💾 ta fonction qui sauvegarde dans settings.json
     log(f"📁 Dossier de sortie défini : {nouveau_path.resolve()}")
 
 
@@ -138,16 +140,25 @@ bouton_dossier = customtkinter.CTkButton(
 )
 bouton_dossier.grid(row=1, column=0, padx=15, pady=5, sticky="ew")
 
-check_dryrun = customtkinter.CTkCheckBox(frame_gauche, text="Dry-run")
+var_dryrun = customtkinter.BooleanVar(value=False)
+check_dryrun = customtkinter.CTkCheckBox(frame_gauche, text="Dry-run", onvalue=True, offvalue=False, variable=var_dryrun)
 check_dryrun.grid(row=2, column=0, padx=15, pady=5, sticky="w")
 
-check_recursive = customtkinter.CTkCheckBox(frame_gauche, text="Recursive")
+var_recursive = customtkinter.BooleanVar(value=False)
+check_recursive = customtkinter.CTkCheckBox(frame_gauche, text="Recursive", onvalue=True, offvalue=False, variable=var_recursive)
 check_recursive.grid(row=3, column=0, padx=15, pady=5, sticky="w")
 
-check_output = customtkinter.CTkCheckBox(frame_gauche, text="output")
+var_output = customtkinter.BooleanVar(value=False)
+check_output = customtkinter.CTkCheckBox(frame_gauche, text="output", onvalue=True, offvalue=False, variable=var_output)
 check_output.grid(row=4, column=0, padx=15, pady=5, sticky="w")
 
-bouton_process = customtkinter.CTkButton(frame_gauche, text="🚀 PROCESS", command=lambda: traiter_chemin_pdf(Path(chemin_entry.get()), check_dryrun.get(), check_recursive.get()))
+bouton_process = customtkinter.CTkButton(
+    frame_gauche,
+    text="🚀 PROCESS",
+    command=lambda: traiter_chemin_pdf(
+        Path(chemin_entry.get()), var_dryrun.get(), var_recursive.get(), var_output.get()
+    ),
+)
 bouton_process.grid(row=5, column=0, padx=15, pady=(15, 15), sticky="ew")
 
 # ─── COLONNE DROITE : chemin + résultat (toujours dans app) ───
@@ -197,5 +208,3 @@ app.mainloop()
 
 # bouton_process = customtkinter.CTkButton(app, text="Process 🚀", command=process)
 # bouton_process.grid(row=3, column=1, padx=20, pady=20)
-
-
