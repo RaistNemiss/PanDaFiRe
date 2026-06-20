@@ -2,7 +2,8 @@ import customtkinter
 from pathlib import Path
 
 from .processor import process_pdf
-from .entry_service import Statut, ProcessPdfResult
+from .entry_service import Statut, ProcessPdfResult, PanDaFiReError
+from .logger import log_run
 
 
 class DialogActions(customtkinter.CTkToplevel):
@@ -33,12 +34,34 @@ class DialogActions(customtkinter.CTkToplevel):
         print(f"Saisi : {valeur}")  # plus tard → appel de ton métier
         self.destroy()  # ferme la boîte
 
+# logique à migrer ailleurs :
+@log_run
+def traiter_chemin_pdf(pdf_path: Path, dry_run: bool, recursive: bool) -> None:
+    textbox.delete("1.0", "end")  # on vide la textbox avant chaque traitement
+
+    if not pdf_path.exists():
+        raise PanDaFiReError(f"⚠️ Le chemin n'existe pas : {pdf_path}")
+
+    if pdf_path.is_file():
+        _traiter_fichier(pdf_path, dry_run, debug=False, output=False)
+    elif pdf_path.is_dir():
+        _gui_traiter_dossier(pdf_path, dry_run, recursive)
+
+def _gui_traiter_dossier(dossier: Path, dry_run: bool, recursive: bool) -> None:
+    
+    pdf_files = list(dossier.rglob("*.pdf")) if recursive else list(dossier.glob("*.pdf"))
+    
+    for pdf_file in pdf_files:
+        try:
+            _traiter_fichier(pdf_file, dry_run, debug=False, output=False)
+        except PanDaFiReError as e:
+            log(f"❌ Erreur sur {pdf_file.name} : {e}")
 
 def ouvrir_dialog(nom_action):
     DialogActions(nom_action)
 
 
-def selection_fichier():
+def selection_fichier() -> None:
     chemin = customtkinter.filedialog.askopenfilename(
         title="Choisir un fichier PDF", filetypes=[("PDF", "*.pdf"), ("Tous", "*.*")]
     )
@@ -47,7 +70,7 @@ def selection_fichier():
         chemin_entry.insert(0, chemin)  # puis on écrit
 
 
-def selection_dossier():
+def selection_dossier() -> None:
     chemin = customtkinter.filedialog.askdirectory(title="Choisir un dossier")
     if chemin:
         chemin_entry.delete(0, "end")
@@ -59,7 +82,7 @@ def _traiter_fichier(path: Path, dry_run: bool, debug: bool, output: bool) -> No
     _gui_afficher_resultat(resultat)
 
 
-def _gui_afficher_resultat(resultat: ProcessPdfResult):
+def _gui_afficher_resultat(resultat: ProcessPdfResult) -> None:
 
     message = {
         Statut.RENOMME: f"✅ {resultat.source.name} → {resultat.destination.name}",
@@ -69,7 +92,7 @@ def _gui_afficher_resultat(resultat: ProcessPdfResult):
     log(message[resultat.statut])
 
 
-def log(message: str):
+def log(message: str) -> None:
     textbox.insert("end", message + "\n")
     textbox.see("end")  # scroll automatique vers le bas
 
@@ -108,7 +131,7 @@ check_recursive.grid(row=3, column=0, padx=15, pady=5, sticky="w")
 check_output = customtkinter.CTkCheckBox(frame_gauche, text="output")
 check_output.grid(row=4, column=0, padx=15, pady=5, sticky="w")
 
-bouton_process = customtkinter.CTkButton(frame_gauche, text="PROCESS")
+bouton_process = customtkinter.CTkButton(frame_gauche, text="🚀 PROCESS", command=lambda: traiter_chemin_pdf(Path(chemin_entry.get()), check_dryrun.get(), check_recursive.get()))
 bouton_process.grid(row=5, column=0, padx=15, pady=(15, 15), sticky="ew")
 
 # ─── COLONNE DROITE : chemin + résultat (toujours dans app) ───
@@ -160,13 +183,3 @@ app.mainloop()
 # bouton_process.grid(row=3, column=1, padx=20, pady=20)
 
 
-# logique à migrer ailleurs :
-def traiter_chemin_pdf(pdf_path: Path, dry_run: bool, recursive: bool):
-    if pdf_path.is_file():
-        print(f"Traitement du fichier : {pdf_path} (dry_run={dry_run})")
-    elif pdf_path.is_dir():
-        pattern = "**/*.pdf" if recursive else "*.pdf"
-        liste = list(pdf_path.glob(pattern))
-        print(
-            f"Dossier avec {len(liste)} PDF (dry_run={dry_run}, recursive={recursive})"
-        )
