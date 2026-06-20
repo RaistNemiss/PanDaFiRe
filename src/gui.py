@@ -1,8 +1,11 @@
 import customtkinter
 from pathlib import Path
 
+from src.config_path import set_output_path
+
 from .processor import process_pdf
 from .entry_service import Statut, ProcessPdfResult, PanDaFiReError
+from .config_path import set_output_path
 from .logger import log_run
 
 
@@ -76,6 +79,17 @@ def selection_dossier() -> None:
         chemin_entry.delete(0, "end")
         chemin_entry.insert(0, chemin)
 
+def set_output() -> None:
+    chemin = customtkinter.filedialog.askdirectory(
+        title="Choisir le dossier de sortie"
+    )
+    if not chemin:   # ⚠️ l'utilisateur a annulé
+        return
+
+    nouveau_path = Path(chemin)
+    set_output_path(nouveau_path)   # 💾 ta fonction qui sauvegarde dans settings.json
+    log(f"📁 Dossier de sortie défini : {nouveau_path.resolve()}")
+
 
 def _traiter_fichier(path: Path, dry_run: bool, debug: bool, output: bool) -> None:
     resultat = process_pdf(path, dry_run, debug, output)
@@ -83,7 +97,7 @@ def _traiter_fichier(path: Path, dry_run: bool, debug: bool, output: bool) -> No
 
 
 def _gui_afficher_resultat(resultat: ProcessPdfResult) -> None:
-
+    """Affiche le résultat du traitement dans la zone de texte."""
     message = {
         Statut.RENOMME: f"✅ {resultat.source.name} → {resultat.destination.name}",
         Statut.DEPLACE: f"✅ {resultat.source.name} déplacé vers",
@@ -93,8 +107,10 @@ def _gui_afficher_resultat(resultat: ProcessPdfResult) -> None:
 
 
 def log(message: str) -> None:
+    """Affiche un message dans la zone de texte."""
     textbox.insert("end", message + "\n")
     textbox.see("end")  # scroll automatique vers le bas
+    textbox.update_idletasks()  # 🔄 force le rafraîchissement immédiat
 
 
 app = customtkinter.CTk()
@@ -163,7 +179,7 @@ btn_output = customtkinter.CTkButton(
 btn_output.grid(row=2, column=0, padx=15, pady=5)
 
 btn_autre = customtkinter.CTkButton(
-    frame_actions, text="Set Output", command=lambda: ouvrir_dialog("Set Output")
+    frame_actions, text="Set Output", command=set_output
 )
 btn_autre.grid(row=3, column=0, padx=15, pady=5)
 
