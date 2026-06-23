@@ -11,7 +11,7 @@ from .logger import log_run
 class DialogActions(customtkinter.CTkToplevel):
     """Boîte de dialogue pour les actions Enrich, Register, etc."""
 
-    def __init__(self, titre, noms_champs: list[str] | None = None):
+    def __init__(self, titre, noms_champs: list[tuple[str, bool]] | None = None):
 
         super().__init__()
         self.title(f"PanDaFiRe - {titre}")
@@ -28,11 +28,13 @@ class DialogActions(customtkinter.CTkToplevel):
         
         # nom de champ par défaut si rien n'est entré
         if noms_champs is None:
-            noms_champs = ["une information"]
+            noms_champs = [("une information", False)]
 
-        for nom_champ in noms_champs:
+        for nom_champ, obligatoire in noms_champs:
+            var = customtkinter.StringVar()
+            suffixe = " (obligatoire)" if obligatoire else ""
             champ = customtkinter.CTkEntry(
-                self, placeholder_text=f"Entrer {nom_champ}..."
+                self, textvariable=var, placeholder_text=f"Entrer {nom_champ}{suffixe}...",
             )
             champ.pack(padx=20, pady=10, fill="x")
             self.champs.append(champ)
@@ -89,18 +91,18 @@ def ouvrir_dialog(nom_action, type_de_config: TypeDeConfig | None = None) -> Non
     """Ouvre une boîte de dialogue pour l'action spécifiée."""
     
     enrich_champ = [
-    "le nom de l'émetteur (obligatoire)",
-    "l'email",
-    "le téléphone",
-    "le site web",
-    "le site web alternatif",
-    "des mots-clés supplémentaires (séparés par des virgules)",
+    ("le nom de l'émetteur (obligatoire)", True),
+    ("l'email", False),
+    ("le téléphone", False),
+    ("le site web", False),
+    ("le site web alternatif", False),
+    ("des mots-clés supplémentaires (séparés par des virgules)", False),
     ]
     register_champ = [
-    "le prénom (obligatoire)",
-    "le nom (obligatoire)",
-    "l'email",
-    "le téléphone",
+    ("le prénom (obligatoire)", True),
+    ("le nom (obligatoire)", True),
+    ("l'email", False),
+    ("le téléphone", False),
     ]
     
 
