@@ -4,7 +4,10 @@
     "keywords": {
       "facture": 3,
       "facture client": 5,
+      "sommation" : 5,
+      "Facture de prime" : 5,
       "facture fournisseur": 5,
+      "rappel de paiement" : 5,
       "invoice": 4,
       "sales invoice": 5,
       "tax invoice": 5,
@@ -23,7 +26,6 @@
       "mws": 3
     }
   },
-
   "extrait": {
     "description": "Relevé ou extrait de compte bancaire",
     "keywords": {
@@ -34,7 +36,7 @@
       "account statement": 5,
       "solde précédent": 5,
       "nouveau solde": 5,
-      "solde de compte" : 5,
+      "solde de compte": 5,
       "valeur": 2,
       "débit": 4,
       "crédit": 4,
@@ -45,14 +47,15 @@
       "avis de débit": 4
     }
   },
-
   "bulletin_de_salaire": {
     "description": "Bulletin de salaire ou décompte de salaire (CH/FR/EN)",
     "keywords": {
       "bulletin de salaire": 5,
       "bulletin de paie": 5,
       "fiche de paie": 5,
+      "fiche de salaire" : 5,
       "décompte de salaire": 5,
+      "décompte salaire": 4,
       "payslip": 5,
       "pay slip": 5,
       "salary statement": 5,
@@ -71,7 +74,22 @@
       "cumul annuel": 4
     }
   },
-
+  "certificat_de_salaire": {
+    "description": "Bulletin de salaire ou décompte de salaire (CH/FR/EN)",
+    "keywords": {
+      "certificat de salaire": 5,
+      "lohnausweis": 5,
+      "certificat° di salario": 5,
+      "attestation de rentes": 5,
+      "attestazione delle rendite": 5,
+      "rentenbescheinigung": 5,
+      "prestations salariales": 5,
+      "Gehaltsnebenleistungen": 5,
+      "prestations non périodiques": 5,
+      "Prestazioni aperiodiche": 5,
+      "Unregelmälssige Leistunge": 5
+    }
+  },
   "devis": {
     "description": "Devis ou proposition commerciale",
     "keywords": {
@@ -89,7 +107,6 @@
       "signature du client": 3
     }
   },
-
   "protocole": {
     "description": "Protocole scientifique ou procédure",
     "keywords": {
@@ -111,7 +128,6 @@
       "standard operating procedure": 5
     }
   },
-
   "bon_commande": {
     "description": "Bon ou ordre de commande",
     "keywords": {
@@ -126,7 +142,6 @@
       "order confirmation": 4
     }
   },
-
   "bon_livraison": {
     "description": "Bon ou preuve de livraison",
     "keywords": {
@@ -144,7 +159,6 @@
       "tracking number": 4
     }
   },
-
   "contrat": {
     "description": "Contrat ou document juridique",
     "keywords": {
@@ -164,7 +178,6 @@
       "hereby agree": 4
     }
   },
-
   "garantie": {
     "description": "Garantie avec termes FR, EN et DE",
     "keywords": {
@@ -188,7 +201,6 @@
       "security deposit": 4
     }
   },
-
   "ordonnance": {
     "description": "Ordonnance pour médicaments ou soins",
     "keywords": {
@@ -208,7 +220,6 @@
       "signature du médecin": 3
     }
   },
-
   "certificat_medical": {
     "description": "Arrêt de travail ou certificat d'aptitude",
     "keywords": {
@@ -229,7 +240,6 @@
       "accident de travail": 4
     }
   },
-
   "manuel_technique": {
     "description": "Manuel d'utilisation ou notice technique",
     "keywords": {
@@ -251,24 +261,59 @@
       "fehlersuche": 4
     }
   },
-
-  "fiscal": {
-    "description": "Impôts et taxes (Suisse/France)",
+"fiscal": {
+    "description": "Déclaration d'impôts et acomptes (Suisse/France)",
     "keywords": {
-      "avis de taxation": 5,
       "déclaration d'impôt": 5,
-      "impôt cantonal et communal": 5,
-      "impôt fédéral direct": 5,
-      "ifd": 5,
-      "acomptes": 3,
-      "taxation définitive": 5,
+      "declaration d'impot": 5,
       "steuererklärung": 5,
-      "tax return": 5
+      "tax return": 5,
+      "declaration de revenus": 5,
+      "acomptes": 4,
+      "impôt cantonal et communal": 2,
+      "impôt fédéral direct": 2,
+      "ifd": 2
     }
   },
-
+  "decision_taxation": {
+    "description": "Décision officielle de taxation et calcul final de l'impôt",
+    "keywords": {
+      "décision de taxation": 5,
+      "decision de taxation": 5,
+      "décision de taxation et calcul de l'impôt": 5,
+      "veranlagungsverfügung": 5,
+      "decisione di tassazione": 5,
+      "tax assessment": 5,
+      "revenu imposable": 3,
+      "taxation définitive": 4,
+      "impôt cantonal et communal": 2,
+      "impôt fédéral direct": 2,
+      "ifd": 2,
+      "steuererklärung": 1
+    }
+  },
+"decompte_prestations": {
+    "description": "Décompte de prestations d'assurance (maladie/accident CH)",
+    "keywords": {
+      "décompte de prestations": 5,
+      "decompte de prestations": 5,
+      "leistungsabrechnung": 5,
+      "conteggio des prestazioni": 5,
+      "montant pris en compte": 5,
+      "montant à votre charge": 5,
+      "montant en votre faveur": 5,
+      "notre versement sur votre compte": 4,
+      "personne assurée": 4,
+      "laa": 4,
+      "lamal": 4,
+      "assurance accident": 4,
+      "franchise": 3,
+      "quote-part": 3,
+      "gma sa": 4
+    }
+  },
   "assurance": {
-    "description": "Polices et avis d'échéance d'assurance",
+    "description": "Polices et avis d'échéance d'assurance (hors décomptes)",
     "keywords": {
       "police d'assurance": 5,
       "avis d'échéance": 5,
@@ -277,11 +322,9 @@
       "versicherung": 4,
       "insurance policy": 5,
       "couverture d'assurance": 4,
-      "décompte des prestations": 3,
       "sinistre": 4
     }
   },
-
   "logement_charges": {
     "description": "Décomptes de charges et logement",
     "keywords": {
@@ -294,7 +337,6 @@
       "heating bill": 4
     }
   },
-
   "administratif_officiel": {
     "description": "Documents de l'administration ou poursuites",
     "keywords": {
@@ -306,7 +348,6 @@
       "contrôle des habitants": 4
     }
   },
-
   "attestation": {
     "description": "Attestations diverses (travail, résidence, assurance)",
     "keywords": {

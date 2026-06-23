@@ -345,17 +345,6 @@
             "devis travaux": 3
         }
     },
-    "cabinet_d_osteopathie_rothenbühler": {
-        "description": "Cabinet d osteopathie Rothenbühler",
-        "category": "sante",
-        "keywords": {
-            "cabinet d osteopathie rothenbühler": 5,
-            "cabinetdosteopathierothenbühler": 2,
-            "cabinet": 3,
-            "rothenbühler": 3,
-            "cabinet d osteopathie rothenbuhler": 2
-        }
-    },
     "batmaid_sa": {
         "description": "Batmaid S.A.",
         "category": "service",
@@ -449,21 +438,112 @@
             "impot sur le revenu et la fortune": 1
         }
     },
-    "dextra_protection_juridique": {
-        "description": "Dextra Protection Juridique",
+    "jumbo": {
+        "description": "Jumbo",
+        "category": "commerce",
+        "keywords": {
+            "jumbo": 5,
+            "www.jumbo.ch": 4,
+            "+41 848 24 22 24": 5,
+            "41848242224": 3
+        }
+    },
+    "osteo_7_7": {
+        "description": "Osteo 7/7",
+        "category": "sante",
+        "keywords": {
+            "osteo 7/7": 5,
+            "osteo7/7": 4,
+            "osteo": 1,
+            "lausanne@osteo7-7.ch": 4,
+            "@osteo7-7.ch": 2,
+            "https://osteo7-7.ch/": 4,
+            "021 510 50 50": 5,
+            "0215105050": 3
+        }
+    },
+    "drsse_roman_cristina": {
+        "description": "Drsse Roman Cristina",
+        "category": "sante",
+        "keywords": {
+            "drsse roman cristina": 5,
+            "drsseromancristina": 4,
+            "drsse": 1,
+            "roman": 1,
+            "cristina": 1,
+            "cabinetdocroman@bluewin.ch": 4,
+            "@bluewin.ch": 2,
+            "docroman.ch": 4,
+            "021 652 44 24": 5,
+            "0216524424": 3,
+            "pédiatre fmh": 1
+        }
+    },
+    "dextra_protection_juridique_sa": {
+        "description": "Dextra Protection juridique SA",
+        "category": "assurance",
+        "keywords": {
+            "dextra protection juridique sa": 5,
+            "dextraprotectionjuridiquesa": 4,
+            "dextra": 5,
+            "info@dextra.ch": 4,
+            "@dextra.ch": 1,
+            "www.dextra.ch": 4,
+            "+41 44 296 60 60": 4,
+            "41442966060": 4,
+            "dextra rechtsshutz ag": 5
+        }
+    },
+    "cabinet_d_osteopathie_rotenbuhler_sarl": {
+        "description": "Cabinet d'ostéopathie ROTENBÜHLER Sàrl",
+        "category": "sante",
+        "keywords": {
+            "cabinet d'ostéopathie rotenbühler sàrl": 5,
+            "cabinetd'ostéopathierotenbühlersàrl": 4,
+            "cabinet d'osteopathie rotenbuhler sarl": 2,
+            "https://www.osteopathie-rothenbuhler.ch": 4,
+            "021 803 36 91": 5,
+            "079 644 20 52": 5,
+            "0218033691": 3,
+            "0796442052": 3,
+            "cabinet d'ostéopathie rotenbühler": 5,
+            "Rothenbühler": 5
+        }
+    },
+    "igm_services_sarl": {
+        "description": "IGM Services Sàrl",
+        "category": "batiment",
+        "keywords": {
+            "igm services sàrl": 5,
+            "igmservicessàrl": 4,
+            "igm": 1,
+            "services": 1,
+            "sàrl": 1,
+            "igm services sarl": 2,
+            "info@igmservices.ch": 4,
+            "@igmservices.ch": 2,
+            "https://www.igmservices.ch/": 4,
+            "021 624 23 32": 5,
+            "0216242332": 3,
+            "paysagiste": 1,
+            "jardinier": 1
+        }
+    },
+    "roland_savary_immobilier_sa": {
+        "description": "Roland Savary immobilier SA",
         "category": "service",
         "keywords": {
-            "dextra protection juridique": 5,
-            "dextraprotectionjuridique": 4,
-            "dextra": 1,
-            "protection": 1,
-            "juridique": 1,
-            "info@dextra.ch": 4,
-            "@dextra.ch": 2,
-            "https://dextra.ch": 4,
-            "+41 44 296 60 60": 5,
-            "41442966060": 3,
-            "dextra protection juridique sa": 1
+            "roland savary immobilier sa": 5,
+            "rolandsavaryimmobiliersa": 4,
+            "roland": 1,
+            "savary": 1,
+            "sa": 1,
+            "info@savaryimmoblier.ch": 4,
+            "@savaryimmoblier.ch": 2,
+            "https://savaryimmobilier.ch/": 4,
+            "021 907 40 00": 5,
+            "0219074000": 3,
+            "roland savary": 1
         }
     }
 }

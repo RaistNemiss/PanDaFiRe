@@ -2,18 +2,20 @@ import customtkinter
 from pathlib import Path
 
 from .processor import process_pdf
-from .entry_service import Statut, ProcessPdfResult, PanDaFiReError
+from .entry_service import Statut, ProcessPdfResult, PanDaFiReError, TypeDeConfig
 from .config_path import set_output_path
 from .logger import log_run
 
 
-class DialogActions(customtkinter.CTkToplevel):
-    """Boîte de dialogue pour les actions Enrich, Register, Set Output, etc."""
 
-    def __init__(self, titre):
+class DialogActions(customtkinter.CTkToplevel):
+    """Boîte de dialogue pour les actions Enrich, Register, etc."""
+
+    def __init__(self, titre, noms_champs: list[str] | None = None):
+
         super().__init__()
         self.title(f"PanDaFiRe - {titre}")
-        self.geometry("600x250")
+        self.geometry("600x500")
 
         # ⚠️ garde la fenêtre AU-DESSUS de la principale
         self.transient()
@@ -22,8 +24,18 @@ class DialogActions(customtkinter.CTkToplevel):
         label = customtkinter.CTkLabel(self, text=f"Configuration : {titre}")
         label.pack(padx=20, pady=(20, 10))
 
-        self.champ = customtkinter.CTkEntry(self, placeholder_text="entrez une info...")
-        self.champ.pack(padx=20, pady=10, fill="x")
+        self.champs = []  # liste pour stocker les champs de saisie
+        
+        # nom de champ par défaut si rien n'est entré
+        if noms_champs is None:
+            noms_champs = ["une information"]
+
+        for nom_champ in noms_champs:
+            champ = customtkinter.CTkEntry(
+                self, placeholder_text=f"Entrer {nom_champ}..."
+            )
+            champ.pack(padx=20, pady=10, fill="x")
+            self.champs.append(champ)
 
         btn_valider = customtkinter.CTkButton(
             self, text="Valider", command=self.valider
@@ -31,14 +43,17 @@ class DialogActions(customtkinter.CTkToplevel):
         btn_valider.pack(padx=20, pady=20)
 
     def valider(self):
-        valeur = self.champ.get()
-        print(f"Saisi : {valeur}")  # plus tard → appel de ton métier
+        valeurs = [champ.get() for champ in self.champs]
+        print(f"Saisi : {valeurs}")  # plus tard → appel de ton métier
         self.destroy()  # ferme la boîte
 
 
 # logique à migrer ailleurs :
 @log_run
-def traiter_chemin_pdf(pdf_path: Path, dry_run: bool, recursive: bool, output: bool) -> None:
+def traiter_chemin_pdf(
+    pdf_path: Path, dry_run: bool, recursive: bool, output: bool
+) -> None:
+    """Traite un fichier ou un dossier PDF en fonction des options fournies."""
     textbox.delete("1.0", "end")  # on vide la textbox avant chaque traitement
 
     if not pdf_path.exists():
@@ -50,7 +65,9 @@ def traiter_chemin_pdf(pdf_path: Path, dry_run: bool, recursive: bool, output: b
         _gui_traiter_dossier(pdf_path, dry_run, recursive, output)
 
 
-def _gui_traiter_dossier(dossier: Path, dry_run: bool, recursive: bool, output: bool) -> None:
+def _gui_traiter_dossier(
+    dossier: Path, dry_run: bool, recursive: bool, output: bool
+) -> None:
 
     pdf_files = (
         list(dossier.rglob("*.pdf")) if recursive else list(dossier.glob("*.pdf"))
@@ -63,8 +80,36 @@ def _gui_traiter_dossier(dossier: Path, dry_run: bool, recursive: bool, output: 
             log(f"❌ Erreur sur {pdf_file.name} : {e}")
 
 
-def ouvrir_dialog(nom_action):
-    DialogActions(nom_action)
+def _traiter_fichier(path: Path, dry_run: bool, debug: bool, output: bool) -> None:
+    resultat = process_pdf(path, dry_run, debug, output)
+    _gui_afficher_resultat(resultat)
+
+
+def ouvrir_dialog(nom_action, type_de_config: TypeDeConfig | None = None) -> None:
+    """Ouvre une boîte de dialogue pour l'action spécifiée."""
+    
+    enrich_champ = [
+    "le nom de l'émetteur (obligatoire)",
+    "l'email",
+    "le téléphone",
+    "le site web",
+    "le site web alternatif",
+    "des mots-clés supplémentaires (séparés par des virgules)",
+    ]
+    register_champ = [
+    "le prénom (obligatoire)",
+    "le nom (obligatoire)",
+    "l'email",
+    "le téléphone",
+    ]
+    
+
+    if type_de_config == "emetteurs":
+        DialogActions(nom_action, enrich_champ)
+    elif type_de_config == "destinataires":
+        DialogActions(nom_action, register_champ)
+    else:
+        DialogActions(nom_action)
 
 
 def selection_fichier() -> None:
@@ -91,11 +136,6 @@ def set_output() -> None:
     nouveau_path = Path(chemin)
     set_output_path(nouveau_path)  # 💾 ta fonction qui sauvegarde dans settings.json
     log(f"📁 Dossier de sortie défini : {nouveau_path.resolve()}")
-
-
-def _traiter_fichier(path: Path, dry_run: bool, debug: bool, output: bool) -> None:
-    resultat = process_pdf(path, dry_run, debug, output)
-    _gui_afficher_resultat(resultat)
 
 
 def _gui_afficher_resultat(resultat: ProcessPdfResult) -> None:
@@ -141,22 +181,31 @@ bouton_dossier = customtkinter.CTkButton(
 bouton_dossier.grid(row=1, column=0, padx=15, pady=5, sticky="ew")
 
 var_dryrun = customtkinter.BooleanVar(value=False)
-check_dryrun = customtkinter.CTkCheckBox(frame_gauche, text="Dry-run", onvalue=True, offvalue=False, variable=var_dryrun)
+check_dryrun = customtkinter.CTkCheckBox(
+    frame_gauche, text="Dry-run", onvalue=True, offvalue=False, variable=var_dryrun
+)
 check_dryrun.grid(row=2, column=0, padx=15, pady=5, sticky="w")
 
 var_recursive = customtkinter.BooleanVar(value=False)
-check_recursive = customtkinter.CTkCheckBox(frame_gauche, text="Recursive", onvalue=True, offvalue=False, variable=var_recursive)
+check_recursive = customtkinter.CTkCheckBox(
+    frame_gauche, text="Recursive", onvalue=True, offvalue=False, variable=var_recursive
+)
 check_recursive.grid(row=3, column=0, padx=15, pady=5, sticky="w")
 
 var_output = customtkinter.BooleanVar(value=False)
-check_output = customtkinter.CTkCheckBox(frame_gauche, text="output", onvalue=True, offvalue=False, variable=var_output)
+check_output = customtkinter.CTkCheckBox(
+    frame_gauche, text="output", onvalue=True, offvalue=False, variable=var_output
+)
 check_output.grid(row=4, column=0, padx=15, pady=5, sticky="w")
 
 bouton_process = customtkinter.CTkButton(
     frame_gauche,
     text="🚀 PROCESS",
     command=lambda: traiter_chemin_pdf(
-        Path(chemin_entry.get()), var_dryrun.get(), var_recursive.get(), var_output.get()
+        Path(chemin_entry.get()),
+        var_dryrun.get(),
+        var_recursive.get(),
+        var_output.get(),
     ),
 )
 bouton_process.grid(row=5, column=0, padx=15, pady=(15, 15), sticky="ew")
@@ -180,31 +229,19 @@ btn_enrich = customtkinter.CTkButton(
 btn_enrich.grid(row=0, column=0, padx=15, pady=(15, 5))
 
 btn_register = customtkinter.CTkButton(
-    frame_actions, text="Manual Enrich", command=lambda: ouvrir_dialog("Manual Enrich")
+    frame_actions, text="Register", command=lambda: ouvrir_dialog("Register", "destinataires")
 )
 btn_register.grid(row=1, column=0, padx=15, pady=5)
 
-btn_output = customtkinter.CTkButton(
-    frame_actions, text="Register", command=lambda: ouvrir_dialog("Register")
+btn_manual_enrich = customtkinter.CTkButton(
+    frame_actions, text="Manual Enrich", command=lambda: ouvrir_dialog("Manual Enrich", "emetteurs")
 )
-btn_output.grid(row=2, column=0, padx=15, pady=5)
+btn_manual_enrich.grid(row=2, column=0, padx=15, pady=5)
 
-btn_autre = customtkinter.CTkButton(
+btn_output = customtkinter.CTkButton(
     frame_actions, text="Set Output", command=set_output
 )
-btn_autre.grid(row=3, column=0, padx=15, pady=5)
+btn_output.grid(row=3, column=0, padx=15, pady=5)
 
 
 app.mainloop()
-
-
-# # 5. Bouton Process
-# def process():
-#     chemin = chemin_var.get()
-#     if not chemin:
-#         print("⚠️ Aucun chemin sélectionné")
-#         return
-#     traiter_chemin_pdf(Path(chemin), dry_run_var.get(), recursive_var.get())
-
-# bouton_process = customtkinter.CTkButton(app, text="Process 🚀", command=process)
-# bouton_process.grid(row=3, column=1, padx=20, pady=20)
