@@ -370,5 +370,34 @@
       "to whom it may concern": 4,
       "certifie que": 4
     }
+  },
+  "cv": {
+    "description": "Curriculum Vitae / Résumé de carrière (FR/EN/DE)",
+    "keywords": {
+      "curriculum vitae": 5,
+      "cv": 4,
+      "resume": 5,
+      "lebenslauf": 5,
+      "expérience professionnelle": 5,
+      "experience professionnelle": 5,
+      "parcours professionnel": 5,
+      "work experience": 5,
+      "berufserfahrung": 5,
+      "formation": 4,
+      "formations et diplômes": 5,
+      "education": 4,
+      "ausbildung": 5,
+      "compétences": 4,
+      "competences": 4,
+      "skills": 4,
+      "sprachkenntnisse": 5,
+      "langues": 3,
+      "langues maîtrisées": 4,
+      "centres d'intérêt": 4,
+      "hobbies": 3,
+      "permis de conduire": 3,
+      "références sur demande": 4,
+      "references available upon request": 5
+    }
   }
 }
