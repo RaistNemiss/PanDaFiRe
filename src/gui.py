@@ -25,24 +25,35 @@ class DialogActions(customtkinter.CTkToplevel):
         label.pack(padx=20, pady=(20, 10))
 
         self.champs = []  # liste pour stocker les champs de saisie
-        
+        self.champs_obligatoires = []  # 👈 StringVar à surveille
+
         # nom de champ par défaut si rien n'est entré
         if noms_champs is None:
             noms_champs = [("une information", False)]
 
         for nom_champ, obligatoire in noms_champs:
-            var = customtkinter.StringVar()
             suffixe = " (obligatoire)" if obligatoire else ""
             champ = customtkinter.CTkEntry(
-                self, textvariable=var, placeholder_text=f"Entrer {nom_champ}{suffixe}...",
+                self, placeholder_text=f"Entrer {nom_champ}{suffixe}...",
             )
             champ.pack(padx=20, pady=10, fill="x")
             self.champs.append(champ)
+        
+            if obligatoire:
+                self.champs_obligatoires.append(champ)
+                champ.bind("<KeyRelease>", self.maj_etat_bouton) # on surveille les frappes
 
-        btn_valider = customtkinter.CTkButton(
-            self, text="Valider", command=self.valider
+
+        # démarre le bouton en état grisé s'il y a des champs obligatoires
+        etat_bouton_initial = "disabled" if self.champs_obligatoires else "normal"
+        self.bouton_valider = customtkinter.CTkButton(
+            self, text="Valider", command=self.valider, state=etat_bouton_initial
         )
-        btn_valider.pack(padx=20, pady=20)
+        self.bouton_valider.pack(padx=20, pady=20)
+    
+    def maj_etat_bouton(self, *args):
+        champs_obligatoires_tous_remplis = all(champ.get().strip() for champ in self.champs_obligatoires)
+        self.bouton_valider.configure(state="normal" if champs_obligatoires_tous_remplis else "disabled")
 
     def valider(self):
         valeurs = [champ.get() for champ in self.champs]
@@ -91,7 +102,7 @@ def ouvrir_dialog(nom_action, type_de_config: TypeDeConfig | None = None) -> Non
     """Ouvre une boîte de dialogue pour l'action spécifiée."""
     
     enrich_champ = [
-    ("le nom de l'émetteur (obligatoire)", True),
+    ("le nom de l'émetteur ", True),
     ("l'email", False),
     ("le téléphone", False),
     ("le site web", False),
@@ -99,8 +110,8 @@ def ouvrir_dialog(nom_action, type_de_config: TypeDeConfig | None = None) -> Non
     ("des mots-clés supplémentaires (séparés par des virgules)", False),
     ]
     register_champ = [
-    ("le prénom (obligatoire)", True),
-    ("le nom (obligatoire)", True),
+    ("le prénom ", True),
+    ("le nom ", True),
     ("l'email", False),
     ("le téléphone", False),
     ]
