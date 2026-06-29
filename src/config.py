@@ -95,7 +95,7 @@ def charger_config_par_type(type_config: TypeDeConfig) -> dict:
 
 def prepare_nouvelle_entree(nouvelle_entree: JsonNewEntryDraft) -> JsonNewEntryDraft: 
     if not nouvelle_entree.description.strip():
-        raise ValidationError("Au moins un prénom ou un nom doit être fourni.")
+        raise ValidationError("Au moins un prénom et un nom doit être fourni.")
     if entree_json_existe(nouvelle_entree.description, charger_config_par_type(nouvelle_entree.config_type)):
         raise EntryExistsError(nouvelle_entree.description)
     return nouvelle_entree

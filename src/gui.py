@@ -1,20 +1,53 @@
 import customtkinter
+from tkinter import messagebox
 from pathlib import Path
 
 from .processor import process_pdf
-from .entry_service import Statut, ProcessPdfResult, PanDaFiReError, TypeDeConfig
-from .config_path import set_output_path
+from .entry_service import (
+    Statut,
+    ProcessPdfResult,
+    PanDaFiReError,
+    ValidationError,
+    EntryExistsError,
+    TypeDeConfig,
+    JsonNewEntryDraft,
+)
+from .config import prepare_nouvelle_entree
+from .config_path import set_output_path, CONFIG_PATH
 from .logger import log_run
-
+from .utils import ajouter_nouvelle_entree_json
 
 
 class DialogActions(customtkinter.CTkToplevel):
     """Boîte de dialogue pour les actions Enrich, Register, etc."""
 
-    def __init__(self, titre, noms_champs: list[tuple[str, bool]] | None = None):
+    CHAMPS_PAR_TYPE = {
+        "emetteurs": [
+            ("nom_emetteur", "le nom de l'émetteur", True),
+            ("email", "l'email", False),
+            ("telephone", "le téléphone", False),
+            ("site_web", "le site web", False),
+            ("site_web_alt", "le site web alternatif", False),
+            ("mots_cles", "des mots-clés supplémentaires", False),
+        ],
+        "destinataires": [
+            ("prenom", "le prénom", True),
+            ("nom", "le nom", True),
+            ("email", "l'email", False),
+            ("telephone", "le téléphone", False),
+        ],
+    }
+
+    PATH_PAR_TYPE = {
+        "emetteurs": Path(CONFIG_PATH / "emetteurs.json"),
+        "destinataires": Path(CONFIG_PATH / "destinataire.json"),
+    }
+
+    def __init__(self, titre: str, type_de_config: TypeDeConfig):
 
         super().__init__()
         self.title(f"PanDaFiRe - {titre}")
+        self.config_type: TypeDeConfig = type_de_config
         self.geometry("600x500")
 
         # ⚠️ garde la fenêtre AU-DESSUS de la principale
@@ -24,41 +57,104 @@ class DialogActions(customtkinter.CTkToplevel):
         label = customtkinter.CTkLabel(self, text=f"Configuration : {titre}")
         label.pack(padx=20, pady=(20, 10))
 
-        self.champs = []  # liste pour stocker les champs de saisie
-        self.champs_obligatoires = []  # 👈 StringVar à surveille
-
+        noms_champs = self.CHAMPS_PAR_TYPE.get(self.config_type, [])
         # nom de champ par défaut si rien n'est entré
         if noms_champs is None:
-            noms_champs = [("une information", False)]
+            noms_champs = [("information", "une information", False)]
 
-        for nom_champ, obligatoire in noms_champs:
+        self.champs = {}  # liste pour stocker les champs de saisie
+        self._champs_obligatoires = [
+            (cle, champ, obl) for cle, champ, obl in self.champs if obl
+        ]  # crée la liste des champs obligatoires
+
+        for cle, nom_champ, obligatoire in noms_champs:
             suffixe = " (obligatoire)" if obligatoire else ""
             champ = customtkinter.CTkEntry(
-                self, placeholder_text=f"Entrer {nom_champ}{suffixe}...",
+                self,
+                placeholder_text=f"Entrer {nom_champ}{suffixe}...",
             )
             champ.pack(padx=20, pady=10, fill="x")
-            self.champs.append(champ)
-        
-            if obligatoire:
-                self.champs_obligatoires.append(champ)
-                champ.bind("<KeyRelease>", self.maj_etat_bouton) # on surveille les frappes
+            self.champs[cle] = champ
 
+            if obligatoire:
+                champ.bind(
+                    "<KeyRelease>", self._maj_etat_bouton
+                )  # on surveille les frappes
 
         # démarre le bouton en état grisé s'il y a des champs obligatoires
-        etat_bouton_initial = "disabled" if self.champs_obligatoires else "normal"
+        etat_bouton_initial = "disabled" if self._champs_obligatoires else "normal"
         self.bouton_valider = customtkinter.CTkButton(
-            self, text="Valider", command=self.valider, state=etat_bouton_initial
+            self, text="Valider", command=self._valider, state=etat_bouton_initial
         )
         self.bouton_valider.pack(padx=20, pady=20)
-    
-    def maj_etat_bouton(self, *args):
-        champs_obligatoires_tous_remplis = all(champ.get().strip() for champ in self.champs_obligatoires)
-        self.bouton_valider.configure(state="normal" if champs_obligatoires_tous_remplis else "disabled")
 
-    def valider(self):
-        valeurs = [champ.get() for champ in self.champs]
-        print(f"Saisi : {valeurs}")  # plus tard → appel de ton métier
-        self.destroy()  # ferme la boîte
+    def _maj_etat_bouton(self, *args):
+        """vérife que tous les champs obligatoire soient remplis et change l'état du bouton valider en conséquence"""
+        champs_obligatoires_tous_remplis = all(
+            champ[cle].get().strip() for cle, champ, _ in self._champs_obligatoires
+        )
+        self.bouton_valider.configure(
+            state="normal" if champs_obligatoires_tous_remplis else "disabled"
+        )
+
+    def _afficher_recap_confirmer(self, brouillon: JsonNewEntryDraft):
+        """Construit un texte récapitulatif lisible pour la confirmation."""
+        lignes = [
+            f"Type : {brouillon.config_type}",
+            f"Nom  : {brouillon.description}",
+        ]
+        if brouillon.keywords:
+            lignes.append(f"Mots-clés : {brouillon.keywords}")
+        lignes.append("\nConfirmer l'ajout ?")
+        return "\n".join(lignes)
+
+    def _valider(self):
+        # 0. Récupérer les saisies (dict clé_métier → valeur)
+        donnees = {cle: champ.get().strip() for cle, champ in self.champs.items()}
+
+        # 👇 logique partagée (la fonction qu'on a extraite)
+        nom_complet = construire_nom_complet(self.config_type, donnees)
+
+        # 👇 json_path construit ICI, au bon moment 🎯
+        json_path = self.PATH_PAR_TYPE[self.config_type]
+
+        brouillon = JsonNewEntryDraft(
+            config_type=self.config_type, 
+            description=nom_complet, 
+            keywords={}, 
+            json_path=json_path,
+        )
+
+        # 1. Validation + vérification existence
+        try:
+            prepare_nouvelle_entree(brouillon)
+        except ValidationError as e:
+            messagebox.showerror("Erreur", str(e))
+            return  # 👈 on reste dans le dialog
+        except EntryExistsError as e:
+            if not messagebox.askyesno("Doublon", f"{e}\nVoulez-vous l'écraser ?"):
+                return
+            brouillon.overwrite = True
+
+        # 2. Saisie des mots-clés (à adapter en UI — voir note ci-dessous)
+        # _ui_saisir_mots_cles(brouillon, ...)   🤔
+
+        # 3. Récapitulatif + confirmation
+        recap = self._afficher_recap_confirmer(brouillon)
+        if not messagebox.askyesno("Confirmer", recap):
+            return
+
+        # 4. Ajout dans le JSON
+        log(f"{brouillon.config_type},json a été mis à jour avec la nouvelle entrée {brouillon.description}") #DEBUG
+        # try:
+        #     ajouter_nouvelle_entree_json(brouillon)
+        # except PanDaFiReError as e:
+        #     messagebox.showerror("Échec", f"Échec de l'ajout : {e}")
+        #     return
+        # else:
+        #     action = "mis à jour" if brouillon.overwrite else "ajouté"
+        #     messagebox.showinfo("Succès", f"✅ '{nom_complet}' {action} !")
+        #     self.destroy()  # 👈 ferme le dialog après succès 🎉
 
 
 # logique à migrer ailleurs :
@@ -97,32 +193,21 @@ def _traiter_fichier(path: Path, dry_run: bool, debug: bool, output: bool) -> No
     resultat = process_pdf(path, dry_run, debug, output)
     _gui_afficher_resultat(resultat)
 
+def _gui_construire_recap():
+    pass
 
-def ouvrir_dialog(nom_action, type_de_config: TypeDeConfig | None = None) -> None:
+
+def ouvrir_dialog(nom_action, type_de_config: TypeDeConfig) -> None:
     """Ouvre une boîte de dialogue pour l'action spécifiée."""
-    
-    enrich_champ = [
-    ("le nom de l'émetteur ", True),
-    ("l'email", False),
-    ("le téléphone", False),
-    ("le site web", False),
-    ("le site web alternatif", False),
-    ("des mots-clés supplémentaires (séparés par des virgules)", False),
-    ]
-    register_champ = [
-    ("le prénom ", True),
-    ("le nom ", True),
-    ("l'email", False),
-    ("le téléphone", False),
-    ]
-    
+    DialogActions(nom_action, type_de_config)
 
+# fonction partagée CLI + UI
+def construire_nom_complet(type_de_config : TypeDeConfig, donnees: dict) -> str:
+    if type_de_config == "destinataires":
+        return f"{donnees['prenom']} {donnees['nom']}".strip()
     if type_de_config == "emetteurs":
-        DialogActions(nom_action, enrich_champ)
-    elif type_de_config == "destinataires":
-        DialogActions(nom_action, register_champ)
-    else:
-        DialogActions(nom_action)
+        return donnees["nom_emetteur"]
+    raise ValidationError(f"Type non géré : {type_de_config}")
 
 
 def selection_fichier() -> None:
@@ -237,17 +322,21 @@ frame_actions = customtkinter.CTkFrame(app)
 frame_actions.grid(row=0, column=2, padx=20, pady=20, sticky="ns")
 
 btn_enrich = customtkinter.CTkButton(
-    frame_actions, text="Enrich", command=lambda: ouvrir_dialog("Enrich")
+    frame_actions, text="Enrich", command=lambda: ouvrir_dialog("Enrich","emetteurs")
 )
 btn_enrich.grid(row=0, column=0, padx=15, pady=(15, 5))
 
 btn_register = customtkinter.CTkButton(
-    frame_actions, text="Register", command=lambda: ouvrir_dialog("Register", "destinataires")
+    frame_actions,
+    text="Register",
+    command=lambda: ouvrir_dialog("Register", "destinataires"),
 )
 btn_register.grid(row=1, column=0, padx=15, pady=5)
 
 btn_manual_enrich = customtkinter.CTkButton(
-    frame_actions, text="Manual Enrich", command=lambda: ouvrir_dialog("Manual Enrich", "emetteurs")
+    frame_actions,
+    text="Manual Enrich",
+    command=lambda: ouvrir_dialog("Manual Enrich", "emetteurs"),
 )
 btn_manual_enrich.grid(row=2, column=0, padx=15, pady=5)
 
