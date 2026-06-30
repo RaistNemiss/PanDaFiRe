@@ -16,6 +16,7 @@ from .config import prepare_nouvelle_entree
 from .config_path import set_output_path, CONFIG_PATH
 from .logger import log_run
 from .utils import ajouter_nouvelle_entree_json
+from .enrich import generer_keywords_emetteur
 
 
 class DialogActions(customtkinter.CTkToplevel):
@@ -26,8 +27,8 @@ class DialogActions(customtkinter.CTkToplevel):
             ("nom_emetteur", "le nom de l'émetteur", True),
             ("email", "l'email", False),
             ("telephone", "le téléphone", False),
-            ("site_web", "le site web", False),
-            ("site_web_alt", "le site web alternatif", False),
+            ("site_web_a", "le site web", False),
+            ("site_web_b", "le site web alternatif", False),
             ("mots_cles", "des mots-clés supplémentaires", False),
         ],
         "destinataires": [
@@ -63,9 +64,7 @@ class DialogActions(customtkinter.CTkToplevel):
             noms_champs = [("information", "une information", False)]
 
         self.champs = {}  # liste pour stocker les champs de saisie
-        self._champs_obligatoires = [
-            (cle, champ, obl) for cle, champ, obl in self.champs if obl
-        ]  # crée la liste des champs obligatoires
+        self._cles_oblgatoires = [] # 👈 on remplit DANS la boucle
 
         for cle, nom_champ, obligatoire in noms_champs:
             suffixe = " (obligatoire)" if obligatoire else ""
@@ -77,12 +76,13 @@ class DialogActions(customtkinter.CTkToplevel):
             self.champs[cle] = champ
 
             if obligatoire:
+                self._cles_oblgatoires.append(cle)
                 champ.bind(
                     "<KeyRelease>", self._maj_etat_bouton
                 )  # on surveille les frappes
 
         # démarre le bouton en état grisé s'il y a des champs obligatoires
-        etat_bouton_initial = "disabled" if self._champs_obligatoires else "normal"
+        etat_bouton_initial = "disabled" if self._cles_oblgatoires else "normal"
         self.bouton_valider = customtkinter.CTkButton(
             self, text="Valider", command=self._valider, state=etat_bouton_initial
         )
@@ -91,7 +91,7 @@ class DialogActions(customtkinter.CTkToplevel):
     def _maj_etat_bouton(self, *args):
         """vérife que tous les champs obligatoire soient remplis et change l'état du bouton valider en conséquence"""
         champs_obligatoires_tous_remplis = all(
-            champ[cle].get().strip() for cle, champ, _ in self._champs_obligatoires
+            self.champs[cle].get().strip() for cle in self._cles_oblgatoires
         )
         self.bouton_valider.configure(
             state="normal" if champs_obligatoires_tous_remplis else "disabled"
@@ -137,7 +137,16 @@ class DialogActions(customtkinter.CTkToplevel):
             brouillon.overwrite = True
 
         # 2. Saisie des mots-clés (à adapter en UI — voir note ci-dessous)
-        # _ui_saisir_mots_cles(brouillon, ...)   🤔
+        if brouillon.config_type == "emetteurs":
+            brouillon.keywords, brouillon.keywords_ajustes = generer_keywords_emetteur(
+                nom= nom_complet,
+                email= donnees["email"],
+                telephone= donnees["telephone"],
+                site_web_a= donnees["site_web_a"],
+                site_web_b= donnees["site_web_b"],
+                mot_cle_supplementaire= donnees["mots_cles"],
+                )
+        
 
         # 3. Récapitulatif + confirmation
         recap = self._afficher_recap_confirmer(brouillon)
@@ -145,7 +154,7 @@ class DialogActions(customtkinter.CTkToplevel):
             return
 
         # 4. Ajout dans le JSON
-        log(f"{brouillon.config_type},json a été mis à jour avec la nouvelle entrée {brouillon.description}") #DEBUG
+        log(f"{brouillon.config_type}.json a été mis à jour avec la nouvelle entrée {brouillon.description}") #DEBUG
         # try:
         #     ajouter_nouvelle_entree_json(brouillon)
         # except PanDaFiReError as e:
