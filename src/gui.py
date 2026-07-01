@@ -12,7 +12,7 @@ from .entry_service import (
     TypeDeConfig,
     JsonNewEntryDraft,
 )
-from .config import prepare_nouvelle_entree
+from .config import prepare_nouvelle_entree, categories_disponibles
 from .config_path import set_output_path, CONFIG_PATH
 from .logger import log_run
 from .utils import ajouter_nouvelle_entree_json
@@ -60,11 +60,11 @@ class DialogActions(customtkinter.CTkToplevel):
 
         noms_champs = self.CHAMPS_PAR_TYPE.get(self.config_type, [])
         # nom de champ par défaut si rien n'est entré
-        if noms_champs is None:
+        if not noms_champs:
             noms_champs = [("information", "une information", False)]
 
         self.champs = {}  # liste pour stocker les champs de saisie
-        self._cles_oblgatoires = [] # 👈 on remplit DANS la boucle
+        self._cles_obligatoires = [] # 👈 on remplit DANS la boucle
 
         for cle, nom_champ, obligatoire in noms_champs:
             suffixe = " (obligatoire)" if obligatoire else ""
@@ -76,25 +76,66 @@ class DialogActions(customtkinter.CTkToplevel):
             self.champs[cle] = champ
 
             if obligatoire:
-                self._cles_oblgatoires.append(cle)
+                self._cles_obligatoires.append(cle)
                 champ.bind(
                     "<KeyRelease>", self._maj_etat_bouton
                 )  # on surveille les frappes
 
+        # menu déroulant des catégories (uniquement émetteurs)
+        if self.config_type == "emetteurs":
+            # Récupère les catégories existantes
+            self.categories = categories_disponibles(self.config_type)
+
+            #StringVar vide au départ -> aucune catégorie séléctionnée
+            self.categorie_var = customtkinter.StringVar(value="")
+
+            label_cat = customtkinter.CTkLabel(self, text="Catégorie (obligatoire) :")
+            label_cat.pack(padx=20, pady=(10, 0))
+
+            #construction du menu déroulant
+            menu_cat = customtkinter.CTkOptionMenu(
+                self,
+                values=self.categories,         # liste dynamique depuis le json
+                variable=self.categorie_var,    # liée au StringVar
+                command=self._maj_etat_bouton,  # revalide à chaque choix
+                )
+            
+            # placeholder hors de la liste considérée comme "non choisi"
+            menu_cat.set("- Choisir une catégorie -")
+            menu_cat.pack(padx=20, pady=20, fill="x")
+        else:
+            # pas de catégorie pour les autres types de config
+            self.categorie_var.set("")
+            self.categories = []
+            
         # démarre le bouton en état grisé s'il y a des champs obligatoires
-        etat_bouton_initial = "disabled" if self._cles_oblgatoires else "normal"
+        etat_bouton_initial = "disabled" if self._cles_obligatoires else "normal"
         self.bouton_valider = customtkinter.CTkButton(
-            self, text="Valider", command=self._valider, state=etat_bouton_initial
+            self, text="Valider",
+            command=self._valider,
+            state=etat_bouton_initial,
         )
         self.bouton_valider.pack(padx=20, pady=20)
 
     def _maj_etat_bouton(self, *args):
         """vérife que tous les champs obligatoire soient remplis et change l'état du bouton valider en conséquence"""
+
+        # 1. vérifie que les champs obligatoire soient remplis
         champs_obligatoires_tous_remplis = all(
-            self.champs[cle].get().strip() for cle in self._cles_oblgatoires
+            self.champs[cle].get().strip() for cle in self._cles_obligatoires
         )
+        
+        # 2. vérifie que la catégorie soit choisi UNIQUEMENT pour les émétteurs
+        if self.config_type == "emetteurs" :
+            # valide seulement si la valeur choisies est une vraie catégorie
+            # le placeholder n'est pas dans la liste -> False
+            categorie_remplie = self.categorie_var.get() in self.categories
+        else:
+            categorie_remplie = True # pas de contrainte pour les autres types
+            
+        # 3. Active ou grise le bouton selon le résultat global
         self.bouton_valider.configure(
-            state="normal" if champs_obligatoires_tous_remplis else "disabled"
+            state="normal" if (champs_obligatoires_tous_remplis and categorie_remplie) else "disabled"
         )
 
     def _afficher_recap_confirmer(self, brouillon: JsonNewEntryDraft):
@@ -103,6 +144,8 @@ class DialogActions(customtkinter.CTkToplevel):
             f"Type : {brouillon.config_type}",
             f"Nom  : {brouillon.description}",
         ]
+        if brouillon.category:
+            lignes.append(f"Catégorie  : {brouillon.category}")
         if brouillon.keywords:
             lignes.append(f"Mots-clés - score :")
             for k, v in brouillon.keywords.items():
@@ -113,6 +156,7 @@ class DialogActions(customtkinter.CTkToplevel):
     def _valider(self):
         # 0. Récupérer les saisies (dict clé_métier → valeur)
         donnees = {cle: champ.get().strip() for cle, champ in self.champs.items()}
+        categorie = self.categorie_var.get() if self.categorie_var else ""
 
         # 👇 logique partagée (la fonction qu'on a extraite)
         nom_complet = construire_nom_complet(self.config_type, donnees)
@@ -125,6 +169,7 @@ class DialogActions(customtkinter.CTkToplevel):
             description=nom_complet, 
             keywords={}, 
             json_path=json_path,
+            category=categorie
         )
 
         # 1. Validation + vérification existence

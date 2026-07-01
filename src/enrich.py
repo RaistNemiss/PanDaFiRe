@@ -7,7 +7,7 @@ from .utils import (
     enlever_accents,
     ajuster_score_keywords_ambigus,
 )
-from .config import charger_config_emetteurs, categorie_disponible
+from .config import charger_config_emetteurs, categories_disponibles
 
 
 def candidats_frequents(logs: list[dict]) -> list[tuple[str, int]]:
@@ -45,7 +45,7 @@ def candidats_emetteur_a_traiter(logs: list[dict]) -> tuple[list, list]:
     candidats = [c for c in candidats if c[0].lower() not in emetteurs_connus]
 
     # 4. charger les catégories disponible pour les emetteurs
-    categories = categorie_disponible("emetteurs")
+    categories = categories_disponibles("emetteurs")
 
     return candidats, categories
 

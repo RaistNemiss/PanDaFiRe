@@ -7,7 +7,7 @@ from typing import Callable, Optional
 from .destinataire import generer_keywords_destinataire
 from .utils import ajouter_nouvelle_entree_json, valider_choix_liste
 from .config import (
-    categorie_disponible,
+    categories_disponibles,
     prepare_nouvelle_entree,
 )
 from .logger import lire_extraction_log, log_run
@@ -283,7 +283,7 @@ def _cli_saisir_mots_cles(
             mot_cle_supplementaire,
         )
 
-        categories = categorie_disponible(type_de_config=type_de_config)
+        categories = categories_disponibles(type_de_config=type_de_config)
         choix_categorie = _choisir_dans_liste(
             items=categories,
             titre="Catégories disponibles :",
