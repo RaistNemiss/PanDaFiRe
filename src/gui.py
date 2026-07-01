@@ -105,7 +105,7 @@ class DialogActions(customtkinter.CTkToplevel):
             menu_cat.pack(padx=20, pady=20, fill="x")
         else:
             # pas de catégorie pour les autres types de config
-            self.categorie_var.set("")
+            self.categorie_var = None
             self.categories = []
             
         # démarre le bouton en état grisé s'il y a des champs obligatoires
@@ -126,7 +126,7 @@ class DialogActions(customtkinter.CTkToplevel):
         )
         
         # 2. vérifie que la catégorie soit choisi UNIQUEMENT pour les émétteurs
-        if self.config_type == "emetteurs" :
+        if self.config_type == "emetteurs"  and self.categorie_var is not None:
             # valide seulement si la valeur choisies est une vraie catégorie
             # le placeholder n'est pas dans la liste -> False
             categorie_remplie = self.categorie_var.get() in self.categories
