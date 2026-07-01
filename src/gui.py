@@ -17,7 +17,7 @@ from .config_path import set_output_path, CONFIG_PATH
 from .logger import log_run
 from .utils import ajouter_nouvelle_entree_json
 from .enrich import generer_keywords_emetteur
-
+from .destinataire import generer_keywords_destinataire
 
 class DialogActions(customtkinter.CTkToplevel):
     """Boîte de dialogue pour les actions Enrich, Register, etc."""
@@ -104,7 +104,9 @@ class DialogActions(customtkinter.CTkToplevel):
             f"Nom  : {brouillon.description}",
         ]
         if brouillon.keywords:
-            lignes.append(f"Mots-clés : {brouillon.keywords}")
+            lignes.append(f"Mots-clés - score :")
+            for k, v in brouillon.keywords.items():
+                lignes.append(f"  • {k} - {v}")
         lignes.append("\nConfirmer l'ajout ?")
         return "\n".join(lignes)
 
@@ -146,6 +148,15 @@ class DialogActions(customtkinter.CTkToplevel):
                 site_web_b= donnees["site_web_b"],
                 mot_cle_supplementaire= donnees["mots_cles"],
                 )
+        elif brouillon.config_type == "destinataires":
+            brouillon.keywords = generer_keywords_destinataire(
+                nom= donnees["nom"],
+                prenom= donnees["prenom"],
+                email= donnees["email"],
+                telephone= donnees["telephone"]
+            )
+        else:
+            brouillon.keywords = {nom_complet : 5}
         
 
         # 3. Récapitulatif + confirmation
@@ -163,7 +174,7 @@ class DialogActions(customtkinter.CTkToplevel):
         # else:
         #     action = "mis à jour" if brouillon.overwrite else "ajouté"
         #     messagebox.showinfo("Succès", f"✅ '{nom_complet}' {action} !")
-        #     self.destroy()  # 👈 ferme le dialog après succès 🎉
+        self.destroy()  # 👈 ferme le dialog après succès 🎉
 
 
 # logique à migrer ailleurs :
